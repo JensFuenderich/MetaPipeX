@@ -268,11 +268,11 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
              DV = {{ DV }},
              Group = {{ Group }})
   }
+
   # applying the function
   data_List <- lapply(1:length(data), renamer)
   # renaming the list according to original data list    ###### MIGHT BE IRRELEVANT
   names(data_List) <- names(data)
-
 
   ## a function to create a summary for a single replication, returns a df with one row
   single_replication_summary <- function(data){
@@ -593,13 +593,13 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
     export_fun <- function(x){
       replication_project_data <- List_of_Replication_Summaries_per_ReplicationProject[[x]]
       multi_lab_name <- unique(replication_project_data$MultiLab)
-      replication_project_name <- unique(replication_data$ReplicationProject)
-      write.csv(replication_data,
+      replication_project_name <- unique(replication_project_data$ReplicationProject)
+      write.csv(replication_project_data,
                 paste(output_folder, multi_lab_name, "_", replication_project_name, "_replication_summaries.csv", sep = ""),
                 row.names = FALSE)
     }
     # sorry for the loop, this way I didn't have to struggle with suppressing some output
-    for (i in 1:length(List_of_Replication_Summaries_per_Replication)) {
+    for (i in 1:length(List_of_Replication_Summaries_per_ReplicationProject)) {
       export_fun(i)
     }
     # export codebook

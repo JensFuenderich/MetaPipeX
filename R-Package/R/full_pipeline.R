@@ -204,7 +204,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                                          suppress_list_output = FALSE,
                                                          method = method)
   } else {
-    output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_replication_Summaries$merged_replication_summaries,
+    output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$merged_replication_summaries,
                                                          output_folder = paste(MetaPipeX_folder, "/Meta Analyses/", sep = ""),
                                                          suppress_list_output = FALSE,
                                                          method = method)

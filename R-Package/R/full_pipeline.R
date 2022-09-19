@@ -315,29 +315,29 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   description_vector <- sub(pattern = "__", replacement = "_", description_vector)
   description_vector <- sub(pattern = "_", replacement = " ", description_vector)
 
-  codebook_for_meta_pipe <- data.frame(Variable_Name = names(MetaPipeX_Data), Variable_Description = description_vector)
+  codebook_for_meta_pipe_x <- data.frame(Variable_Name = names(MetaPipeX_Data), Variable_Description = description_vector)
 
   ## Outputs
 
   # add to output list
-  output_list$Meta_Pipe <- list(MetaPipeX_Data, codebook_for_meta_pipe)
+  output_list$Meta_Pipe_X <- list(MetaPipeX_Data, codebook_for_meta_pipe_x)
   # rename nested list objects
-  names(output_list$Meta_Pipe) <- c("MetaPipeX_Data", "codebook_for_meta_pipe")
+  names(output_list$Meta_Pipe_X) <- c("MetaPipeX_Data", "codebook_for_meta_pipe_x")
   # rename output list objects
   names(output_list)[names(output_list) == "Individual_Participant_Data"] <- "1_Individual_Participant_Data"
   names(output_list)[names(output_list) == "Replication_Summaries"] <- "2_Replication_Summaries"
   names(output_list)[names(output_list) == "Merged_Replication_Summaries"] <- "3_Merged_Replication_Summaries"
   names(output_list)[names(output_list) == "Meta_Analyses"] <- "4_Meta_Analyses"
-  names(output_list)[names(output_list) == "Meta_Pipe"] <- "5_Meta_Pipe"
+  names(output_list)[names(output_list) == "Meta_Pipe_X"] <- "5_Meta_Pipe_X"
 
 
   # export data
   if (missing(output_path)) {} else {
     write.csv(MetaPipeX_Data,
-              paste(MetaPipeX_folder, "/Meta Pipe/MetaPipeX_Data.csv", sep = ""),
+              paste(MetaPipeX_folder, "/Meta Pipe X/MetaPipeX_Data.csv", sep = ""),
               row.names = FALSE)
-    write.csv(codebook_for_meta_pipe,
-              paste(MetaPipeX_folder, "/Meta Pipe/codebook_for_meta_pipe_data.csv", sep = ""),
+    write.csv(codebook_for_meta_pipe_x,
+              paste(MetaPipeX_folder, "/Meta Pipe X/codebook_for_meta_pipe_x_data.csv", sep = ""),
               row.names = FALSE)
   }
 

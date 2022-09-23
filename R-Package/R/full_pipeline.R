@@ -93,7 +93,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
 
   ## create output list
   output_list <- vector(mode = "list", length = 5)
-  names(output_list) <- c("Individual_Participant_Data", "Replication_Summaries", "Merged_Replication_Summaries", "Meta_Analyses", "Meta_Pipe" )
+  names(output_list) <- c("Individual_Participant_Data", "Replication_Summaries", "Merged_Replication_Summaries", "Meta_Analyses", "Meta_Pipe_X" )
 
   ## use standard column names in case is.null("column name") == TRUE
   if (is.null(MultiLab) == TRUE) {

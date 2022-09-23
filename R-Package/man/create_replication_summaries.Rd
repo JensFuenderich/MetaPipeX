@@ -22,7 +22,7 @@ create_replication_summaries(
 
 \item{ReplicationProject}{Character vector with the name of the columns in the list elements of "data" that contain the replication project name(s). If \emph{is.null(ReplicationProject) == TRUE}, "ReplicationProject" is chosen as the default. Each replication project comprises a single target-effect with direct replications across multiple labs/sources.}
 
-\item{Replication}{Character vector with the name of the columns in the list elements of "data" that contain the lab names. If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipe::meta_analyses() and MetaPipe::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Lab”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).}
+\item{Replication}{Character vector with the name of the columns in the list elements of "data" that contain the lab names. If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Lab”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).}
 
 \item{DV}{Character vector with the name of the columns in the list elements of "data" that contain the (aggregated) dependent variable. If \emph{is.null(DV) == TRUE}, "DV" is chosen as the default.}
 
@@ -45,7 +45,7 @@ https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Co
 \loadmathjax{}
 \(\let\underscore_\)
 
-Function to create a documentation of lab statistics. Components of the standardized mean difference and their standard errors are calculated and reported. This function is the first step of the MetaPipe pipeline. For more details on the pipeline, refer to the documentation of the MetaPipe-package.
+Function to create a documentation of lab statistics. Components of the standardized mean difference and their standard errors are calculated and reported. This function is the first step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
 ### Lab Statistics

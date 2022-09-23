@@ -30,8 +30,8 @@ https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Co
 \description{
 \loadmathjax{}
 \(\let\underscore_\)
-Function to merge the replication statistics returned by MetaPipe::create_lab_summaries() into a single data frame. This function is the second step of the MetaPipe pipeline. For more details on the pipeline, refer to the documentation of the MetaPipe-package.
+Function to merge the replication statistics returned by MetaPipeX::create_lab_summaries() into a single data frame. This function is the second step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
-No transformations are performed on the data in this step of the MetaPipe pipeline.
+No transformations are performed on the data in this step of the MetaPipeX pipeline.
 }

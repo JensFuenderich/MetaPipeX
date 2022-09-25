@@ -43,7 +43,7 @@
 #' The data frame contains information to identify each analysis (MultiLab, ReplicationProject) and statistical output from the seven meta-analyses per replication project. The statistical output for each meta-analysis includes:
 #' \itemize{
 #' \item{A model estimate for the y of interest (Est__).}
-#' \item{The number of replications included in the analysis (Empirical__K).}
+#' \item{The number of replications included in the analysis (Result__K).}
 #' \item{The estimated \mjeqn{\tau^2}{} (sigma2 from the rma.mv object) value (Tau2__).}
 #' \item{The estimated \mjeqn{\tau}{} (the square root of the sigma2 from the rma.mv object) value (Tau2__).}
 #' \item{The estimated \mjeqn{I^2}{} value. \mjeqn{I^2}{} is not part of the rma.mv output object and has to be calculated from \mjeqn{\tau}{}.
@@ -88,8 +88,8 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     # create a vector with the column names for the analysis
     col_names <- c(
       # N per Replication Project & K (Number of Replications):
-      "Empirical__K",
-      "Empirical__N",
+      "Result__K",
+      "Result__N",
       # Meta-analytic Estimates:
       "Est__C_M",
       "Est__T_M",
@@ -176,9 +176,9 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     ## insert information on sample sizes and number of replications
 
     # N
-    Replication.df["Empirical__N"] <- sum(subset_ReplicationProject$T_N + subset_ReplicationProject$C_N)
+    Replication.df["Result__N"] <- sum(subset_ReplicationProject$T_N + subset_ReplicationProject$C_N)
     # K
-    Replication.df["Empirical__K"] <- length(subset_ReplicationProject$Replication)
+    Replication.df["Result__K"] <- length(subset_ReplicationProject$Replication)
 
     ## Transformations for rma.mv output, which does not include I2 and H2
     # transformations according to https://cran.r-project.org/web/packages/metafor/metafor.pdf
@@ -474,7 +474,7 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     gsub(abbr_library$Abbreviation[17], abbr_library$`Full Name`[17], .) %>%
     gsub(abbr_library$Abbreviation[18], abbr_library$`Full Name`[18], .)
 
-  description_vector <- sub(pattern = "__Empirical__", replacement = "_", description_vector)
+  description_vector <- sub(pattern = "__Result__", replacement = "_", description_vector)
   description_vector <- sub(pattern = "___", replacement = "_", description_vector)
   description_vector <- sub(pattern = "__", replacement = "_", description_vector)
   description_vector <- sub(pattern = "_", replacement = " ", description_vector)

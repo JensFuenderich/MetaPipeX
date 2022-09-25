@@ -230,12 +230,12 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   # reorder both data frames (so they match) and combine them to create the MetaPipeX App data format
   MetaPipeX_Data <- cbind(merged_replication_summaries, expanded_MA)
 
-  # add "Replication__Empirical__" to all lab related columns and "MA__" to all meta-analysis columns
+  # add "Replication__Result__" to all lab related columns and "MA__" to all meta-analysis columns
   # Replication
   # columns from "T_N" to "SE_SMD"
   first_replication_col <- base::which(names(MetaPipeX_Data) == "T_N")
   last_replication_col <- base::which(names(MetaPipeX_Data) == "SE_SMD")
-  names(MetaPipeX_Data)[first_replication_col:last_replication_col] <- paste("Replication__Empirical__", names(MetaPipeX_Data[,first_replication_col:last_replication_col]), sep = "")
+  names(MetaPipeX_Data)[first_replication_col:last_replication_col] <- paste("Replication__Result__", names(MetaPipeX_Data[,first_replication_col:last_replication_col]), sep = "")
 
   # MA
   first_replication_MA <- last_replication_col + 1
@@ -310,7 +310,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
     gsub(abbr_library$Abbreviation[19], abbr_library$`Full Name`[19], .) %>%
     gsub(abbr_library$Abbreviation[20], abbr_library$`Full Name`[20], .)
 
-  description_vector <- sub(pattern = "__Empirical__", replacement = "_", description_vector)
+  description_vector <- sub(pattern = "__Result__", replacement = "_", description_vector)
   description_vector <- sub(pattern = "___", replacement = "_", description_vector)
   description_vector <- sub(pattern = "__", replacement = "_", description_vector)
   description_vector <- sub(pattern = "_", replacement = " ", description_vector)

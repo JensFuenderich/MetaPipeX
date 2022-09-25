@@ -26,7 +26,7 @@ The output is a list with two objects: A data frame with the meta-analytical res
 The data frame contains information to identify each analysis (MultiLab, ReplicationProject) and statistical output from the seven meta-analyses per replication project. The statistical output for each meta-analysis includes:
 \itemize{
 \item{A model estimate for the y of interest (Est__).}
-\item{The number of replications included in the analysis (Empirical__K).}
+\item{The number of replications included in the analysis (Result__K).}
 \item{The estimated \mjeqn{\tau^2}{} (sigma2 from the rma.mv object) value (Tau2__).}
 \item{The estimated \mjeqn{\tau}{} (the square root of the sigma2 from the rma.mv object) value (Tau2__).}
 \item{The estimated \mjeqn{I^2}{} value. \mjeqn{I^2}{} is not part of the rma.mv output object and has to be calculated from \mjeqn{\tau}{}.

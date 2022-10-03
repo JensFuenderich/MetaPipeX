@@ -80,15 +80,15 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
     # create directory
     dir.create(MetaPipeX_folder)
     # create folder for individual participant data
-    dir.create(paste(MetaPipeX_folder, "/Individual Participant Data", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/1 Individual Participant Data", sep = ""))
     # create folder for replication summaries
-    dir.create(paste(MetaPipeX_folder, "/Replication Summaries", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/2 Replication Summaries", sep = ""))
     # create folder for merged replication summaries
-    dir.create(paste(MetaPipeX_folder, "/Merged Replication Summaries", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/3 Merged Replication Summaries", sep = ""))
     # create folder for meta analyses
-    dir.create(paste(MetaPipeX_folder, "/Meta Analyses", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/4 Meta Analyses", sep = ""))
     # create folder for meta analyses
-    dir.create(paste(MetaPipeX_folder, "/Meta Pipe X", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/5 Meta Pipe X", sep = ""))
   }
 
   ## create output list
@@ -140,7 +140,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
     multi_lab_name <- unique(x$MultiLab)
     replication_project_name <- unique(x$ReplicationProject)
     write.csv(x,
-              file = paste(MetaPipeX_folder, "/Individual Participant Data/", multi_lab_name, "_", replication_project_name, "_individual_participant_data.csv",  sep = ""),
+              file = paste(MetaPipeX_folder, "/1 Individual Participant Data/", multi_lab_name, "_", replication_project_name, "_individual_participant_data.csv",  sep = ""),
               row.names = FALSE)
   }
   # apply function
@@ -160,7 +160,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
 
   # export codebook for individual participant data
   if (missing(output_path)) {} else { write.csv(codebook_ipd,
-                                                paste(MetaPipeX_folder, "/Individual Participant Data/codebook_for_individual_participant_data.csv", sep = ""))}
+                                                paste(MetaPipeX_folder, "/1 Individual Participant Data/codebook_for_individual_participant_data.csv", sep = ""))}
 
 
   # add to the output list for step 1 of the pipeline
@@ -184,7 +184,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                                                                 Replication = {{Replication}},
                                                                                 DV = {{DV}},
                                                                                 Group = {{Group}},
-                                                                                output_folder = paste(MetaPipeX_folder, "/Replication Summaries/", sep = ""),
+                                                                                output_folder = paste(MetaPipeX_folder, "/2 Replication Summaries/", sep = ""),
                                                                                 suppress_list_output = FALSE)
   }
 
@@ -194,7 +194,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                                                                       suppress_list_output = FALSE)
   } else {
     output_list$Merged_Replication_Summaries <- MetaPipeX::merge_replication_summaries(data = output_list$Replication_Summaries$replication_summaries,
-                                                                                      output_folder = paste(MetaPipeX_folder, "/Merged Replication Summaries/", sep = ""),
+                                                                                      output_folder = paste(MetaPipeX_folder, "/3 Merged Replication Summaries/", sep = ""),
                                                                                       suppress_list_output = FALSE)
   }
 
@@ -205,7 +205,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                                          method = method)
   } else {
     output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$merged_replication_summaries,
-                                                         output_folder = paste(MetaPipeX_folder, "/Meta Analyses/", sep = ""),
+                                                         output_folder = paste(MetaPipeX_folder, "/4 Meta Analyses/", sep = ""),
                                                          suppress_list_output = FALSE,
                                                          method = method)
   }
@@ -334,10 +334,10 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   # export data
   if (missing(output_path)) {} else {
     write.csv(MetaPipeX_Data,
-              paste(MetaPipeX_folder, "/Meta Pipe X/MetaPipeX_Data.csv", sep = ""),
+              paste(MetaPipeX_folder, "/5 Meta Pipe X/MetaPipeX_Data.csv", sep = ""),
               row.names = FALSE)
     write.csv(codebook_for_meta_pipe_x,
-              paste(MetaPipeX_folder, "/Meta Pipe X/codebook_for_meta_pipe_x_data.csv", sep = ""),
+              paste(MetaPipeX_folder, "/5 Meta Pipe X/codebook_for_meta_pipe_x_data.csv", sep = ""),
               row.names = FALSE)
   }
 

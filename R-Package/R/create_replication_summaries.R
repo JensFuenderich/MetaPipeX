@@ -604,7 +604,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
     }
     # export codebook
     write.csv(codebook,
-              paste(output_folder, "codebook_for_merged_replication_summaries.csv", sep = ""),
+              paste(output_folder, "codebook_for_replication_summaries.csv", sep = ""),
               row.names = FALSE)
 
   }

@@ -30,7 +30,7 @@ full_pipeline(
 
 \item{Group}{Character vector with the name of the columns in the list elements of "data" that contain the (treatment/control) group identification. If \emph{is.null(Group) == TRUE}, "Group" is chosen as the default. These should only contain values of 0 (control group), 1 (treatment group) and NA (unidentified).}
 
-\item{output_path}{Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to https://github.com/JensFuenderich/MetaPipe/tree/main/Supplementary%20Material/Table%20Templates. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).}
+\item{output_path}{Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to LINK EINFUEGEN. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).}
 
 \item{folder_name}{Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX Output”.}
 
@@ -39,24 +39,26 @@ full_pipeline(
 \item{method}{Optional argument to specify the estimation method of the meta-analyses (the default is “REML”). For more information, please refer to the documentation of the metafor package.}
 }
 \value{
-The output is a nested list object that represents the folder structure that is available under https://github.com/JensFuenderich/MetaPipe/tree/main/Supplementary%20Material/Table%20Templates
+The output is a nested list object that represents the folder structure that is available under LINK EINFUEGEN
 
 
 #### Example
 
 For an example, please refer to the github repository:
-https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/full_pipeline().R
+LINK EINFUEGEN
 }
 \description{
 \loadmathjax{}
-\(\let\underscore_\)
+\(
+\\let\\underscore_
+\)
 }
 \details{
 ## General notes on the pipeline
 
-The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available at https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/MetaPipe%20Flow%20Chart.pdf
+The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available at LINK EINFUEGEN
 The dark blue blocks are .csv files. The dark green blocks each refer to a step in the pipeline that is performed by a MetaPipeX function. MetaPipeX::full_pipeline() performs all of these steps and returns "MetaPipeX_Data.csv" which may be provided to the MetaPipeX App for handy data selection and basic plotting of the analysis results.
-For an example of the MetaPipeX Output structure, please refer to https://github.com/JensFuenderich/MetaPipe/tree/main/Supplementary%20Material/Table%20Templates
+For an example of the MetaPipeX Output structure, please refer to LINK EINFUEGEN
 
 ## full_pipeline
 

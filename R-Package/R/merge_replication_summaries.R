@@ -3,12 +3,13 @@
 #'
 #' @import readr
 #' @import dplyr
-#' @import utils
 #'
 #'
 #' @description
 #' \loadmathjax{}
-#' \(\let\underscore_\)
+#' \(
+#' \\let\\underscore_
+#' \)
 #' Function to merge the replication statistics returned by MetaPipeX::create_lab_summaries() into a single data frame. This function is the second step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 #'
 #' @param data
@@ -30,10 +31,11 @@
 #' A codebook that applies to the data frame (merged_replication_summaries). \cr
 #' In order to export the data structure as .csv files in a folder, output_folder has to be specified.
 #'
-#' #### Example
+#' @examples
+#' \dontrun{
+#' Examples/merge_replication_summaries().R
+#' }
 #'
-#' For an example, please refer to the github repository:
-#' https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/merge_lab_summaries().R
 #'
 #' @export
 merge_replication_summaries <- function(data, output_folder, suppress_list_output = FALSE){
@@ -93,7 +95,7 @@ merge_replication_summaries <- function(data, output_folder, suppress_list_outpu
     ))
 
     # rename columns of df
-    names(abbr_library) <- c("Abbreviation", "Full Name")
+    names(abbr_library) <- c("Abbreviation", "Full_Name")
 
     # extract names from merged df
     description_vector <- names(merged_replication_summaries)
@@ -103,18 +105,18 @@ merge_replication_summaries <- function(data, output_folder, suppress_list_outpu
     #nrow(abbr_library) (the result of this should be equivalent to the max indexing in the following chunk)
 
     description_vector %<>%
-      gsub(abbr_library$Abbreviation[1], abbr_library$`Full Name`[1], .) %>%
-      gsub(abbr_library$Abbreviation[2], abbr_library$`Full Name`[2], .) %>%
-      gsub(abbr_library$Abbreviation[3], abbr_library$`Full Name`[3], .) %>%
-      gsub(abbr_library$Abbreviation[4], abbr_library$`Full Name`[4], .) %>%
-      gsub(abbr_library$Abbreviation[5], abbr_library$`Full Name`[5], .) %>%
-      gsub(abbr_library$Abbreviation[6], abbr_library$`Full Name`[6], .) %>%
-      gsub(abbr_library$Abbreviation[7], abbr_library$`Full Name`[7], .) %>%
-      gsub(abbr_library$Abbreviation[8], abbr_library$`Full Name`[8], .) %>%
-      gsub(abbr_library$Abbreviation[9], abbr_library$`Full Name`[9], .) %>%
-      gsub(abbr_library$Abbreviation[10], abbr_library$`Full Name`[10], .) %>%
-      gsub(abbr_library$Abbreviation[11], abbr_library$`Full Name`[11], .) %>%
-      gsub(abbr_library$Abbreviation[12], abbr_library$`Full Name`[12], .)
+      gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
+      gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
+      gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
+      gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
+      gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
+      gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
+      gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
+      gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
+      gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
+      gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
+      gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
+      gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .)
 
     description_vector <- sub(pattern = "_", replacement = " ", description_vector)
 
@@ -134,12 +136,10 @@ merge_replication_summaries <- function(data, output_folder, suppress_list_outpu
   } else {
 
     # export .csv files
-    write.csv(merged_replication_summaries,
-              paste(output_folder, "merged_replication_summaries.csv", sep = ""),
-              row.names = FALSE)
-    write.csv(codebook_for_merged_lab_summeries,
-              paste(output_folder, "codebook_for_merged_lab_summeries.csv", sep = ""),
-              row.names = FALSE)
+    readr::write_csv(merged_replication_summaries,
+                     paste(output_folder, "merged_replication_summaries.csv", sep = ""))
+    readr::write_csv(codebook_for_merged_lab_summeries,
+                     paste(output_folder, "codebook_for_merged_lab_summeries.csv", sep = ""))
 
   }
 

@@ -35,15 +35,12 @@ create_replication_summaries(
 \value{
 The function create_lab_summaries returns a list consisting of two elements: A codebook and a list of data frames. Each data frame contains all lab summary statistics for the according Replication/Effect.
 The summary statistics returned (including their standard error) are the means and standard deviations for control and experimental groups, pooled standard deviations, raw mean differences and standardized mean differences (Hedge's g according to Borenstein).
-
-#### Example
-
-For an example, please refer to the github repository:
-https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/create_lab_summaries().R
 }
 \description{
 \loadmathjax{}
-\(\let\underscore_\)
+\(
+\\let\\underscore_
+\)
 
 Function to create a documentation of lab statistics. Components of the standardized mean difference and their standard errors are calculated and reported. This function is the first step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
@@ -62,9 +59,9 @@ All components of the standardized mean difference and their standard errors are
 \item{Model} \cr
 {
 treatment group mean:
-\mjdeqn{\bar{x}\underscore{T} = \frac{1}{n}\sum\underscore{i \in T} x}{}
+\mjdeqn{\bar{x}\_{T} = \frac{1}{n}\sum\_{i \in T} x}{}
 control group mean:
-\mjdeqn{\bar{x}\underscore{C} = \frac{1}{n}\sum\underscore{i \in C} x}{}
+\mjdeqn{\bar{x}\_{C} = \frac{1}{n}\sum\_{i \in C} x}{}
 }
 }
 ## standard error of the mean
@@ -82,7 +79,7 @@ control group mean:
  \code{SE_of_mean_fct(control_group$DV)} \cr
  \item{Model} \cr
  {
- \mjdeqn{ \hat{\sigma}\underscore{\bar{x}} = \frac{\hat{\sigma}\underscore{x}}{\sqrt{n}} = \sqrt{\frac{\frac{1}{n-1}\sum\underscore{i=1}^n(x - \bar{x})^2}{n}} }{}
+ \mjdeqn{ \hat{\sigma}\_{\bar{x}} = \frac{\hat{\sigma}\_{x}}{\sqrt{n}} = \sqrt{\frac{\frac{1}{n-1}\sum\_{i=1}^n(x - \bar{x})^2}{n}} }{}
  }
 }
 ## standard deviation
@@ -112,8 +109,8 @@ control group mean:
 \code{SE_SD_fct(control_group$DV)}
  \item{Model} \cr
 {
-\mjdeqn{ \hat{\sigma}\underscore{\hat{\sigma}} = \frac{\hat{\sigma}\underscore{x}}{\sqrt{2(n-1)}} = \sqrt{\frac{\frac{1}{n-1}\sum\underscore{i=1}^n(x - \bar{x})^2}{2(n-1)}} }{}
-\mjeqn{ \hat{\sigma}\underscore{\hat{\sigma}} }{} is a simplified version of \mjeqn{ \sigma\underscore{K\underscore{n}S} }{} in Ahn & Fessler (2003). The authors demonstrate that for n > 10 it is reasonable to use Kn = 1. As for the overwhelming majority of samples n > k may be assumed, we excluded the term \mjeqn{K\underscore{n}}{}. For more details, please refer to \cr
+\mjdeqn{ \hat{\sigma}\_{\hat{\sigma}} = \frac{\hat{\sigma}\_{x}}{\sqrt{2(n-1)}} = \sqrt{\frac{\frac{1}{n-1}\sum\_{i=1}^n(x - \bar{x})^2}{2(n-1)}} }{}
+\mjeqn{ \hat{\sigma}\_{\hat{\sigma}} }{} is a simplified version of \mjeqn{ \sigma\_{K\_{n}S} }{} in Ahn & Fessler (2003). The authors demonstrate that for n > 10 it is reasonable to use Kn = 1. As for the overwhelming majority of samples n > k may be assumed, we excluded the term \mjeqn{K\_{n}}{}. For more details, please refer to \cr
 \emph{ Ahn, S., & Fessler, J. A. (2003). Standard errors of mean, variance, and standard deviation estimators. EECS Department, The University of Michigan, 1-2.}
 }
 }
@@ -133,7 +130,7 @@ control group mean:
 \code{)$yi } \cr
  \item{Model} \cr
 {
-\mjdeqn{ D = \bar{x}\underscore{T} -  \bar{x}\underscore{C} }{}
+\mjdeqn{ D = \bar{x}\_{T} -  \bar{x}\_{C} }{}
 }
 }
 ## standard error of mean difference (SE_MD)
@@ -152,7 +149,7 @@ control group mean:
 \code{)$vi } \cr
  \item{Model} \cr
 {
-\mjdeqn{ \hat{\sigma}\underscore{\bar{x}\underscore{T} -  \bar{x}\underscore{C}} = \sqrt{ \frac{n\underscore{T}+ n\underscore{C}}{ n\underscore{T} n\underscore{C} } \sigma^2\underscore{TC} } = \sqrt{ \frac{n\underscore{T}+ n\underscore{C}}{ n\underscore{T} n\underscore{C} } \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 }   } }{}
+\mjdeqn{ \hat{\sigma}\_{\bar{x}\_{T} -  \bar{x}\_{C}} = \sqrt{ \frac{n\_{T}+ n\_{C}}{ n\_{T} n\_{C} } \sigma^2\_{TC} } = \sqrt{ \frac{n\_{T}+ n\_{C}}{ n\_{T} n\_{C} } \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 }   } }{}
 }
 }
 ## pooled standard deviation (pooled_SD)
@@ -170,7 +167,7 @@ control group mean:
 \code{pooled_SD_fct(treatment_group$DV, control_group$DV)}
 \item{Model} \cr
 {
-\mjdeqn{ \hat{\sigma}\underscore{TC} = \sqrt{ \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 } } }{}
+\mjdeqn{ \hat{\sigma}\_{TC} = \sqrt{ \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 } } }{}
 }
 }
 ## standard error of pooled standard deviation (SE_pooled_SD)
@@ -190,7 +187,7 @@ control group mean:
 
 \item{Model} \cr
 {
-\mjdeqn{ \hat{\sigma}\underscore{\hat{\sigma}\underscore{TC}} = \frac{ \hat{\sigma}\underscore{TC} }{ \sqrt{ 2(n\underscore{T}+n\underscore{C}-1) } } }{}
+\mjdeqn{ \hat{\sigma}\_{\hat{\sigma}\_{TC}} = \frac{ \hat{\sigma}\_{TC} }{ \sqrt{ 2(n\_{T}+n\_{C}-1) } } }{}
 The standard error is equivalent to that of the standard deviation. For further information, refer to the "standard error of the standard deviation" section.
 }
 }
@@ -211,9 +208,9 @@ The standard error is equivalent to that of the standard deviation. For further 
 \code{## apply the function} \cr
 \item{Model} \cr
 {
-\mjdeqn{ g = d \left( 1 - \frac{3}{4(n\underscore{T}+n\underscore{C}-2) -1} \right)  }{}
+\mjdeqn{ g = d \left( 1 - \frac{3}{4(n\_{T}+n\_{C}-2) -1} \right)  }{}
 with
-\mjdeqn{ d =  \frac{ \bar{x}\underscore{T} -  \bar{x}\underscore{C} }{ \sqrt{ \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 } }   }}{}
+\mjdeqn{ d =  \frac{ \bar{x}\_{T} -  \bar{x}\_{C} }{ \sqrt{ \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 } }   }}{}
 }
 }
 ## standard error of standardized mean difference (SE_SMD)
@@ -233,9 +230,15 @@ with
 \code{## apply the function} \cr
 \item{Model} \cr
 {
-\mjdeqn{ \hat{\sigma}\underscore{g} = \sqrt{ \hat{\sigma}\underscore{d}^2 \left( 1 - \frac{3}{4(n\underscore{T}+n\underscore{C}-2) -1} \right)^2 } }{}
+\mjdeqn{ \hat{\sigma}\_{g} = \sqrt{ \hat{\sigma}\_{d}^2 \left( 1 - \frac{3}{4(n\_{T}+n\_{C}-2) -1} \right)^2 } }{}
 with
-\mjdeqn{ \hat{\sigma}\underscore{d}^2 = \frac{n\underscore{T}+n\underscore{C}}{n\underscore{T}n\underscore{C}} + \frac{d^2}{2(n\underscore{T}+n\underscore{C})} }{}
+\mjdeqn{ \hat{\sigma}\_{d}^2 = \frac{n\_{T}+n\_{C}}{n\_{T}n\_{C}} + \frac{d^2}{2(n\_{T}+n\_{C})} }{}
 }
 }
+}
+\examples{
+\dontrun{
+Examples/create_replication_summaries().R
+}
+
 }

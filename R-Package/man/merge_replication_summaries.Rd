@@ -21,17 +21,21 @@ A data frame with all replications from the input.
 ## codebook
 A codebook that applies to the data frame (merged_replication_summaries). \cr
 In order to export the data structure as .csv files in a folder, output_folder has to be specified.
-
-#### Example
-
-For an example, please refer to the github repository:
-https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/merge_lab_summaries().R
 }
 \description{
 \loadmathjax{}
-\(\let\underscore_\)
+\(
+\\let\\underscore_
+\)
 Function to merge the replication statistics returned by MetaPipeX::create_lab_summaries() into a single data frame. This function is the second step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
 No transformations are performed on the data in this step of the MetaPipeX pipeline.
+}
+\examples{
+\dontrun{
+Examples/merge_replication_summaries().R
+}
+
+
 }

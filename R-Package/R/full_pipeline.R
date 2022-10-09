@@ -2,41 +2,32 @@
 #'
 #'
 #' @import dplyr
-#' @import utils
 #' @import mathjaxr
 #'
 #' @description
 #' \loadmathjax{}
-#' \(\let\underscore_\)
+#' \(
+#' \\let\\underscore_
+#' \)
 #'
-#' @param data
-#' A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the project (e.g., Many Labs 2), the replication (e.g., Ross1), the replication (the source a data point is assigned to, usually a lab name), the group (either the treatment or control condition) and the single data point of the dependent variable per person.
-#' @param MultiLab
-#' Character vector with the name of the columns in the list elements of "data" that contain the project name(s). If \emph{is.null(Project) == TRUE}, "Project" is chosen as the default.
-#' @param ReplicationProject
-#' Character vector with the name of the columns in the list elements of "data" that contain the replication projects name(s). If \emph{is.null(Replication) == TRUE}, "Replication_Project" is chosen as the default. Each replication project comprises a single target effect with direct replications across multiple labs.
-#' @param Replication
-#' Character vector with the name of the columns in the list elements of "data" that contain the replication names (usually the name of the lab). If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Replication”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).
-#' @param DV
-#' Character vector with the name of the columns in the list elements of "data" that contain the (aggregated) dependent variable. If \emph{is.null(DV) == TRUE}, "DV" is chosen as the default.
-#' @param Group
-#' Character vector with the name of the columns in the list elements of "data" that contain the (treatment/control) group identification. If \emph{is.null(Group) == TRUE}, "Group" is chosen as the default. These should only contain values of 0 (control group), 1 (treatment group) and NA (unidentified).
-#' @param output_path
-#' Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to https://github.com/JensFuenderich/MetaPipe/tree/main/Supplementary%20Material/Table%20Templates. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
-#' @param folder_name
-#' Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX Output”.
-#' @param suppress_list_output
-#' Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.
-#' @param method
-#' Optional argument to specify the estimation method of the meta-analyses (the default is “REML”). For more information, please refer to the documentation of the metafor package.
+#' @param data A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the project (e.g., Many Labs 2), the replication (e.g., Ross1), the replication (the source a data point is assigned to, usually a lab name), the group (either the treatment or control condition) and the single data point of the dependent variable per person.
+#' @param MultiLab Character vector with the name of the columns in the list elements of "data" that contain the project name(s). If \emph{is.null(Project) == TRUE}, "Project" is chosen as the default.
+#' @param ReplicationProject Character vector with the name of the columns in the list elements of "data" that contain the replication projects name(s). If \emph{is.null(Replication) == TRUE}, "Replication_Project" is chosen as the default. Each replication project comprises a single target effect with direct replications across multiple labs.
+#' @param Replication Character vector with the name of the columns in the list elements of "data" that contain the replication names (usually the name of the lab). If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Replication”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).
+#' @param DV Character vector with the name of the columns in the list elements of "data" that contain the (aggregated) dependent variable. If \emph{is.null(DV) == TRUE}, "DV" is chosen as the default.
+#' @param Group Character vector with the name of the columns in the list elements of "data" that contain the (treatment/control) group identification. If \emph{is.null(Group) == TRUE}, "Group" is chosen as the default. These should only contain values of 0 (control group), 1 (treatment group) and NA (unidentified).
+#' @param output_path Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to LINK EINFUEGEN. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
+#' @param folder_name Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX Output”.
+#' @param suppress_list_output Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.
+#' @param method Optional argument to specify the estimation method of the meta-analyses (the default is “REML”). For more information, please refer to the documentation of the metafor package.
 #'
 #' @details
 #'
 #' ## General notes on the pipeline
 #'
-#' The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available at https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/MetaPipe%20Flow%20Chart.pdf
+#' The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available at LINK EINFUEGEN
 #' The dark blue blocks are .csv files. The dark green blocks each refer to a step in the pipeline that is performed by a MetaPipeX function. MetaPipeX::full_pipeline() performs all of these steps and returns "MetaPipeX_Data.csv" which may be provided to the MetaPipeX App for handy data selection and basic plotting of the analysis results.
-#' For an example of the MetaPipeX Output structure, please refer to https://github.com/JensFuenderich/MetaPipe/tree/main/Supplementary%20Material/Table%20Templates
+#' For an example of the MetaPipeX Output structure, please refer to LINK EINFUEGEN
 #'
 #' ## full_pipeline
 #'
@@ -49,15 +40,13 @@
 #'  \item{merging replication- and meta-level data to achieve MetaPipeX data format} \cr
 #' }
 #'
-#' @return
-#'
-#' The output is a nested list object that represents the folder structure that is available under https://github.com/JensFuenderich/MetaPipe/tree/main/Supplementary%20Material/Table%20Templates
+#' @return The output is a nested list object that represents the folder structure that is available under LINK EINFUEGEN
 #'
 #'
 #' #### Example
 #'
 #' For an example, please refer to the github repository:
-#' https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/full_pipeline().R
+#' LINK EINFUEGEN
 #'
 #' @export
 full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_path, folder_name = NULL, suppress_list_output = FALSE, method = "REML"){
@@ -80,15 +69,15 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
     # create directory
     dir.create(MetaPipeX_folder)
     # create folder for individual participant data
-    dir.create(paste(MetaPipeX_folder, "/1 Individual Participant Data", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/1_Individual_Participant_Data", sep = ""))
     # create folder for replication summaries
-    dir.create(paste(MetaPipeX_folder, "/2 Replication Summaries", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/2_Replication_Summaries", sep = ""))
     # create folder for merged replication summaries
-    dir.create(paste(MetaPipeX_folder, "/3 Merged Replication Summaries", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/3_Merged_Replication_Summaries", sep = ""))
     # create folder for meta analyses
-    dir.create(paste(MetaPipeX_folder, "/4 Meta Analyses", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/4_Meta_Analyses", sep = ""))
     # create folder for meta analyses
-    dir.create(paste(MetaPipeX_folder, "/5 Meta Pipe X", sep = ""))
+    dir.create(paste(MetaPipeX_folder, "/5_Meta_Pipe_X", sep = ""))
   }
 
   ## create output list
@@ -139,9 +128,8 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   export_ipd_fun <- function(x){
     multi_lab_name <- unique(x$MultiLab)
     replication_project_name <- unique(x$ReplicationProject)
-    write.csv(x,
-              file = paste(MetaPipeX_folder, "/1 Individual Participant Data/", multi_lab_name, "_", replication_project_name, "_individual_participant_data.csv",  sep = ""),
-              row.names = FALSE)
+    readr::write_csv(x,
+              file = paste(MetaPipeX_folder, "/1_Individual_Participant_Data/", multi_lab_name, "_", replication_project_name, "_individual_participant_data.csv",  sep = ""))
   }
   # apply function
   if (missing(output_path)) {} else { lapply(data_list, export_ipd_fun) }
@@ -159,9 +147,8 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                              "Indicates the data point being part of either the treatment (1) or control group (0)"))
 
   # export codebook for individual participant data
-  if (missing(output_path)) {} else { write.csv(codebook_ipd,
-                                                paste(MetaPipeX_folder, "/1 Individual Participant Data/codebook_for_individual_participant_data.csv", sep = ""))}
-
+  if (missing(output_path)) {} else { readr::write_csv(codebook_ipd,
+                                                       paste(MetaPipeX_folder, "/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))}
 
   # add to the output list for step 1 of the pipeline
   output_list$Individual_Participant_Data <- list(data_list, codebook_ipd)
@@ -184,7 +171,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                                                                 Replication = {{Replication}},
                                                                                 DV = {{DV}},
                                                                                 Group = {{Group}},
-                                                                                output_folder = paste(MetaPipeX_folder, "/2 Replication Summaries/", sep = ""),
+                                                                                output_folder = paste(MetaPipeX_folder, "/2_Replication_Summaries/", sep = ""),
                                                                                 suppress_list_output = FALSE)
   }
 
@@ -194,7 +181,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                                                                       suppress_list_output = FALSE)
   } else {
     output_list$Merged_Replication_Summaries <- MetaPipeX::merge_replication_summaries(data = output_list$Replication_Summaries$replication_summaries,
-                                                                                      output_folder = paste(MetaPipeX_folder, "/3 Merged Replication Summaries/", sep = ""),
+                                                                                      output_folder = paste(MetaPipeX_folder, "/3_Merged_Replication_Summaries/", sep = ""),
                                                                                       suppress_list_output = FALSE)
   }
 
@@ -205,7 +192,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                                          method = method)
   } else {
     output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$merged_replication_summaries,
-                                                         output_folder = paste(MetaPipeX_folder, "/4 Meta Analyses/", sep = ""),
+                                                         output_folder = paste(MetaPipeX_folder, "/4_Meta_Analyses/", sep = ""),
                                                          suppress_list_output = FALSE,
                                                          method = method)
   }
@@ -278,7 +265,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   ))
 
   # rename columns of df
-  names(abbr_library) <- c("Abbreviation", "Full Name")
+  names(abbr_library) <- c("Abbreviation", "Full_Name")
 
   # extract names from merged df
   description_vector <- names(MetaPipeX_Data)
@@ -289,26 +276,26 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
 
 
   description_vector %<>% # pipe from magrittr
-    gsub(abbr_library$Abbreviation[1], abbr_library$`Full Name`[1], .) %>%
-    gsub(abbr_library$Abbreviation[2], abbr_library$`Full Name`[2], .) %>%
-    gsub(abbr_library$Abbreviation[3], abbr_library$`Full Name`[3], .) %>%
-    gsub(abbr_library$Abbreviation[4], abbr_library$`Full Name`[4], .) %>%
-    gsub(abbr_library$Abbreviation[5], abbr_library$`Full Name`[5], .) %>%
-    gsub(abbr_library$Abbreviation[6], abbr_library$`Full Name`[6], .) %>%
-    gsub(abbr_library$Abbreviation[7], abbr_library$`Full Name`[7], .) %>%
-    gsub(abbr_library$Abbreviation[8], abbr_library$`Full Name`[8], .) %>%
-    gsub(abbr_library$Abbreviation[9], abbr_library$`Full Name`[9], .) %>%
-    gsub(abbr_library$Abbreviation[10], abbr_library$`Full Name`[10], .) %>%
-    gsub(abbr_library$Abbreviation[11], abbr_library$`Full Name`[11], .) %>%
-    gsub(abbr_library$Abbreviation[12], abbr_library$`Full Name`[12], .) %>%
-    gsub(abbr_library$Abbreviation[13], abbr_library$`Full Name`[13], .) %>%
-    gsub(abbr_library$Abbreviation[14], abbr_library$`Full Name`[14], .) %>%
-    gsub(abbr_library$Abbreviation[15], abbr_library$`Full Name`[15], .) %>%
-    gsub(abbr_library$Abbreviation[16], abbr_library$`Full Name`[16], .) %>%
-    gsub(abbr_library$Abbreviation[17], abbr_library$`Full Name`[17], .) %>%
-    gsub(abbr_library$Abbreviation[18], abbr_library$`Full Name`[18], .) %>%
-    gsub(abbr_library$Abbreviation[19], abbr_library$`Full Name`[19], .) %>%
-    gsub(abbr_library$Abbreviation[20], abbr_library$`Full Name`[20], .)
+    gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
+    gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
+    gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
+    gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
+    gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
+    gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
+    gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
+    gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
+    gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
+    gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
+    gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
+    gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .) %>%
+    gsub(abbr_library$Abbreviation[13], abbr_library$Full_Name[13], .) %>%
+    gsub(abbr_library$Abbreviation[14], abbr_library$Full_Name[14], .) %>%
+    gsub(abbr_library$Abbreviation[15], abbr_library$Full_Name[15], .) %>%
+    gsub(abbr_library$Abbreviation[16], abbr_library$Full_Name[16], .) %>%
+    gsub(abbr_library$Abbreviation[17], abbr_library$Full_Name[17], .) %>%
+    gsub(abbr_library$Abbreviation[18], abbr_library$Full_Name[18], .) %>%
+    gsub(abbr_library$Abbreviation[19], abbr_library$Full_Name[19], .) %>%
+    gsub(abbr_library$Abbreviation[20], abbr_library$Full_Name[20], .)
 
   description_vector <- sub(pattern = "__Result__", replacement = "_", description_vector)
   description_vector <- sub(pattern = "___", replacement = "_", description_vector)
@@ -333,12 +320,10 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
 
   # export data
   if (missing(output_path)) {} else {
-    write.csv(MetaPipeX_Data,
-              paste(MetaPipeX_folder, "/5 Meta Pipe X/MetaPipeX_Data.csv", sep = ""),
-              row.names = FALSE)
-    write.csv(codebook_for_meta_pipe_x,
-              paste(MetaPipeX_folder, "/5 Meta Pipe X/codebook_for_meta_pipe_x_data.csv", sep = ""),
-              row.names = FALSE)
+    readr::write_csv(MetaPipeX_Data,
+                     paste(MetaPipeX_folder, "/5_Meta_Pipe_X/MetaPipeX_Data.csv", sep = ""))
+    readr::write_csv(codebook_for_meta_pipe_x,
+                     paste(MetaPipeX_folder, "/5_Meta_Pipe_X/codebook_for_meta_pipe_x_data.csv", sep = ""))
   }
 
   if (suppress_list_output == TRUE) {

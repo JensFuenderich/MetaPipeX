@@ -12,7 +12,7 @@ meta_analyses(
 )
 }
 \arguments{
-\item{data}{The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available at https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Table%20Templates/Merged%20Lab%20Summaries/merged_lab_summeries.csv, as is a codebook for unambiguous identification of the abbreviations: https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Table%20Templates/Merged%20Lab%20Summaries/codebook_for_merged_lab_summeries.csv}
+\item{data}{The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available at LINK EINFUEGEN, as is a codebook for unambiguous identification of the abbreviations: LINK EINFUEGEN}
 
 \item{output_folder}{Specify the output folder for the summaries and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).}
 
@@ -49,12 +49,13 @@ A codebook that applies to the data frame (meta_analyses).
 
 #### Example
 
-For an example, please refer to the github repository:
-https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/meta_analyses().R
+For an example, please refer to the github repository: LINK EINFUEGEN
 }
 \description{
 \loadmathjax{}
-\(\let\underscore_\)
+\(
+\\let\\underscore_
+\)
 Function to run meta-analyses one the standardized mean difference and its components. The meta-analyses are \cr
 [...] \cr
 This function is the first step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.

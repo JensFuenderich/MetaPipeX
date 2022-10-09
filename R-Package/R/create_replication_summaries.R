@@ -2,15 +2,16 @@
 #'
 #' @import dplyr
 #' @import metafor
-#' @import utils
-#' @import tibble
 #' @import mathjaxr
-#' @import stats
+#' @import readr
+#' @importFrom stats sd
 #'
 #'
 #' @description
 #' \loadmathjax{}
-#' \(\let\underscore_\)
+#' \(
+#' \\let\\underscore_
+#' \)
 #'
 #' Function to create a documentation of lab statistics. Components of the standardized mean difference and their standard errors are calculated and reported. This function is the first step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 #'
@@ -48,9 +49,9 @@
 #' \item{Model} \cr
 #' {
 #' treatment group mean:
-#' \mjdeqn{\bar{x}\underscore{T} = \frac{1}{n}\sum\underscore{i \in T} x}{}
+#' \mjdeqn{\bar{x}\_{T} = \frac{1}{n}\sum\_{i \in T} x}{}
 #' control group mean:
-#' \mjdeqn{\bar{x}\underscore{C} = \frac{1}{n}\sum\underscore{i \in C} x}{}
+#' \mjdeqn{\bar{x}\_{C} = \frac{1}{n}\sum\_{i \in C} x}{}
 #' }
 #' }
 #' ## standard error of the mean
@@ -68,7 +69,7 @@
 #'  \code{SE_of_mean_fct(control_group$DV)} \cr
 #'  \item{Model} \cr
 #'  {
-#'  \mjdeqn{ \hat{\sigma}\underscore{\bar{x}} = \frac{\hat{\sigma}\underscore{x}}{\sqrt{n}} = \sqrt{\frac{\frac{1}{n-1}\sum\underscore{i=1}^n(x - \bar{x})^2}{n}} }{}
+#'  \mjdeqn{ \hat{\sigma}\_{\bar{x}} = \frac{\hat{\sigma}\_{x}}{\sqrt{n}} = \sqrt{\frac{\frac{1}{n-1}\sum\_{i=1}^n(x - \bar{x})^2}{n}} }{}
 #'  }
 #' }
 #' ## standard deviation
@@ -98,8 +99,8 @@
 #' \code{SE_SD_fct(control_group$DV)}
 #'  \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\underscore{\hat{\sigma}} = \frac{\hat{\sigma}\underscore{x}}{\sqrt{2(n-1)}} = \sqrt{\frac{\frac{1}{n-1}\sum\underscore{i=1}^n(x - \bar{x})^2}{2(n-1)}} }{}
-#' \mjeqn{ \hat{\sigma}\underscore{\hat{\sigma}} }{} is a simplified version of \mjeqn{ \sigma\underscore{K\underscore{n}S} }{} in Ahn & Fessler (2003). The authors demonstrate that for n > 10 it is reasonable to use Kn = 1. As for the overwhelming majority of samples n > k may be assumed, we excluded the term \mjeqn{K\underscore{n}}{}. For more details, please refer to \cr
+#' \mjdeqn{ \hat{\sigma}\_{\hat{\sigma}} = \frac{\hat{\sigma}\_{x}}{\sqrt{2(n-1)}} = \sqrt{\frac{\frac{1}{n-1}\sum\_{i=1}^n(x - \bar{x})^2}{2(n-1)}} }{}
+#' \mjeqn{ \hat{\sigma}\_{\hat{\sigma}} }{} is a simplified version of \mjeqn{ \sigma\_{K\_{n}S} }{} in Ahn & Fessler (2003). The authors demonstrate that for n > 10 it is reasonable to use Kn = 1. As for the overwhelming majority of samples n > k may be assumed, we excluded the term \mjeqn{K\_{n}}{}. For more details, please refer to \cr
 #' \emph{ Ahn, S., & Fessler, J. A. (2003). Standard errors of mean, variance, and standard deviation estimators. EECS Department, The University of Michigan, 1-2.}
 #' }
 #' }
@@ -119,7 +120,7 @@
 #' \code{)$yi } \cr
 #'  \item{Model} \cr
 #' {
-#' \mjdeqn{ D = \bar{x}\underscore{T} -  \bar{x}\underscore{C} }{}
+#' \mjdeqn{ D = \bar{x}\_{T} -  \bar{x}\_{C} }{}
 #' }
 #' }
 #' ## standard error of mean difference (SE_MD)
@@ -138,7 +139,7 @@
 #' \code{)$vi } \cr
 #'  \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\underscore{\bar{x}\underscore{T} -  \bar{x}\underscore{C}} = \sqrt{ \frac{n\underscore{T}+ n\underscore{C}}{ n\underscore{T} n\underscore{C} } \sigma^2\underscore{TC} } = \sqrt{ \frac{n\underscore{T}+ n\underscore{C}}{ n\underscore{T} n\underscore{C} } \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 }   } }{}
+#' \mjdeqn{ \hat{\sigma}\_{\bar{x}\_{T} -  \bar{x}\_{C}} = \sqrt{ \frac{n\_{T}+ n\_{C}}{ n\_{T} n\_{C} } \sigma^2\_{TC} } = \sqrt{ \frac{n\_{T}+ n\_{C}}{ n\_{T} n\_{C} } \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 }   } }{}
 #' }
 #' }
 #' ## pooled standard deviation (pooled_SD)
@@ -156,7 +157,7 @@
 #' \code{pooled_SD_fct(treatment_group$DV, control_group$DV)}
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\underscore{TC} = \sqrt{ \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 } } }{}
+#' \mjdeqn{ \hat{\sigma}\_{TC} = \sqrt{ \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 } } }{}
 #' }
 #' }
 #' ## standard error of pooled standard deviation (SE_pooled_SD)
@@ -176,7 +177,7 @@
 #'
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\underscore{\hat{\sigma}\underscore{TC}} = \frac{ \hat{\sigma}\underscore{TC} }{ \sqrt{ 2(n\underscore{T}+n\underscore{C}-1) } } }{}
+#' \mjdeqn{ \hat{\sigma}\_{\hat{\sigma}\_{TC}} = \frac{ \hat{\sigma}\_{TC} }{ \sqrt{ 2(n\_{T}+n\_{C}-1) } } }{}
 #' The standard error is equivalent to that of the standard deviation. For further information, refer to the "standard error of the standard deviation" section.
 #' }
 #' }
@@ -197,9 +198,9 @@
 #' \code{## apply the function} \cr
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ g = d \left( 1 - \frac{3}{4(n\underscore{T}+n\underscore{C}-2) -1} \right)  }{}
+#' \mjdeqn{ g = d \left( 1 - \frac{3}{4(n\_{T}+n\_{C}-2) -1} \right)  }{}
 #' with
-#' \mjdeqn{ d =  \frac{ \bar{x}\underscore{T} -  \bar{x}\underscore{C} }{ \sqrt{ \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 } }   }}{}
+#' \mjdeqn{ d =  \frac{ \bar{x}\_{T} -  \bar{x}\_{C} }{ \sqrt{ \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 } }   }}{}
 #' }
 #' }
 #' ## standard error of standardized mean difference (SE_SMD)
@@ -219,9 +220,9 @@
 #' \code{## apply the function} \cr
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\underscore{g} = \sqrt{ \hat{\sigma}\underscore{d}^2 \left( 1 - \frac{3}{4(n\underscore{T}+n\underscore{C}-2) -1} \right)^2 } }{}
+#' \mjdeqn{ \hat{\sigma}\_{g} = \sqrt{ \hat{\sigma}\_{d}^2 \left( 1 - \frac{3}{4(n\_{T}+n\_{C}-2) -1} \right)^2 } }{}
 #' with
-#' \mjdeqn{ \hat{\sigma}\underscore{d}^2 = \frac{n\underscore{T}+n\underscore{C}}{n\underscore{T}n\underscore{C}} + \frac{d^2}{2(n\underscore{T}+n\underscore{C})} }{}
+#' \mjdeqn{ \hat{\sigma}\_{d}^2 = \frac{n\_{T}+n\_{C}}{n\_{T}n\_{C}} + \frac{d^2}{2(n\_{T}+n\_{C})} }{}
 #' }
 #' }
 #'
@@ -231,10 +232,10 @@
 #' The function create_lab_summaries returns a list consisting of two elements: A codebook and a list of data frames. Each data frame contains all lab summary statistics for the according Replication/Effect.
 #' The summary statistics returned (including their standard error) are the means and standard deviations for control and experimental groups, pooled standard deviations, raw mean differences and standardized mean differences (Hedge's g according to Borenstein).
 #'
-#' #### Example
-#'
-#' For an example, please refer to the github repository:
-#' https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/create_lab_summaries().R
+#' @examples
+#' \dontrun{
+#' Examples/create_replication_summaries().R
+#' }
 #'
 #' @export
 #'
@@ -326,7 +327,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
     # custom function for standard error of the mean
     SE_of_mean_fct <- function(x){
       estimated_sd <- sqrt(sum((x-mean(x))^2)/(length(x)-1))
-      SE_of_mean <-  sd(x) / sqrt(length(x))
+      SE_of_mean <-  stats::sd(x) / sqrt(length(x))
       return(SE_of_mean)
     }
 
@@ -350,21 +351,21 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
     replication.df["T_SD"] <- if (length(treatment_group$DV) < 2) {
       NA
     }else{
-      sd(treatment_group$DV)
+      stats::sd(treatment_group$DV)
     }
 
     # 4.1: getting to C_SD
     replication.df["C_SD"] <- if (length(control_group$DV) < 2) {
       NA
     }else{
-      sd(control_group$DV)
+      stats::sd(control_group$DV)
     }
 
     ## calculating standard errors of standard deviations
 
     # custom function for standard error of the standard deviation
     SE_SD_fct <- function(x){
-      SE_SD <- sd(x) / sqrt(2*(length(x)-1)) # for large n
+      SE_SD <- stats::sd(x) / sqrt(2*(length(x)-1)) # for large n
       return(SE_SD)
     }
 
@@ -391,8 +392,8 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       metafor::escalc(measure = "MD",
                       m1i = mean(treatment_group$DV),
                       m2i = mean(control_group$DV),
-                      sd1i = sd(treatment_group$DV),
-                      sd2i = sd(control_group$DV),
+                      sd1i = stats::sd(treatment_group$DV),
+                      sd2i = stats::sd(control_group$DV),
                       n1i = length(treatment_group$DV),
                       n2i = length(control_group$DV),
                       vtype = "HO" # assuming homoscedasticity
@@ -408,8 +409,8 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       sqrt(metafor::escalc(measure = "MD",
                            m1i = mean(treatment_group$DV),
                            m2i = mean(control_group$DV),
-                           sd1i = sd(treatment_group$DV),
-                           sd2i = sd(control_group$DV),
+                           sd1i = stats::sd(treatment_group$DV),
+                           sd2i = stats::sd(control_group$DV),
                            n1i = length(treatment_group$DV),
                            n2i = length(control_group$DV),
                            vtype = "HO" # assuming homoscedasticity
@@ -467,8 +468,8 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       metafor::escalc(measure = "SMD",
                       m1i = mean(treatment_group$DV),
                       m2i = mean(control_group$DV),
-                      sd1i = sd(treatment_group$DV),
-                      sd2i = sd(control_group$DV),
+                      sd1i = stats::sd(treatment_group$DV),
+                      sd2i = stats::sd(control_group$DV),
                       n1i = length(treatment_group$DV),
                       n2i = length(control_group$DV),
                       vtype = "LS2" # Borenstein variance
@@ -482,8 +483,8 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       sqrt(metafor::escalc(measure = "SMD",
                            m1i = mean(treatment_group$DV),
                            m2i = mean(control_group$DV),
-                           sd1i = sd(treatment_group$DV),
-                           sd2i = sd(control_group$DV),
+                           sd1i = stats::sd(treatment_group$DV),
+                           sd2i = stats::sd(control_group$DV),
                            n1i = length(treatment_group$DV),
                            n2i = length(control_group$DV),
                            vtype = "LS2" # Borenstein variance
@@ -549,7 +550,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
                                             c("Replication__", "replication level:__")
   ))
   # rename columns of the df
-  names(abbr_library) <- c("Abbreviation", "Full Name")
+  names(abbr_library) <- c("Abbreviation", "Full_Name")
 
   description_vector <- names(List_of_Replication_Summaries_per_ReplicationProject[[1]]) # arbitrary selection of replication, just a place to get the column names from
 
@@ -558,18 +559,18 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
   #nrow(abbr_library)
 
   description_vector %<>%
-    gsub(abbr_library$Abbreviation[1], abbr_library$`Full Name`[1], .) %>%
-    gsub(abbr_library$Abbreviation[2], abbr_library$`Full Name`[2], .) %>%
-    gsub(abbr_library$Abbreviation[3], abbr_library$`Full Name`[3], .) %>%
-    gsub(abbr_library$Abbreviation[4], abbr_library$`Full Name`[4], .) %>%
-    gsub(abbr_library$Abbreviation[5], abbr_library$`Full Name`[5], .) %>%
-    gsub(abbr_library$Abbreviation[6], abbr_library$`Full Name`[6], .) %>%
-    gsub(abbr_library$Abbreviation[7], abbr_library$`Full Name`[7], .) %>%
-    gsub(abbr_library$Abbreviation[8], abbr_library$`Full Name`[8], .) %>%
-    gsub(abbr_library$Abbreviation[9], abbr_library$`Full Name`[9], .) %>%
-    gsub(abbr_library$Abbreviation[10], abbr_library$`Full Name`[10], .) %>%
-    gsub(abbr_library$Abbreviation[11], abbr_library$`Full Name`[11], .) %>%
-    gsub(abbr_library$Abbreviation[12], abbr_library$`Full Name`[12], .)
+    gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
+    gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
+    gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
+    gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
+    gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
+    gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
+    gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
+    gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
+    gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
+    gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
+    gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
+    gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .)
 
   description_vector <- sub(pattern = "_", replacement = " ", description_vector)
 
@@ -594,18 +595,18 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       replication_project_data <- List_of_Replication_Summaries_per_ReplicationProject[[x]]
       multi_lab_name <- unique(replication_project_data$MultiLab)
       replication_project_name <- unique(replication_project_data$ReplicationProject)
-      write.csv(replication_project_data,
-                paste(output_folder, multi_lab_name, "_", replication_project_name, "_replication_summaries.csv", sep = ""),
-                row.names = FALSE)
+      readr::write_csv(replication_project_data,
+                       paste(output_folder, multi_lab_name, "_", replication_project_name, "_replication_summaries.csv", sep = "")
+      )
     }
     # sorry for the loop, this way I didn't have to struggle with suppressing some output
     for (i in 1:length(List_of_Replication_Summaries_per_ReplicationProject)) {
       export_fun(i)
     }
     # export codebook
-    write.csv(codebook,
-              paste(output_folder, "codebook_for_replication_summaries.csv", sep = ""),
-              row.names = FALSE)
+    readr::write_csv(codebook,
+                     paste(output_folder, "codebook_for_replication_summaries.csv", sep = "")
+    )
 
   }
 

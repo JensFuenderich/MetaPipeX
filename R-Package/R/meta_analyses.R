@@ -3,18 +3,22 @@
 #' @import metafor
 #' @import dplyr
 #' @import mathjaxr
-#' @import stats
+#' @import readr
+#' @importFrom stats na.omit
+#'
 #'
 #' @description
 #' \loadmathjax{}
-#' \(\let\underscore_\)
+#' \(
+#' \\let\\underscore_
+#' \)
 #' Function to run meta-analyses one the standardized mean difference and its components. The meta-analyses are \cr
 #' [...] \cr
 #' This function is the first step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 #'
 #'
 #' @param data
-#' The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available at https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Table%20Templates/Merged%20Lab%20Summaries/merged_lab_summeries.csv, as is a codebook for unambiguous identification of the abbreviations: https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Table%20Templates/Merged%20Lab%20Summaries/codebook_for_merged_lab_summeries.csv
+#' The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available at LINK EINFUEGEN, as is a codebook for unambiguous identification of the abbreviations: LINK EINFUEGEN
 #' @param output_folder
 #' Specify the output folder for the summaries and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
 #' @param suppress_list_output
@@ -66,8 +70,7 @@
 #'
 #' #### Example
 #'
-#' For an example, please refer to the github repository:
-#' https://github.com/JensFuenderich/MetaPipe/blob/main/Supplementary%20Material/Code%20Examples/meta_analyses().R
+#' For an example, please refer to the github repository: LINK EINFUEGEN
 #'
 #'
 #'
@@ -206,17 +209,17 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     ## run meta-analyses (currently on 8 statistics) and fill "Replication.df" with the output
 
     # 1 Heterogeneity of treatment group mean
-    if ( nrow(na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")])) <= 1 ) {} else {
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")])) <= 1 ) {} else {
       # run the meta-analysis
       Het_T_M <- metafor::rma.mv(yi = T_M,
                                  V = SE_T_M^2,
                                  random = ~ 1 | Replication,
                                  method = method,
                                  sparse = TRUE,
-                                 data = na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")]))
+                                 data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")]))
       # v estimate for calculating I2 and H2
       v_estimate <- v_est_fct(rma_mv_obj = Het_T_M,
-                              data = na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")]))
+                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__T_M"] <- as.vector(Het_T_M$b)
       Replication.df["Est__T_M_K"] <- Het_T_M$k
@@ -234,17 +237,17 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
 
 
     # 2 Heterogeneity of control group mean
-    if ( nrow(na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")])) <= 1 ) {} else {
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")])) <= 1 ) {} else {
       # run the meta-analysis
       Het_C_M <- metafor::rma.mv(yi = C_M,
                                  V = SE_C_M^2,
                                  random = ~ 1 | Replication,
                                  method = method,
                                  sparse = TRUE,
-                                 data = na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")]))
+                                 data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")]))
       # v estimate for calculating I2 and H2
       v_estimate <- v_est_fct(rma_mv_obj = Het_C_M,
-                              data = na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")]))
+                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__C_M"] <- as.vector(Het_C_M$b)
       Replication.df["Est__C_M_K"] <- Het_C_M$k
@@ -260,17 +263,17 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     }
 
     # 3 Heterogeneity of treatment group sd
-    if ( nrow(na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")])) <= 1) {} else {
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")])) <= 1) {} else {
       # run the meta-analysis
       Het_T_SD <- metafor::rma.mv(yi = T_SD,
                                   V = SE_T_SD^2,
                                   random = ~ 1 | Replication,
                                   method = method,
                                   sparse = TRUE,
-                                  data = na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")]))
+                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")]))
       # v estimate for calculating I2 and H2
       v_estimate <- v_est_fct(rma_mv_obj = Het_T_SD,
-                              data = na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")]))
+                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__T_SD"] <- as.vector(Het_T_SD$b)
       Replication.df["Est__T_SD_K"] <- Het_T_SD$k
@@ -286,17 +289,17 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     }
 
     # 4 Heterogeneity of control group sd
-    if (nrow(na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")])) <= 1) {} else {
+    if (nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")])) <= 1) {} else {
       # run the meta-analysis
       Het_C_SD <- metafor::rma.mv(yi = C_SD,
                                   V = SE_C_SD^2,
                                   random = ~ 1 | Replication,
                                   method = method,
                                   sparse = TRUE,
-                                  data = na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")]))
+                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")]))
       # v estimate for calculating I2 and H2
       v_estimate <- v_est_fct(rma_mv_obj = Het_C_SD,
-                              data = na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")]))
+                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__C_SD"] <- as.vector(Het_C_SD$b)
       Replication.df["Est__C_SD_K"] <- Het_C_SD$k
@@ -312,17 +315,17 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     }
 
     # 5 Heterogeneity of mean difference
-    if ( nrow(na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")])) <= 1 ) {} else {
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")])) <= 1 ) {} else {
       # run the meta-analysis
       Het_MD <- metafor::rma.mv(yi = MD,
                                 V = SE_MD^2,
                                 random = ~ 1 | Replication,
                                 method = method,
                                 sparse = TRUE,
-                                data = na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")]))
+                                data = stats::na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")]))
       # v estimate for calculating I2 and H2
       v_estimate <- v_est_fct(rma_mv_obj = Het_MD,
-                              data = na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")]))
+                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__MD"] <- as.vector(Het_MD$b)
       Replication.df["Est__MD_K"] <- Het_MD$k
@@ -338,17 +341,17 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
     }
 
     # 6 Heterogeneity of pooled SD
-    if ( nrow(na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")])) <= 1 ) {} else {
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")])) <= 1 ) {} else {
       # run the meta-analysis
       Het_pooled_SD <- metafor::rma.mv(yi = pooled_SD,
                                        V = SE_pooled_SD^2,
                                        random = ~ 1 | Replication,
                                        method = method,
                                        sparse = TRUE,
-                                       data = na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")]))
+                                       data = stats::na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")]))
       # v estimate for calculating I2 and H2
       v_estimate <- v_est_fct(rma_mv_obj = Het_pooled_SD,
-                              data = na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")]))
+                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__pooled_SD"] <- as.vector(Het_pooled_SD$b)
       Replication.df["Est__pooled_SD_K"] <- Het_pooled_SD$k
@@ -365,17 +368,17 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
 
 
     # 8 Heterogeneity of effect size g (Borenstein)
-    if ( nrow(na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")])) <= 1 ) {} else {
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")])) <= 1 ) {} else {
       # run the meta-analysis
       Het_SMD <- metafor::rma.mv(yi = SMD,
                                  V = SE_SMD^2,
                                  random = ~ 1 | Replication,
                                  method = method,
                                  sparse = TRUE,
-                                 data = na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")]))
+                                 data = stats::na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")]))
       # v estimate for calculating I2 and H2
       v_estimate <- v_est_fct(rma_mv_obj = Het_SMD,
-                              data = na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")]))
+                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__SMD"] <- as.vector(Het_SMD$b)
       Replication.df["Est__SMD_K"] <- Het_SMD$k
@@ -444,7 +447,7 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
   ))
 
   # rename columns of df
-  names(abbr_library) <- c("Abbreviation", "Full Name")
+  names(abbr_library) <- c("Abbreviation", "Full_Name")
 
   # extract names from merged df
   description_vector <- names(meta_analyses)
@@ -455,24 +458,24 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
 
 
   description_vector %<>% # pipe from magrittr
-    gsub(abbr_library$Abbreviation[1], abbr_library$`Full Name`[1], .) %>%
-    gsub(abbr_library$Abbreviation[2], abbr_library$`Full Name`[2], .) %>%
-    gsub(abbr_library$Abbreviation[3], abbr_library$`Full Name`[3], .) %>%
-    gsub(abbr_library$Abbreviation[4], abbr_library$`Full Name`[4], .) %>%
-    gsub(abbr_library$Abbreviation[5], abbr_library$`Full Name`[5], .) %>%
-    gsub(abbr_library$Abbreviation[6], abbr_library$`Full Name`[6], .) %>%
-    gsub(abbr_library$Abbreviation[7], abbr_library$`Full Name`[7], .) %>%
-    gsub(abbr_library$Abbreviation[8], abbr_library$`Full Name`[8], .) %>%
-    gsub(abbr_library$Abbreviation[9], abbr_library$`Full Name`[9], .) %>%
-    gsub(abbr_library$Abbreviation[10], abbr_library$`Full Name`[10], .) %>%
-    gsub(abbr_library$Abbreviation[11], abbr_library$`Full Name`[11], .) %>%
-    gsub(abbr_library$Abbreviation[12], abbr_library$`Full Name`[12], .) %>%
-    gsub(abbr_library$Abbreviation[13], abbr_library$`Full Name`[13], .) %>%
-    gsub(abbr_library$Abbreviation[14], abbr_library$`Full Name`[14], .) %>%
-    gsub(abbr_library$Abbreviation[15], abbr_library$`Full Name`[15], .) %>%
-    gsub(abbr_library$Abbreviation[16], abbr_library$`Full Name`[16], .) %>%
-    gsub(abbr_library$Abbreviation[17], abbr_library$`Full Name`[17], .) %>%
-    gsub(abbr_library$Abbreviation[18], abbr_library$`Full Name`[18], .)
+    gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
+    gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
+    gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
+    gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
+    gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
+    gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
+    gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
+    gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
+    gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
+    gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
+    gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
+    gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .) %>%
+    gsub(abbr_library$Abbreviation[13], abbr_library$Full_Name[13], .) %>%
+    gsub(abbr_library$Abbreviation[14], abbr_library$Full_Name[14], .) %>%
+    gsub(abbr_library$Abbreviation[15], abbr_library$Full_Name[15], .) %>%
+    gsub(abbr_library$Abbreviation[16], abbr_library$Full_Name[16], .) %>%
+    gsub(abbr_library$Abbreviation[17], abbr_library$Full_Name[17], .) %>%
+    gsub(abbr_library$Abbreviation[18], abbr_library$Full_Name[18], .)
 
   description_vector <- sub(pattern = "__Result__", replacement = "_", description_vector)
   description_vector <- sub(pattern = "___", replacement = "_", description_vector)
@@ -490,12 +493,10 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
   } else {
 
     # export .csv files
-    write.csv(meta_analyses,
-              paste(output_folder, "meta_analyses.csv", sep = ""),
-              row.names = FALSE)
-    write.csv(codebook_for_meta_analyses,
-              paste(output_folder, "codebook_for_meta_analyses.csv", sep = ""),
-              row.names = FALSE)
+    readr::write_csv(meta_analyses,
+                     paste(output_folder, "meta_analyses.csv", sep = ""))
+    readr::write_csv(codebook_for_meta_analyses,
+                     paste(output_folder, "codebook_for_meta_analyses.csv", sep = ""))
 
   }
 

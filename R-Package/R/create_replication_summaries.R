@@ -13,17 +13,17 @@
 #' \\let\\underscore_
 #' \)
 #'
-#' Function to create a documentation of lab statistics. Components of the standardized mean difference and their standard errors are calculated and reported. This function is the first step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
+#' Function to compute  replication aggregates from  person level data. Components of the standardized mean difference and their standard errors are calculated and reported. This function is the first step of the MetaPipeX pipeline. For more details on the replication statistics, refer to the Details section. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 #'
 #'
 #' @param data
-#' A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the multi-lab (e.g., Many Labs 2), the replication (e.g., Ross1), the lab (the source a data point is assigned to), the group (either the treatment or control condition) and the single data point of the dependent variable per person.
+#' A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the MultiLab (e.g., Many Labs 2), the ReplicationProject (e.g., Ross1), the Replication (the lab a data point is assigned to), the group (either the treatment or control condition) and the single data point of the dependent variable (DV) per person.
 #' @param MultiLab
 #' Character vector with the name of the columns in the list elements of "data" that contain the multi-lab name(s). If \emph{is.null(MultiLab) == TRUE}, "MultiLab" is chosen as the default.
 #' @param ReplicationProject
-#' Character vector with the name of the columns in the list elements of "data" that contain the replication project name(s). If \emph{is.null(ReplicationProject) == TRUE}, "ReplicationProject" is chosen as the default. Each replication project comprises a single target-effect with direct replications across multiple labs/sources.
+#' Character vector with the name of the columns in the list elements of "data" that contain the replication project name(s). If \emph{is.null(ReplicationProject) == TRUE}, "ReplicationProject" is chosen as the default. Each replication project comprises a single target-effect with direct replications across multiple replications (/labs).
 #' @param Replication
-#' Character vector with the name of the columns in the list elements of "data" that contain the lab names. If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Lab”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).
+#' Character vector with the name of the columns in the list elements of "data" that contain the lab names. If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Replication”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).
 #' @param DV
 #' Character vector with the name of the columns in the list elements of "data" that contain the (aggregated) dependent variable. If \emph{is.null(DV) == TRUE}, "DV" is chosen as the default.
 #' @param Group
@@ -31,7 +31,7 @@
 #' @param output_folder
 #' Specify the output folder for the summaries and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
 #' @param suppress_list_output
-#' Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the lab summaries and the codebook. If TRUE, these are not returned to the environment.
+#' Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.
 #'
 #' @details
 #'
@@ -229,12 +229,58 @@
 #'
 #'
 #' @return
-#' The function create_lab_summaries returns a list consisting of two elements: A codebook and a list of data frames. Each data frame contains all lab summary statistics for the according Replication/Effect.
+#' The function create_replication_summaries returns a list consisting of two elements: A codebook and a list of data frames. Each data frame contains all replication summary statistics for the according Replication/Effect.
 #' The summary statistics returned (including their standard error) are the means and standard deviations for control and experimental groups, pooled standard deviations, raw mean differences and standardized mean differences (Hedge's g according to Borenstein).
 #'
 #' @examples
 #' \dontrun{
-#' Examples/create_replication_summaries().R
+#' ##### Example: MetaPipeX::create_replication_summaries()
+#'
+#' ### This script is an example for the create_replication_summaries() function in the MetaPipeX package.
+#' ### The create_replication_summaries() function performs the first step of the MetaPipeX. Afterwards the merge_lab_summaries() function may be applied to the data output.
+#' ### It will create a list output and export a folder with the same structure as the list that is created in your current working directory.
+#' ### If you run the whole script, it first builds an input for the function and then applies that function.
+#'
+#' ## installing and loading MetaPipeX
+#' library(devtools)
+#' install_github("JensFuenderich/MetaPipeX/R-Package")
+#' library(MetaPipeX)
+#'
+#' ## Building an input for the function
+#'
+#' # create vectors with names
+#' MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2") # two projects
+#' ReplicationProject_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D") # two replications per project
+#' Replication_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
+#'                        "Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
+#'                        "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J",
+#'                        "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J") # k = 5 per replication
+#'
+#' # create df with all example data
+#' set.seed(1973)
+#' example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
+#'                               ReplicationProject = rep(ReplicationProject_names, each = 50),
+#'                               Replication = rep(Replication_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
+#'                               DV = round(rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
+#'                               Treatment = rep(c(1,0), times = 100))
+#'
+#' # split the data per replication project to prepare for use in MetaPipeX::full_pipeline()
+#' example_data_list <- split(example_data_df,
+#'                            example_data_df$ReplicationProject)
+#'
+#' ## applying the input to the MetaPipeX function
+#'
+# run create_replication_summaries
+#' example_MetaPipeX_output <- MetaPipeX::create_replication_summaries(data = example_data_list,
+#'                                                                     MultiLab = "MultiLab", # column name needs no change
+#'                                                                     ReplicationProject = "ReplicationProject",
+#'                                                                     Replication = "Replication",
+#'                                                                     DV = "DV",
+#'                                                                     Group = "Treatment", # column name needs changing
+#'                                                                     output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
+#' )
+#'
+#' ## The data output of the function may be used as input for the MetaPipeX::merge_replication_summaries() function.
 #' }
 #'
 #' @export

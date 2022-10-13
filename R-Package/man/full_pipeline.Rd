@@ -30,7 +30,7 @@ full_pipeline(
 
 \item{Group}{Character vector with the name of the columns in the list elements of "data" that contain the (treatment/control) group identification. If \emph{is.null(Group) == TRUE}, "Group" is chosen as the default. These should only contain values of 0 (control group), 1 (treatment group) and NA (unidentified).}
 
-\item{output_path}{Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to LINK EINFUEGEN. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).}
+\item{output_path}{Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to the \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates}{{github repository}}. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).}
 
 \item{folder_name}{Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX Output”.}
 
@@ -52,11 +52,13 @@ LINK EINFUEGEN
 \(
 \\let\\underscore_
 \)
+
+This function is built on three MetaPipeX functions (create_replication_summaries, merge_replication_summaries, meta_analyses), but also combines the meta-analytical data with the lab data in order to achieve the MetaPipeX data format. As input it expects the same specifications as the create_replication_summaries function. This function performs all standardized steps of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
 ## General notes on the pipeline
 
-The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available at LINK EINFUEGEN
+The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available on \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material}{{github}}
 The dark blue blocks are .csv files. The dark green blocks each refer to a step in the pipeline that is performed by a MetaPipeX function. MetaPipeX::full_pipeline() performs all of these steps and returns "MetaPipeX_Data.csv" which may be provided to the MetaPipeX App for handy data selection and basic plotting of the analysis results.
 For an example of the MetaPipeX Output structure, please refer to LINK EINFUEGEN
 

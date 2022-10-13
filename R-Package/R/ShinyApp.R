@@ -31,8 +31,8 @@ ShinyApp <- function(){
 
 
 
-  MA_data <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary%20Material/Table%20Templates/5%20MetaPipeX/MetaPipeX_template.csv"))
-  codebook <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary%20Material/Table%20Templates/5%20MetaPipeX/codebook_for_meta_pipe_x_data.csv"))
+  MA_data <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/5_MetaPipeX/MetaPipeX_template.csv"))
+  codebook <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/5_MetaPipeX/codebook_for_meta_pipe_x_data.csv"))
 
   codebook_text_vec <- "This tabular codebook serves to inform the abbreviations used in this shiny app.
 If you are trying to understand a column in the data frame, just consult the appropriate line in the codebook.
@@ -88,7 +88,7 @@ just type it in the Search field and all lines containing that word will be disp
 
         shiny::sidebarPanel(
           shiny::selectInput(inputId = "select_upload",
-                             label = "Which level of data do you want to upload?",
+                             label = "Choose the type of data you want to use in the app from the dropdown menu:",
                              choices = c("Individual Participant Data" = "IPD",
                                          "Replication Summaries" =  "ReplicationSum",
                                          "Merged Replication Summaries" = "MergedReplicationSum",
@@ -98,7 +98,8 @@ just type it in the Search field and all lines containing that word will be disp
           # shiny::actionButton("confirm_upload", "Provide MetaPipeX data format to the app."),
           shiny::fluidRow(
             column(6,align="left",uiOutput("confirm_upload2"))
-          )
+          ),
+          shiny::p("For more information on the MetaPipeX framework, please refer to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX", "github documentation."))
         ),
 
         mainPanel(
@@ -106,13 +107,15 @@ just type it in the Search field and all lines containing that word will be disp
           ## panel for upload of IPD
           shiny::conditionalPanel(condition = "input.select_upload == 'IPD'",
                                   h3("Individual Participant Data"),
-                                  h4("1. Select one ore multiple .csv files with the data you want to analyze."),
+                                  h5("Please provide at least one .csv file. The ",
+                                     tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", "codebook on github."),
+                                     "describes the 5 columns that are needed for the analysis. The names do not have to be the same as in this codebook, but they should be consistent across the .csv files. If only data from a single multi-lab or a single replication project (or targer-effect) is uploaded, a placeholder for the name needs to be provided. It is possible to create such a placeholer by clicking the corresponding checkbox."),
                                   fileInput("IPD", "choose .csv file with individual participant data",
                                             multiple = TRUE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
                                                        ".csv")),
-                                  h4("2. The MetaPipeX needs to know which columns of the data should be used. Select "),
+                                  h5("The MetaPipeX needs to know which columns of the data should be used. Select them accordingly:"),
                                   shiny::selectInput(inputId = "multilab_col",
                                                      label = "MultiLab:",
                                                      choices = ""),
@@ -133,48 +136,45 @@ just type it in the Search field and all lines containing that word will be disp
                                                      label = "Group:",
                                                      choices = ""),
                                   textInput("output_folder_set", "output_folder:"),
-                                  h4("3. Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
+                                  h5("Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
           ),
 
           ## panel for upload of Replication summaries
           shiny::conditionalPanel(condition = "input.select_upload == 'ReplicationSum'",
-                                  h3("Replication Level Data from multiple .csv"),
-                                  h4("1. Select one ore multiple .csv files with the data you want to analyze."),
-                                  fileInput("ReplicationSum", "choose multiple .csv files with replication level data",
+                                  h3("Replication Level Data"),
+                                  h5("Please provide at least one .csv that has been produced by MetaPipeX::create_replication_summaries() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/2_Replication_Summaries/Replication_Summaries_template.csv", "template on github.")),
+                                  fileInput("ReplicationSum", "choose file(s) from local drive",
                                             multiple = TRUE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
                                                        ".csv")),
-                                  h5("Upload data that either has been provided by the MetaPipeX::create_replication_summaries() function or takes the form of the following template:"),
-                                  h5("https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary%20Material/Table%20Templates/Replication%20Summaries/Project_Replication_replication_summaries.csv"),
-                                  h4("2. Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
+                                  h5("Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
           ),
 
 
           ## panel for upload of merged Replication summaries
 
           shiny::conditionalPanel(condition = "input.select_upload == 'MergedReplicationSum'",
-                                  h3("Replication Level Data merged in a single .csv"),
-                                  h4("1. Select a .csv file with the data you want to analyze."),
+                                  h3("Merged Replication Level Data"),
+                                  h5("Please provide a single .csv that has been produced by MetaPipeX::merge_replication_summaries() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/Merged_Replication_Summaries_template.csv", "template on github.")),
                                   fileInput("MergedReplicationSum", "choose a single .csv file with merged replication level data",
                                             multiple = FALSE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
                                                        ".csv")),
-                                  h5("Upload data that either has been provided by the MetaPipeX::merge_replication_summaries() function (after running MetaPipeX::create_replication_summaries()) or takes the form of the following template:"),
-                                  h5("https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary%20Material/Table%20Templates/Merged%20Replication%20Summaries/merged_replication_summeries.csv"),
-                                  h4("2. Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
+                                  h5("Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
           ),
 
-          ## panel for upload of data from meta-analysis
+          ## panel for upload of data from MetaPipeX
           shiny::conditionalPanel(condition = "input.select_upload == 'MetaPipeX'",
                                   h3("MetaPipeX Data"),
+                                  h5("Please provide a single .csv that has been produced by MetaPipeX::merge_replication_summaries() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/5_MetaPipeX/MetaPipeX_template.csv", "template on github.")),
                                   fileInput("MetaPipeX", "choose .csv file with MetaPipeX data",
                                             multiple = FALSE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
                                                        ".csv")),
-                                  h5("Make sure the data to be uploaded was analyzed with the MetaPipeX::full_pipeline() function.")
+                                  h5("Hit the button 'Provide MetaPipeX data format to the app.' and go to the Data Selection tab.")
           )
         )
       ),
@@ -514,7 +514,7 @@ just type it in the Search field and all lines containing that word will be disp
                       shiny::sidebarLayout(
                         shiny::sidebarPanel(
                           h3("How to use this codebook:"),
-                          p(codebook_text_vec)#,
+                          shiny::p(codebook_text_vec)#,
                           #verbatimTextOutput("codebook_text",  placeholder = FALSE)
                         ),
                         mainPanel(
@@ -536,7 +536,7 @@ just type it in the Search field and all lines containing that word will be disp
       # the dependency is created so that the app does not crash due to analyses being run without any input
       output$confirm_upload2 <- shiny::renderUI({
 
-        if(  is.null(input$IPD) == TRUE & is.null(input$IPD) == TRUE & is.null(input$IPD) == TRUE & is.null(input$IPD) == TRUE ){
+        if(  is.null(input$IPD) == TRUE & is.null(input$ReplicationSum) == TRUE & is.null(input$MergedReplicationSum) == TRUE & is.null(input$MetaPipeX) == TRUE ){
         } else {
           shiny::actionButton("confirm_upload","Provide MetaPipeX data format to the app.")
         }

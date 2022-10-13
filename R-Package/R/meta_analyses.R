@@ -12,19 +12,17 @@
 #' \(
 #' \\let\\underscore_
 #' \)
-#' Function to run meta-analyses one the standardized mean difference and its components. The meta-analyses are \cr
-#' [...] \cr
-#' This function is the first step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
+#' Function to run meta-analyses one the standardized mean difference and its components (group means & standatd deviations, pooled standard deviation and unstandardized mean difference).  All meta-analyses are run on the rma.mv function from the metafor package (Viechtbauer & Viechtbauer, 2015). For more details on the meta-analyses, refer to the Details and Return section. This function is the third step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 #'
 #'
 #' @param data
-#' The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available at LINK EINFUEGEN, as is a codebook for unambiguous identification of the abbreviations: LINK EINFUEGEN
+#' The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available on \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/Merged_Replication_Summaries_template.csv}{{github}}, as is a \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/codebook_for_merged_replication_summeries.csv}{{codebook}} for unambiguous identification of the abbreviations.
 #' @param output_folder
-#' Specify the output folder for the summaries and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
+#' Specify the output folder for the replication summaries and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
 #' @param suppress_list_output
 #' A logical indicating whether results should be returned in R. If TRUE, no output is returned in R.
 #' @param method
-#' A character string to specify the type of model to be fittet. Default ist “REML”. For more details, refer to the metafor documentation.
+#' A character string to specify the type of model to be fitted. Default is “REML”. For more details, refer to the \href{https://www.metafor-project.org/doku.php/help}{{metafor}}  documentation.
 #'
 #' @details
 #'

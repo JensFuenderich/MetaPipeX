@@ -11,7 +11,7 @@ full_pipeline(
   Replication = NULL,
   DV = NULL,
   Group = NULL,
-  output_path,
+  output_path = NULL,
   folder_name = NULL,
   suppress_list_output = FALSE,
   method = "REML"
@@ -32,7 +32,7 @@ full_pipeline(
 
 \item{output_path}{Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to the \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates}{{github repository}}. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).}
 
-\item{folder_name}{Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX Output”.}
+\item{folder_name}{Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX_Output”.}
 
 \item{suppress_list_output}{Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.}
 

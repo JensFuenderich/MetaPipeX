@@ -4,7 +4,11 @@
 \alias{merge_replication_summaries}
 \title{Merging Replication Summaries}
 \usage{
-merge_replication_summaries(data, output_folder, suppress_list_output = FALSE)
+merge_replication_summaries(
+  data,
+  output_folder = NULL,
+  suppress_list_output = FALSE
+)
 }
 \arguments{
 \item{data}{Either a list object or a path to a folder containing the replication summaries.}

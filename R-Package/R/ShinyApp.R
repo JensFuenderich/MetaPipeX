@@ -660,7 +660,7 @@ just type it in the Search field and all lines containing that word will be disp
                                                                       Replication = input$replication_col,
                                                                       DV = input$DV_col,
                                                                       Group = input$group_col,
-                                                                      output_path = input$output_folder_set,
+                                                                      output_path = if (length(input$output_folder_set) > 1) {"input$output_folder_set"}else{NULL},
                                                                       folder_name = if (length(input$output_folder_set) > 1) {"MetaPipeX_Output"}else{}
                               )
 
@@ -690,11 +690,11 @@ just type it in the Search field and all lines containing that word will be disp
                             {
                               # merge the Replication summaries
                               ReplicationSum_merged <- MetaPipeX::merge_replication_summaries(data = ReplicationSum_list,
-                                                                                              output_folder = input$output_folder_set)
+                                                                                              output_folder = if (length(input$output_folder_set) > 1) {"input$output_folder_set"}else{NULL})
 
                               # run meta analyses
                               ReplicationSum_analyzed <- MetaPipeX::meta_analyses(data = ReplicationSum_merged$merged_replication_summaries,
-                                                                                  output_folder = input$output_folder_set)
+                                                                                  output_folder = if (length(input$output_folder_set) > 1) {"input$output_folder_set"}else{NULL})
 
                               ## combine Replication and meta analysis data
 
@@ -830,7 +830,7 @@ just type it in the Search field and all lines containing that word will be disp
                             {
                               # run meta analyses
                               ReplicationSum_analyzed <- MetaPipeX::meta_analyses(data = MergedReplicationSum,
-                                                                                  output_folder = input$output_folder_set)
+                                                                                  output_folder = if (length(input$output_folder_set) > 1) {"input$output_folder_set"}else{NULL})
 
                               ## combine replication and meta analysis data
 

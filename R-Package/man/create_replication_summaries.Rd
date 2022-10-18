@@ -11,7 +11,7 @@ create_replication_summaries(
   Replication = NULL,
   DV = NULL,
   Group = NULL,
-  output_folder,
+  output_folder = NULL,
   suppress_list_output = FALSE
 )
 }

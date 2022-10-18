@@ -101,7 +101,7 @@
 #'
 #'
 #' @export
-merge_replication_summaries <- function(data, output_folder, suppress_list_output = FALSE){
+merge_replication_summaries <- function(data, output_folder = NULL, suppress_list_output = FALSE){
 
   ### Merge lab summaries
 
@@ -192,7 +192,7 @@ merge_replication_summaries <- function(data, output_folder, suppress_list_outpu
 
   ## Outputs
 
-  if (missing(output_folder)) {
+  if (is.null(output_folder) == TRUE) {
 
     base::print("You chose not to export the data as .csv files.")
 

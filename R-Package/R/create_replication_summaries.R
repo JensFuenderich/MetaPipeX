@@ -286,7 +286,7 @@
 #' @export
 #'
 #'
-create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_folder, suppress_list_output = FALSE){
+create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_folder = NULL, suppress_list_output = FALSE){
 
   ## use standard column names in case is.null("column name") == TRUE
   if (is.null(MultiLab) == TRUE) {
@@ -629,7 +629,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
 
   ## Outputs
 
-  if (missing(output_folder)) {
+  if (is.null(output_folder) == TRUE) {
 
     base::print("You chose not to export the data as .csv files.")
 

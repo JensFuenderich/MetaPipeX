@@ -19,7 +19,7 @@
 #' @param DV Character vector with the name of the columns in the list elements of "data" that contain the (aggregated) dependent variable. If \emph{is.null(DV) == TRUE}, "DV" is chosen as the default.
 #' @param Group Character vector with the name of the columns in the list elements of "data" that contain the (treatment/control) group identification. If \emph{is.null(Group) == TRUE}, "Group" is chosen as the default. These should only contain values of 0 (control group), 1 (treatment group) and NA (unidentified).
 #' @param output_path Specify the output path for the full documentation of the MetaPipeX pipeline. For an example of the exported structure please refer to the \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates}{{github repository}}. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
-#' @param folder_name Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX Output”.
+#' @param folder_name Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX_Output”.
 #' @param suppress_list_output Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.
 #' @param method Optional argument to specify the estimation method of the meta-analyses (the default is “REML”). For more information, please refer to the documentation of the metafor package.
 #'
@@ -51,19 +51,19 @@
 #' LINK EINFUEGEN
 #'
 #' @export
-full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_path, folder_name = NULL, suppress_list_output = FALSE, method = "REML"){
+full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_path = NULL, folder_name = NULL, suppress_list_output = FALSE, method = "REML"){
 
   ### Run full pipeline
 
   ## Folder Structure
-  if (missing(output_path)) {
+  if (is.null(output_path) == TRUE) {
     base::print("You chose not to export the output of the pipeline.")
   } else {
 
     ## create the output folder
-    if (is.null(folder_name)) { # create folder with the default name "MetaPipeX Output"
+    if (is.null(folder_name)) { # create folder with the default name "MetaPipeX_Output"
       # glue names
-      MetaPipeX_folder <- paste(output_path, "MetaPipeX Output", sep = "")
+      MetaPipeX_folder <- paste(output_path, "MetaPipeX_Output", sep = "")
     } else { # create folder with custom name
       # glue names
       MetaPipeX_folder <- paste(output_path, folder_name, sep = "")
@@ -134,7 +134,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
               file = paste(MetaPipeX_folder, "/1_Individual_Participant_Data/", multi_lab_name, "_", replication_project_name, "_individual_participant_data.csv",  sep = ""))
   }
   # apply function
-  if (missing(output_path)) {} else { lapply(data_list, export_ipd_fun) }
+  if (is.null(output_path) == TRUE) {} else { lapply(data_list, export_ipd_fun) }
 
   ## create codebook for individual participant data
   codebook_ipd <- data.frame(Column_Name = c("MultiLab",
@@ -149,7 +149,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                              "Indicates the data point being part of either the treatment (1) or control group (0)"))
 
   # export codebook for individual participant data
-  if (missing(output_path)) {} else { readr::write_csv(codebook_ipd,
+  if (is.null(output_path) == TRUE) {} else { readr::write_csv(codebook_ipd,
                                                        paste(MetaPipeX_folder, "/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))}
 
   # add to the output list for step 1 of the pipeline
@@ -158,7 +158,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   names(output_list$Individual_Participant_Data) <- c("Individual_Participant_Data", "codebook_ipd")
 
   ## 2. Step of Pipeline: create replication summaries
-  if (missing(output_path)) {
+  if (is.null(output_path) == TRUE) {
     output_list$Replication_Summaries <- MetaPipeX::create_replication_summaries(data = data,
                                                                                 MultiLab = {{MultiLab}},
                                                                                 ReplicationProject = {{ReplicationProject}},
@@ -178,7 +178,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   }
 
   ## 3. Step of Pipeline: merge replication summaries
-  if (missing(output_path)) {
+  if (is.null(output_path) == TRUE) {
     output_list$Merged_Replication_Summaries <- MetaPipeX::merge_replication_summaries(data = output_list$Replication_Summaries$replication_summaries,
                                                                                       suppress_list_output = FALSE)
   } else {
@@ -188,7 +188,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   }
 
   ## 4. Step of Pipeline: perform meta analyses
-  if (missing(output_path)) {
+  if (is.null(output_path) == TRUE) {
     output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$merged_replication_summaries,
                                                          suppress_list_output = FALSE,
                                                          method = method)
@@ -321,7 +321,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
 
 
   # export data
-  if (missing(output_path)) {} else {
+  if (is.null(output_path) == TRUE) {} else {
     readr::write_csv(MetaPipeX_Data,
                      paste(MetaPipeX_folder, "/5_Meta_Pipe_X/MetaPipeX_Data.csv", sep = ""))
     readr::write_csv(codebook_for_meta_pipe_x,

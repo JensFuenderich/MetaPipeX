@@ -6,7 +6,7 @@
 \usage{
 meta_analyses(
   data,
-  output_folder,
+  output_folder = NULL,
   suppress_list_output = FALSE,
   method = "REML"
 )

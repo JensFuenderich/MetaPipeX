@@ -73,7 +73,7 @@
 #'
 #'
 #' @export
-meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, method = "REML"){
+meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FALSE, method = "REML"){
 
   ## input is a large df with all multi-labs & replication projects
 
@@ -484,7 +484,7 @@ meta_analyses <- function(data, output_folder, suppress_list_output = FALSE, met
 
   ## Outputs
 
-  if (missing(output_folder)) {
+  if (is.null(output_folder) == TRUE) {
 
     base::print("You chose not to export the data as .csv files.")
 

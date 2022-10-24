@@ -183,26 +183,42 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
 
     ## Transformations for rma.mv output, which does not include I2 and H2
     # transformations according to https://cran.r-project.org/web/packages/metafor/metafor.pdf
+    # I2 as described in https://www.metafor-project.org/doku.php/tips:i2_multilevel_multivariate
 
-    # function for estimate of v
-    v_est_fct <- function(rma_mv_obj, data){
-      k <- nrow(data)
-      # this version seems to be inefficient, but the original version with diag() crashes and returns "long vectors not supported yet"
-      (k -1) * sum(1/rma_mv_obj$V[col(rma_mv_obj$V)==row(rma_mv_obj$V)]) / ( ( sum(1/rma_mv_obj$V[col(rma_mv_obj$V)==row(rma_mv_obj$V)] ) )^2 - sum((1/rma_mv_obj$V[col(rma_mv_obj$V)==row(rma_mv_obj$V)])^2) )
-      # original version:
-      #(k -1) * sum(1/diag(rma_mv_obj$V)) / ( ( sum(1/diag(rma_mv_obj$V) ) )^2 - sum((1/diag(rma_mv_obj$V))^2) )
+    # # function for estimate of v
+    # v_est_fct <- function(rma_mv_obj, data){
+    #   k <- nrow(data)
+    #   # this version seems to be inefficient, but the original version with diag() crashes and returns "long vectors not supported yet"
+    #   (k -1) * sum(1/rma_mv_obj$V[col(rma_mv_obj$V)==row(rma_mv_obj$V)]) / ( ( sum(1/rma_mv_obj$V[col(rma_mv_obj$V)==row(rma_mv_obj$V)] ) )^2 - sum((1/rma_mv_obj$V[col(rma_mv_obj$V)==row(rma_mv_obj$V)])^2) )
+    #   # original version:
+    #   #(k -1) * sum(1/diag(rma_mv_obj$V)) / ( ( sum(1/diag(rma_mv_obj$V) ) )^2 - sum((1/diag(rma_mv_obj$V))^2) )
+    # }
+
+    # I2_fct <- function(rma_mv_obj, v_est){
+    #   # calculating I2 from tau and v of rma.mv output
+    #   rma_mv_obj$sigma2 / (rma_mv_obj$sigma2 + v_est) * 100
+    # }
+
+    I2_fct <- function(rma_mv_obj){
+      k <- rma_mv_obj$k
+      wi <- 1/rma_mv_obj$vi
+      vt <- (k-1) * sum(wi) / (sum(wi)^2 - sum(wi^2))
+      100 * rma_mv_obj$sigma2 / (rma_mv_obj$sigma2 + vt)
     }
 
-    I2_fct <- function(rma_mv_obj, v_est){
-      # calculating I2 from tau and v of rma.mv output
-      rma_mv_obj$sigma2 / (rma_mv_obj$sigma2 + v_est) * 100
+
+    # H2_fct <- function(rma_mv_obj, v_est){
+    #   # calculating H2 from tau and v of rma.mv output
+    #   (rma_mv_obj$sigma2 + v_est) / v_est
+    # }
+
+    H2_fct <- function(rma_mv_obj){
+      k <- rma_mv_obj$k
+      wi <- 1/rma_mv_obj$vi
+      vt <- (k-1) * sum(wi) / (sum(wi)^2 - sum(wi^2))
+      (rma_mv_obj$sigma2 + vt)/vt
     }
 
-
-    H2_fct <- function(rma_mv_obj, v_est){
-      # calculating H2 from tau and v of rma.mv output
-      (rma_mv_obj$sigma2 + v_est) / v_est
-    }
 
     ## run meta-analyses (currently on 8 statistics) and fill "Replication.df" with the output
 
@@ -215,17 +231,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                  method = method,
                                  sparse = TRUE,
                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")]))
-      # v estimate for calculating I2 and H2
-      v_estimate <- v_est_fct(rma_mv_obj = Het_T_M,
-                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_M", "SE_T_M")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__T_M"] <- as.vector(Het_T_M$b)
       Replication.df["Est__T_M_K"] <- Het_T_M$k
       Replication.df["Tau2__T_M"] <- Het_T_M$sigma2
       Replication.df["Tau__T_M"] <- sqrt(Het_T_M$sigma2)
       Replication.df["CoeffVar__T_M"] <- sqrt(Het_T_M$sigma2)/abs(as.vector(Het_T_M$b))
-      Replication.df["I2__T_M"] <- I2_fct(rma_mv_obj = Het_T_M, v_est = v_estimate)
-      Replication.df["H2__T_M"] <- H2_fct(rma_mv_obj = Het_T_M, v_est = v_estimate)
+      Replication.df["I2__T_M"] <- I2_fct(rma_mv_obj = Het_T_M)
+      Replication.df["H2__T_M"] <- H2_fct(rma_mv_obj = Het_T_M)
       Replication.df["QE__T_M"] <- Het_T_M$QE
       Replication.df["QEp__T_M"] <- Het_T_M$QEp
 
@@ -243,17 +256,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                  method = method,
                                  sparse = TRUE,
                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")]))
-      # v estimate for calculating I2 and H2
-      v_estimate <- v_est_fct(rma_mv_obj = Het_C_M,
-                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_M", "SE_C_M")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__C_M"] <- as.vector(Het_C_M$b)
       Replication.df["Est__C_M_K"] <- Het_C_M$k
       Replication.df["Tau2__C_M"] <- Het_C_M$sigma2
       Replication.df["Tau__C_M"] <- sqrt(Het_C_M$sigma2)
       Replication.df["CoeffVar__C_M"] <- sqrt(Het_C_M$sigma2)/abs(as.vector(Het_C_M$b))
-      Replication.df["I2__C_M"] <- I2_fct(rma_mv_obj = Het_C_M, v_est = v_estimate)
-      Replication.df["H2__C_M"] <- H2_fct(rma_mv_obj = Het_C_M, v_est = v_estimate)
+      Replication.df["I2__C_M"] <- I2_fct(rma_mv_obj = Het_C_M)
+      Replication.df["H2__C_M"] <- H2_fct(rma_mv_obj = Het_C_M)
       Replication.df["QE__C_M"] <- Het_C_M$QE
       Replication.df["QEp__C_M"] <- Het_C_M$QEp
 
@@ -269,17 +279,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                   method = method,
                                   sparse = TRUE,
                                   data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")]))
-      # v estimate for calculating I2 and H2
-      v_estimate <- v_est_fct(rma_mv_obj = Het_T_SD,
-                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__T_SD"] <- as.vector(Het_T_SD$b)
       Replication.df["Est__T_SD_K"] <- Het_T_SD$k
       Replication.df["Tau2__T_SD"] <- Het_T_SD$sigma2
       Replication.df["Tau__T_SD"] <- sqrt(Het_T_SD$sigma2)
       Replication.df["CoeffVar__T_SD"] <- sqrt(Het_T_SD$sigma2)/abs(as.vector(Het_T_SD$b))
-      Replication.df["I2__T_SD"] <- I2_fct(rma_mv_obj = Het_T_SD, v_est = v_estimate)
-      Replication.df["H2__T_SD"] <- H2_fct(rma_mv_obj = Het_T_SD, v_est = v_estimate)
+      Replication.df["I2__T_SD"] <- I2_fct(rma_mv_obj = Het_T_SD)
+      Replication.df["H2__T_SD"] <- H2_fct(rma_mv_obj = Het_T_SD)
       Replication.df["QE__T_SD"] <- Het_T_SD$QE
       Replication.df["QEp__T_SD"] <- Het_T_SD$QEp
 
@@ -295,17 +302,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                   method = method,
                                   sparse = TRUE,
                                   data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")]))
-      # v estimate for calculating I2 and H2
-      v_estimate <- v_est_fct(rma_mv_obj = Het_C_SD,
-                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__C_SD"] <- as.vector(Het_C_SD$b)
       Replication.df["Est__C_SD_K"] <- Het_C_SD$k
       Replication.df["Tau2__C_SD"] <- Het_C_SD$sigma2
       Replication.df["Tau__C_SD"] <- sqrt(Het_C_SD$sigma2)
       Replication.df["CoeffVar__C_SD"] <- sqrt(Het_C_SD$sigma2)/abs(as.vector(Het_C_SD$b))
-      Replication.df["I2__C_SD"] <- I2_fct(rma_mv_obj = Het_C_SD, v_est = v_estimate)
-      Replication.df["H2__C_SD"] <- H2_fct(rma_mv_obj = Het_C_SD, v_est = v_estimate)
+      Replication.df["I2__C_SD"] <- I2_fct(rma_mv_obj = Het_C_SD)
+      Replication.df["H2__C_SD"] <- H2_fct(rma_mv_obj = Het_C_SD)
       Replication.df["QE__C_SD"] <- Het_C_SD$QE
       Replication.df["QEp__C_SD"] <- Het_C_SD$QEp
 
@@ -321,17 +325,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                 method = method,
                                 sparse = TRUE,
                                 data = stats::na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")]))
-      # v estimate for calculating I2 and H2
-      v_estimate <- v_est_fct(rma_mv_obj = Het_MD,
-                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__MD"] <- as.vector(Het_MD$b)
       Replication.df["Est__MD_K"] <- Het_MD$k
       Replication.df["Tau2__MD"] <- Het_MD$sigma2
       Replication.df["Tau__MD"] <- sqrt(Het_MD$sigma2)
       Replication.df["CoeffVar__MD"] <- sqrt(Het_MD$sigma2)/abs(as.vector(Het_MD$b))
-      Replication.df["I2__MD"] <- I2_fct(rma_mv_obj = Het_MD, v_est = v_estimate)
-      Replication.df["H2__MD"] <- H2_fct(rma_mv_obj = Het_MD, v_est = v_estimate)
+      Replication.df["I2__MD"] <- I2_fct(rma_mv_obj = Het_MD)
+      Replication.df["H2__MD"] <- H2_fct(rma_mv_obj = Het_MD)
       Replication.df["QE__MD"] <- Het_MD$QE
       Replication.df["QEp__MD"] <- Het_MD$QEp
 
@@ -347,17 +348,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                        method = method,
                                        sparse = TRUE,
                                        data = stats::na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")]))
-      # v estimate for calculating I2 and H2
-      v_estimate <- v_est_fct(rma_mv_obj = Het_pooled_SD,
-                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__pooled_SD"] <- as.vector(Het_pooled_SD$b)
       Replication.df["Est__pooled_SD_K"] <- Het_pooled_SD$k
       Replication.df["Tau2__pooled_SD"] <- Het_pooled_SD$sigma2
       Replication.df["Tau__pooled_SD"] <- sqrt(Het_pooled_SD$sigma2)
       Replication.df["CoeffVar__pooled_SD"] <- sqrt(Het_pooled_SD$sigma2)/abs(as.vector(Het_pooled_SD$b))
-      Replication.df["I2__pooled_SD"] <- I2_fct(rma_mv_obj = Het_pooled_SD, v_est = v_estimate)
-      Replication.df["H2__pooled_SD"] <- H2_fct(rma_mv_obj = Het_pooled_SD, v_est = v_estimate)
+      Replication.df["I2__pooled_SD"] <- I2_fct(rma_mv_obj = Het_pooled_SD)
+      Replication.df["H2__pooled_SD"] <- H2_fct(rma_mv_obj = Het_pooled_SD)
       Replication.df["QE__pooled_SD"] <- Het_pooled_SD$QE
       Replication.df["QEp__pooled_SD"] <- Het_pooled_SD$QEp
 
@@ -374,17 +372,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                  method = method,
                                  sparse = TRUE,
                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")]))
-      # v estimate for calculating I2 and H2
-      v_estimate <- v_est_fct(rma_mv_obj = Het_SMD,
-                              data = stats::na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__SMD"] <- as.vector(Het_SMD$b)
       Replication.df["Est__SMD_K"] <- Het_SMD$k
       Replication.df["Tau2__SMD"] <- Het_SMD$sigma2
       Replication.df["Tau__SMD"] <- sqrt(Het_SMD$sigma2)
       Replication.df["CoeffVar__SMD"] <- sqrt(Het_SMD$sigma2)/abs(as.vector(Het_SMD$b))
-      Replication.df["I2__SMD"] <- I2_fct(rma_mv_obj = Het_SMD, v_est = v_estimate)
-      Replication.df["H2__SMD"] <- H2_fct(rma_mv_obj = Het_SMD, v_est = v_estimate)
+      Replication.df["I2__SMD"] <- I2_fct(rma_mv_obj = Het_SMD)
+      Replication.df["H2__SMD"] <- H2_fct(rma_mv_obj = Het_SMD)
       Replication.df["QE__SMD"] <- Het_SMD$QE
       Replication.df["QEp__SMD"] <- Het_SMD$QEp
 
@@ -508,7 +503,7 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
     output <- list(meta_analyses, codebook_for_meta_analyses)
 
     # rename list elements
-    names(output) <- c("meta_analyses", "codebook_for_meta_analyses")
+    names(output) <- c("Meta_Analyses", "codebook_for_meta_analyses")
 
     # return the output (function aborts here)
     return(output)

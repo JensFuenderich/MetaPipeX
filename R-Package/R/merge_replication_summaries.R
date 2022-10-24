@@ -183,10 +183,10 @@ merge_replication_summaries <- function(data, output_folder = NULL, suppress_lis
 
     description_vector <- sub(pattern = "_", replacement = " ", description_vector)
 
-    codebook_for_merged_lab_summeries <- data.frame(Variable_Name = names(merged_replication_summaries), Variable_Description = description_vector)
+    codebook_for_merged_replication_summeries <- data.frame(Variable_Name = names(merged_replication_summaries), Variable_Description = description_vector)
 
     # do this one by hand, otherwise the abbr "MD" messes up the code
-    codebook_for_merged_lab_summeries[codebook_for_merged_lab_summeries$Variable_Name == "MD",2] <- "mean difference"
+    codebook_for_merged_replication_summeries[codebook_for_merged_replication_summeries$Variable_Name == "MD",2] <- "mean difference"
 
   }
 
@@ -200,9 +200,9 @@ merge_replication_summaries <- function(data, output_folder = NULL, suppress_lis
 
     # export .csv files
     readr::write_csv(merged_replication_summaries,
-                     paste(output_folder, "merged_replication_summaries.csv", sep = ""))
-    readr::write_csv(codebook_for_merged_lab_summeries,
-                     paste(output_folder, "codebook_for_merged_lab_summeries.csv", sep = ""))
+                     paste(output_folder, "Merged_Replication_Summaries.csv", sep = ""))
+    readr::write_csv(codebook_for_merged_replication_summeries,
+                     paste(output_folder, "codebook_for_merged_replication_summeries.csv", sep = ""))
 
   }
 
@@ -213,10 +213,10 @@ merge_replication_summaries <- function(data, output_folder = NULL, suppress_lis
   } else if (suppress_list_output == FALSE) {
 
     # create list output
-    output <- list(merged_replication_summaries, codebook_for_merged_lab_summeries)
+    output <- list(merged_replication_summaries, codebook_for_merged_replication_summeries)
 
     # rename list elements
-    names(output) <- c("merged_replication_summaries", "codebook_for_merged_lab_summeries")
+    names(output) <- c("Merged_Replication_Summaries", "codebook_for_merged_replication_summeries")
 
     # return the output (function aborts here)
     return(output)

@@ -13,6 +13,7 @@ RoxygenNote: 7.2.0
 Imports: 
     dplyr,
     DT,
+    foreign,
     ggplot2,
     grDevices,
     janitor,
@@ -22,6 +23,7 @@ Imports:
     puniform,
     readr,
     shiny,
+    shinyFiles,
     shinythemes,
     shinyWidgets,
     stats

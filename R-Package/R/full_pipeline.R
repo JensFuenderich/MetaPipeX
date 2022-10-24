@@ -137,7 +137,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   if (is.null(output_path) == TRUE) {} else { lapply(data_list, export_ipd_fun) }
 
   ## create codebook for individual participant data
-  codebook_ipd <- data.frame(Column_Name = c("MultiLab",
+  codebook_for_individual_participant_data <- data.frame(Column_Name = c("MultiLab",
                                              "ReplicationProject",
                                              "Replication",
                                              "DV",
@@ -149,13 +149,13 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                              "Indicates the data point being part of either the treatment (1) or control group (0)"))
 
   # export codebook for individual participant data
-  if (is.null(output_path) == TRUE) {} else { readr::write_csv(codebook_ipd,
+  if (is.null(output_path) == TRUE) {} else { readr::write_csv(codebook_for_individual_participant_data,
                                                        paste(MetaPipeX_folder, "/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))}
 
   # add to the output list for step 1 of the pipeline
-  output_list$Individual_Participant_Data <- list(data_list, codebook_ipd)
+  output_list$Individual_Participant_Data <- list(data_list, codebook_for_individual_participant_data)
   # rename list items
-  names(output_list$Individual_Participant_Data) <- c("Individual_Participant_Data", "codebook_ipd")
+  names(output_list$Individual_Participant_Data) <- c("Individual_Participant_Data", "codebook_for_individual_participant_data")
 
   ## 2. Step of Pipeline: create replication summaries
   if (is.null(output_path) == TRUE) {
@@ -179,21 +179,21 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
 
   ## 3. Step of Pipeline: merge replication summaries
   if (is.null(output_path) == TRUE) {
-    output_list$Merged_Replication_Summaries <- MetaPipeX::merge_replication_summaries(data = output_list$Replication_Summaries$replication_summaries,
+    output_list$Merged_Replication_Summaries <- MetaPipeX::merge_replication_summaries(data = output_list$Replication_Summaries$Replication_Summaries,
                                                                                       suppress_list_output = FALSE)
   } else {
-    output_list$Merged_Replication_Summaries <- MetaPipeX::merge_replication_summaries(data = output_list$Replication_Summaries$replication_summaries,
+    output_list$Merged_Replication_Summaries <- MetaPipeX::merge_replication_summaries(data = output_list$Replication_Summaries$Replication_Summaries,
                                                                                       output_folder = paste(MetaPipeX_folder, "/3_Merged_Replication_Summaries/", sep = ""),
                                                                                       suppress_list_output = FALSE)
   }
 
   ## 4. Step of Pipeline: perform meta analyses
   if (is.null(output_path) == TRUE) {
-    output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$merged_replication_summaries,
+    output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$Merged_Replication_Summaries,
                                                          suppress_list_output = FALSE,
                                                          method = method)
   } else {
-    output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$merged_replication_summaries,
+    output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$Merged_Replication_Summaries,
                                                          output_folder = paste(MetaPipeX_folder, "/4_Meta_Analyses/", sep = ""),
                                                          suppress_list_output = FALSE,
                                                          method = method)
@@ -202,8 +202,8 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   ## 5. Step of Pipeline: create a data frame for the MetaPipeX App
 
   # reorder data frames
-  merged_replication_summaries <- dplyr::arrange(output_list$Merged_Replication_Summaries$merged_replication_summaries, ReplicationProject)
-  meta_analyses <- dplyr::arrange(output_list$Meta_Analyses$meta_analyses, ReplicationProject)
+  merged_replication_summaries <- dplyr::arrange(output_list$Merged_Replication_Summaries$Merged_Replication_Summaries, ReplicationProject)
+  meta_analyses <- dplyr::arrange(output_list$Meta_Analyses$Meta_Analyses, ReplicationProject)
 
   # number of replications per replication project (= "How many labs are in each replication project?")
   k_per_ReplicationProject <- merged_replication_summaries %>%

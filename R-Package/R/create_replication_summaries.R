@@ -666,7 +666,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
     output <- list(List_of_Replication_Summaries_per_ReplicationProject, codebook)
 
     # rename list elements
-    names(output) <- c("replication_summaries","codebook")
+    names(output) <- c("Replication_Summaries","codebook_for_replication_summaries")
 
     # return the output (function aborts here)
     return(output)

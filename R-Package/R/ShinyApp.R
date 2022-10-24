@@ -618,7 +618,12 @@ just type it in the Search field and all lines containing that word will be disp
                                  filetypes=c('', 'csv'),
                                  session = session)
 
-      IPD_data <- shiny::eventReactive( input$confirm_upload, {
+
+      #IPD_reactive_Values <- reactiveValues(IPD_data = list(), IPD_data_input = data.frame())
+
+      IPD_reactive_Values <- reactiveValues()
+
+      shiny::observeEvent(input$confirm_upload,{
 
         IPD_list <- IPD_list()
 
@@ -699,15 +704,104 @@ just type it in the Search field and all lines containing that word will be disp
 
                             })
 
-        # IPD_analzed$`5_Meta_Pipe_X`$MetaPipeX_Data
-        IPD_analzed
+
+        IPD_reactive_Values$IPD_data <- IPD_analzed
+        IPD_reactive_Values$IPD_data_input <- IPD_analzed$`5_Meta_Pipe_X`$MetaPipeX_Data
 
       })
 
-      IPD_data_input <- shiny::eventReactive( input$confirm_upload, {
-        IPD_data <- IPD_data()
-        IPD_data$`5_Meta_Pipe_X`$MetaPipeX_Data
-      })
+
+      # IPD_data <- shiny::eventReactive( input$confirm_upload, {
+      #
+      #   IPD_list <- IPD_list()
+      #
+      #   shiny::withProgress(message = 'Calculation in progress. This may take a moment.',
+      #                       detail = 'Go to the Data Selection tab.',
+      #                       style = "old",
+      #                       {
+      #
+      #                         if (input$create_custom_multilab_col == TRUE) {
+      #                           IPD_list <- lapply(IPD_list, cbind, MultiLab = "MultiLab")
+      #                         }else{}
+      #
+      #                         if (input$create_custom_replicationproject_col == TRUE) {
+      #                           IPD_list <- lapply(IPD_list, cbind, ReplicationProject = "ReplicationProject")
+      #                         }else{}
+      #
+      #
+      #                         # If a single data frame is provided to the function it is transformed to a list object. Each list element represents a replication projects/target-effect.
+      #                         if (length(IPD_list) > 1) {}else{
+      #
+      #                           if (input$create_custom_replicationproject_col == TRUE) {
+      #                             IPD_list <- IPD_list[[1]] %>% dplyr::group_split( ReplicationProject )
+      #                           } else {
+      #                             # IPD_list <- IPD_list[[1]] %>% dplyr::group_split( toString(input$replicationproject_col) )
+      #
+      #                             unique_replicationprojects <- unlist(unique(IPD_list[[1]][,input$replicationproject_col]))
+      #
+      #                             IPD_new <- list()
+      #
+      #                             IPD_new <- lapply(1:length(unique_replicationprojects), function(x){IPD_new[[unique_replicationprojects[x]]] <- base::subset(IPD_list[[1]], IPD_list[[1]][input$replicationproject_col] == unique_replicationprojects[x])})
+      #
+      #                             IPD_list <- IPD_new
+      #
+      #                           }
+      #                         }
+      #
+      #
+      #                         # reduce to the relevant columns
+      #                         reduce_cols <- function(x){
+      #                           single_df <- base::subset(IPD_list[[x]], select =  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col},
+      #                                                                                if(input$create_custom_replicationproject_col == TRUE){"ReplicationProject"}else{input$replicationproject_col},
+      #                                                                                input$replication_col,
+      #                                                                                input$DV_col,
+      #                                                                                input$group_col))
+      #                           IPD_list[[x]] <- single_df
+      #                         }
+      #
+      #                         IPD_list <- lapply(1:length(IPD_list), reduce_cols)
+      #
+      #                         # remove NA
+      #                         IPD_list <- lapply(1:length(IPD_list), function(x){IPD_list[[x]] <- stats::na.omit(IPD_list[[x]])})
+      #
+      #                         # modify variables that could be in in an annoying format (added after trying to import a .sav)
+      #                         IPD_list <- lapply(1:length(IPD_list), function(x){
+      #                           single_df <- data.frame(
+      #                             IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}]],
+      #                             IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}]],
+      #                             as.character(IPD_list[[x]][[input$replication_col]]),
+      #                             IPD_list[[x]][[input$DV_col]],
+      #                             abs(as.numeric(unlist(IPD_list[[x]][[input$group_col]]))-1)
+      #                           )
+      #                           names(single_df) <-  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}, if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}, input$replication_col, input$DV_col, input$group_col)
+      #                           IPD_list[[x]] <- single_df
+      #                         })
+      #
+      #                         # run the pipeline function
+      #                         IPD_analzed <- MetaPipeX::full_pipeline(data = IPD_list,
+      #                                                                 MultiLab = if(input$create_custom_multilab_col == TRUE){}else{input$multilab_col},
+      #                                                                 ReplicationProject = if(input$create_custom_replicationproject_col == TRUE){}else{input$replicationproject_col},
+      #                                                                 Replication = input$replication_col,
+      #                                                                 DV = input$DV_col,
+      #                                                                 Group = input$group_col#,
+      #                                                                 # output_path = if (length(input$folder) > 0) {here::here(as.character(test$path[[length(test$path)]]), "")}else{NULL},
+      #                                                                 # folder_name = if (length(input$folder) > 0) {"MetaPipeX_Output"}else{}
+      #                         )
+      #
+      #
+      #
+      #                       })
+      #
+      #   # IPD_analzed$`5_Meta_Pipe_X`$MetaPipeX_Data
+      #   IPD_analzed
+      #
+      # })
+
+
+      # IPD_data_input <- shiny::reactive({
+      #   IPD_data <- IPD_data()
+      #   IPD_data$`5_Meta_Pipe_X`$MetaPipeX_Data
+      # })
 
 
       ### ReplicationSum Input
@@ -998,11 +1092,29 @@ just type it in the Search field and all lines containing that word will be disp
         } else if (input$select_upload == "ReplicationSum") {
           ReplicationSum_data_input()
         } else if (input$select_upload == "IPD") {
-          IPD_data_input()
+          #shiny::isolate(IPD_reactive_Values$IPD_data_input)
+          IPD_reactive_Values$IPD_data_input
         } else {
           c()
         }
       })
+
+      # MA_data <- reactiveVal(data.frame())
+      #
+      # shiny::observeEvent( input$confirm_upload, {
+      #   if (input$select_upload == "MetaPipeX") {
+      #     MA_data() <- MetaPipeX_data_input()
+      #   } else if (input$select_upload == "MergedReplicationSum") {
+      #     MA_data() <- MergedReplicationSum_data_input()
+      #   } else if (input$select_upload == "ReplicationSum") {
+      #     MA_data() <- ReplicationSum_data_input()
+      #   } else if (input$select_upload == "IPD") {
+      #     #shiny::isolate(IPD_reactive_Values$IPD_data_input)
+      #     MA_data() <- IPD_reactive_Values$IPD_data_input
+      #   } else {
+      #     MA_data() <- c()
+      #   }
+      # })
 
 
       ### Data Selection
@@ -1167,29 +1279,29 @@ just type it in the Search field and all lines containing that word will be disp
           dir.create("MetaPipeX_folder")
           # create folder for individual participant data
           dir.create(paste("MetaPipeX_folder", "/1_Individual_Participant_Data", sep = ""))
-          readr::write_csv(IPD_data()$`1_Individual_Participant_Data`$codebook_for_individual_participant_data, paste("MetaPipeX_folder/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))
-          lapply(1:length(IPD_data()$`1_Individual_Participant_Data`$Individual_Participant_Data),
-                 function(x){readr::write_csv(IPD_data()$`1_Individual_Participant_Data`$Individual_Participant_Data[[x]],
-                                              paste("MetaPipeX_folder/1_Individual_Participant_Data/", names(IPD_data()$`1_Individual_Participant_Data`$Individual_Participant_Data)[x], ".csv", sep = ""))})
+          readr::write_csv(IPD_reactive_Values$IPD_data$`1_Individual_Participant_Data`$codebook_for_individual_participant_data, paste("MetaPipeX_folder/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))
+          lapply(1:length(IPD_reactive_Values$IPD_data$`1_Individual_Participant_Data`$Individual_Participant_Data),
+                 function(x){readr::write_csv(IPD_reactive_Values$IPD_data$`1_Individual_Participant_Data`$Individual_Participant_Data[[x]],
+                                              paste("MetaPipeX_folder/1_Individual_Participant_Data/", names(IPD_reactive_Values$IPD_data$`1_Individual_Participant_Data`$Individual_Participant_Data)[x], ".csv", sep = ""))})
 
           # create folder for replication summaries
           dir.create(paste("MetaPipeX_folder", "/2_Replication_Summaries", sep = ""))
-          readr::write_csv(IPD_data()$`2_Replication_Summaries`$codebook_for_replication_summaries, paste("MetaPipeX_folder/2_Replication_Summaries/codebook_for_replication_summaries.csv", sep = ""))
-          lapply(1:length(IPD_data()$`2_Replication_Summaries`$Replication_Summaries),
-                 function(x){readr::write_csv(IPD_data()$`2_Replication_Summaries`$Replication_Summaries[[x]],
-                                              paste("MetaPipeX_folder/2_Replication_Summaries/", names(IPD_data()$`2_Replication_Summaries`$Replication_Summaries)[x], ".csv", sep = ""))})
+          readr::write_csv(IPD_reactive_Values$IPD_data$`2_Replication_Summaries`$codebook_for_replication_summaries, paste("MetaPipeX_folder/2_Replication_Summaries/codebook_for_replication_summaries.csv", sep = ""))
+          lapply(1:length(IPD_reactive_Values$IPD_data$`2_Replication_Summaries`$Replication_Summaries),
+                 function(x){readr::write_csv(IPD_reactive_Values$IPD_data$`2_Replication_Summaries`$Replication_Summaries[[x]],
+                                              paste("MetaPipeX_folder/2_Replication_Summaries/", names(IPD_reactive_Values$IPD_data$`2_Replication_Summaries`$Replication_Summaries)[x], ".csv", sep = ""))})
           # create folder for merged replication summaries
           dir.create(paste("MetaPipeX_folder", "/3_Merged_Replication_Summaries", sep = ""))
-          readr::write_csv(IPD_data()$`3_Merged_Replication_Summaries`$codebook_for_merged_replication_summeries, paste("MetaPipeX_folder/3_Merged_Replication_Summaries/codebook_for_merged_replication_summeries.csv", sep = ""))
-          readr::write_csv(IPD_data()$`3_Merged_Replication_Summaries`$Merged_Replication_Summaries, paste("MetaPipeX_folder/3_Merged_Replication_Summaries/Merged_Replication_Summaries.csv", sep = ""))
+          readr::write_csv(IPD_reactive_Values$IPD_data$`3_Merged_Replication_Summaries`$codebook_for_merged_replication_summeries, paste("MetaPipeX_folder/3_Merged_Replication_Summaries/codebook_for_merged_replication_summeries.csv", sep = ""))
+          readr::write_csv(IPD_reactive_Values$IPD_data$`3_Merged_Replication_Summaries`$Merged_Replication_Summaries, paste("MetaPipeX_folder/3_Merged_Replication_Summaries/Merged_Replication_Summaries.csv", sep = ""))
           # create folder for meta analyses
           dir.create(paste("MetaPipeX_folder", "/4_Meta_Analyses", sep = ""))
-          readr::write_csv(IPD_data()$`4_Meta_Analyses`$codebook_for_meta_analyses, paste("MetaPipeX_folder/4_Meta_Analyses/codebook_for_meta_analyses.csv", sep = ""))
-          readr::write_csv(IPD_data()$`4_Meta_Analyses`$Meta_Analyses, paste("MetaPipeX_folder/4_Meta_Analyses/Meta_Analyses.csv", sep = ""))
+          readr::write_csv(IPD_reactive_Values$IPD_data$`4_Meta_Analyses`$codebook_for_meta_analyses, paste("MetaPipeX_folder/4_Meta_Analyses/codebook_for_meta_analyses.csv", sep = ""))
+          readr::write_csv(IPD_reactive_Values$IPD_data$`4_Meta_Analyses`$Meta_Analyses, paste("MetaPipeX_folder/4_Meta_Analyses/Meta_Analyses.csv", sep = ""))
           # create folder for meta analyses
           dir.create(paste("MetaPipeX_folder", "/5_Meta_Pipe_X", sep = ""))
-          readr::write_csv(IPD_data()$`5_Meta_Pipe_X`$codebook_for_meta_pipe_x, paste("MetaPipeX_folder/5_Meta_Pipe_X/codebook_for_meta_pipe_x.csv", sep = ""))
-          readr::write_csv(IPD_data()$`5_Meta_Pipe_X`$MetaPipeX_Data, paste("MetaPipeX_folder/5_Meta_Pipe_X/MetaPipeX_Data.csv", sep = ""))
+          readr::write_csv(IPD_reactive_Values$IPD_data$`5_Meta_Pipe_X`$codebook_for_meta_pipe_x, paste("MetaPipeX_folder/5_Meta_Pipe_X/codebook_for_meta_pipe_x.csv", sep = ""))
+          readr::write_csv(IPD_reactive_Values$IPD_data$`5_Meta_Pipe_X`$MetaPipeX_Data, paste("MetaPipeX_folder/5_Meta_Pipe_X/MetaPipeX_Data.csv", sep = ""))
           # output
           zip(file, "MetaPipeX_folder")
           unlink("MetaPipeX_folder", recursive = TRUE)

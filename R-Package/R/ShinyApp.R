@@ -2048,8 +2048,7 @@ just type it in the Search field and all lines containing that word will be disp
                         sei = plot_data[,"SE"],
                         slab = plot_data[,c("Unit")],
                         xlab = base::subset(codebook, codebook$Variable_Name == input$forest_data_statistics)$Variable_Description,
-                        order = "obs",
-                        #addpoly
+                        order = "obs"
                         )
 
       })

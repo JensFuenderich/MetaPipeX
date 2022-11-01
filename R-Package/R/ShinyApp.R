@@ -16,8 +16,6 @@
 #' @importFrom stats na.omit
 #' @importFrom stats cor
 #' @importFrom foreign read.spss
-#' @importFrom shinyFiles shinyDirButton
-#' @importFrom here here
 #'
 #'
 #' @return The App
@@ -27,12 +25,6 @@
 ShinyApp <- function(){
 
   ### general imports
-
-  # devtools::install_github("RobbievanAert/puniform")
-
-  # pacman::p_load_gh("RobbievanAert/puniform")
-
-
 
   MA_data <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/5_MetaPipeX/MetaPipeX_template.csv"))
   codebook <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/5_MetaPipeX/codebook_for_meta_pipe_x_data.csv"))
@@ -110,10 +102,10 @@ just type it in the Search field and all lines containing that word will be disp
           ## panel for upload of IPD
           shiny::conditionalPanel(condition = "input.select_upload == 'IPD'",
                                   h3("Individual Participant Data"),
-                                  h5("Please provide at least one .csv file. The ",
+                                  h5("Please provide at least one .csv/.sav/.rds file. The ",
                                      tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", "codebook on github."),
                                      "describes the 5 columns that are needed for the analysis. The names do not have to be the same as in this codebook, but they should be consistent across the .csv files. If only data from a single multi-lab or a single replication project (or targer-effect) is uploaded, a placeholder for the name needs to be provided. It is possible to create such a placeholer by clicking the corresponding checkbox."),
-                                  fileInput("IPD", "choose .csv file with individual participant data",
+                                  fileInput("IPD", "choose .csv/.sav/.rds file with individual participant data",
                                             multiple = TRUE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
@@ -221,9 +213,6 @@ just type it in the Search field and all lines containing that word will be disp
             shinyWidgets::materialSwitch(inputId = "Stat_SE",
                                          label = "Exclude Standard Error of Replication Level Statistic?",
                                          status = "success"),
-            # shinyWidgets::materialSwitch(inputId = "Stat_ln",
-            #                              label = "Exclude the Logarithms of Standard Deviations?",
-            #                              status = "success"),
             shinyWidgets::prettyCheckboxGroup(inputId = "AnalysisResults",
                                               label = h3("Display Analysis results"),
                                               choices = Variables_List$AnalysisResults,
@@ -286,9 +275,6 @@ just type it in the Search field and all lines containing that word will be disp
             shiny::actionButton(inputId = "exclusion",
                                 label = "Exclude!"
             ),
-            # tags$head(
-            #   tags$style(HTML("input[name=Statistics][value='exclude'] { display: none }"))
-            # ),
             h3("Remove Exclusion"),
             shiny::selectInput(inputId = "Remove_MultiLab_Exclusion",
                                label = "MultiLab",
@@ -311,7 +297,6 @@ just type it in the Search field and all lines containing that word will be disp
             DT::DTOutput("excluded_data"),
             h3("Remaining Data"),
             DT::DTOutput("remaining_data")
-            #downloadButton("downloadData", "Download")
           )
         )
       ),
@@ -610,20 +595,19 @@ just type it in the Search field and all lines containing that word will be disp
                                  selected = if ( any(IPD_raw_data_input_columns() == "Group") ) {"Group"}else{})
       })
 
-      # run the pipeline, as soon as the column selection is confirmed
-
-      shinyFiles::shinyDirChoose(input,
-                                 'folder',
-                                 roots=c(home = '~'),
-                                 filetypes=c('', 'csv'),
-                                 session = session)
+      # shinyFiles::shinyDirChoose(input,
+      #                            'folder',
+      #                            roots=c(home = '~'),
+      #                            filetypes=c('', 'csv'),
+      #                            session = session)
 
 
-      #IPD_reactive_Values <- reactiveValues(IPD_data = list(), IPD_data_input = data.frame())
-
+      # create empty reactive values object
       IPD_reactive_Values <- reactiveValues()
 
-      shiny::observeEvent(input$confirm_upload,{
+      # run the pipeline, as soon as the column selection is confirmed
+
+      shiny::observeEvent(input$confirm_upload,{ # stores results in IPD_reactive_Values
 
         IPD_list <- IPD_list()
 
@@ -647,7 +631,6 @@ just type it in the Search field and all lines containing that word will be disp
                                 if (input$create_custom_replicationproject_col == TRUE) {
                                   IPD_list <- IPD_list[[1]] %>% dplyr::group_split( ReplicationProject )
                                 } else {
-                                  # IPD_list <- IPD_list[[1]] %>% dplyr::group_split( toString(input$replicationproject_col) )
 
                                   unique_replicationprojects <- unlist(unique(IPD_list[[1]][,input$replicationproject_col]))
 
@@ -676,7 +659,7 @@ just type it in the Search field and all lines containing that word will be disp
                               # remove NA
                               IPD_list <- lapply(1:length(IPD_list), function(x){IPD_list[[x]] <- stats::na.omit(IPD_list[[x]])})
 
-                              # modify variables that could be in in an annoying format (added after trying to import a .sav)
+                              # modify variables that could be in in an annoying format (added after trying to import a .sav file)
                               IPD_list <- lapply(1:length(IPD_list), function(x){
                                 single_df <- data.frame(
                                   IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}]],
@@ -695,9 +678,7 @@ just type it in the Search field and all lines containing that word will be disp
                                                                       ReplicationProject = if(input$create_custom_replicationproject_col == TRUE){}else{input$replicationproject_col},
                                                                       Replication = input$replication_col,
                                                                       DV = input$DV_col,
-                                                                      Group = input$group_col#,
-                                                                      # output_path = if (length(input$folder) > 0) {here::here(as.character(test$path[[length(test$path)]]), "")}else{NULL},
-                                                                      # folder_name = if (length(input$folder) > 0) {"MetaPipeX_Output"}else{}
+                                                                      Group = input$group_col
                               )
 
 
@@ -709,100 +690,6 @@ just type it in the Search field and all lines containing that word will be disp
         IPD_reactive_Values$IPD_data_input <- IPD_analzed$`5_Meta_Pipe_X`$MetaPipeX_Data
 
       })
-
-
-      # IPD_data <- shiny::eventReactive( input$confirm_upload, {
-      #
-      #   IPD_list <- IPD_list()
-      #
-      #   shiny::withProgress(message = 'Calculation in progress. This may take a moment.',
-      #                       detail = 'Go to the Data Selection tab.',
-      #                       style = "old",
-      #                       {
-      #
-      #                         if (input$create_custom_multilab_col == TRUE) {
-      #                           IPD_list <- lapply(IPD_list, cbind, MultiLab = "MultiLab")
-      #                         }else{}
-      #
-      #                         if (input$create_custom_replicationproject_col == TRUE) {
-      #                           IPD_list <- lapply(IPD_list, cbind, ReplicationProject = "ReplicationProject")
-      #                         }else{}
-      #
-      #
-      #                         # If a single data frame is provided to the function it is transformed to a list object. Each list element represents a replication projects/target-effect.
-      #                         if (length(IPD_list) > 1) {}else{
-      #
-      #                           if (input$create_custom_replicationproject_col == TRUE) {
-      #                             IPD_list <- IPD_list[[1]] %>% dplyr::group_split( ReplicationProject )
-      #                           } else {
-      #                             # IPD_list <- IPD_list[[1]] %>% dplyr::group_split( toString(input$replicationproject_col) )
-      #
-      #                             unique_replicationprojects <- unlist(unique(IPD_list[[1]][,input$replicationproject_col]))
-      #
-      #                             IPD_new <- list()
-      #
-      #                             IPD_new <- lapply(1:length(unique_replicationprojects), function(x){IPD_new[[unique_replicationprojects[x]]] <- base::subset(IPD_list[[1]], IPD_list[[1]][input$replicationproject_col] == unique_replicationprojects[x])})
-      #
-      #                             IPD_list <- IPD_new
-      #
-      #                           }
-      #                         }
-      #
-      #
-      #                         # reduce to the relevant columns
-      #                         reduce_cols <- function(x){
-      #                           single_df <- base::subset(IPD_list[[x]], select =  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col},
-      #                                                                                if(input$create_custom_replicationproject_col == TRUE){"ReplicationProject"}else{input$replicationproject_col},
-      #                                                                                input$replication_col,
-      #                                                                                input$DV_col,
-      #                                                                                input$group_col))
-      #                           IPD_list[[x]] <- single_df
-      #                         }
-      #
-      #                         IPD_list <- lapply(1:length(IPD_list), reduce_cols)
-      #
-      #                         # remove NA
-      #                         IPD_list <- lapply(1:length(IPD_list), function(x){IPD_list[[x]] <- stats::na.omit(IPD_list[[x]])})
-      #
-      #                         # modify variables that could be in in an annoying format (added after trying to import a .sav)
-      #                         IPD_list <- lapply(1:length(IPD_list), function(x){
-      #                           single_df <- data.frame(
-      #                             IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}]],
-      #                             IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}]],
-      #                             as.character(IPD_list[[x]][[input$replication_col]]),
-      #                             IPD_list[[x]][[input$DV_col]],
-      #                             abs(as.numeric(unlist(IPD_list[[x]][[input$group_col]]))-1)
-      #                           )
-      #                           names(single_df) <-  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}, if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}, input$replication_col, input$DV_col, input$group_col)
-      #                           IPD_list[[x]] <- single_df
-      #                         })
-      #
-      #                         # run the pipeline function
-      #                         IPD_analzed <- MetaPipeX::full_pipeline(data = IPD_list,
-      #                                                                 MultiLab = if(input$create_custom_multilab_col == TRUE){}else{input$multilab_col},
-      #                                                                 ReplicationProject = if(input$create_custom_replicationproject_col == TRUE){}else{input$replicationproject_col},
-      #                                                                 Replication = input$replication_col,
-      #                                                                 DV = input$DV_col,
-      #                                                                 Group = input$group_col#,
-      #                                                                 # output_path = if (length(input$folder) > 0) {here::here(as.character(test$path[[length(test$path)]]), "")}else{NULL},
-      #                                                                 # folder_name = if (length(input$folder) > 0) {"MetaPipeX_Output"}else{}
-      #                         )
-      #
-      #
-      #
-      #                       })
-      #
-      #   # IPD_analzed$`5_Meta_Pipe_X`$MetaPipeX_Data
-      #   IPD_analzed
-      #
-      # })
-
-
-      # IPD_data_input <- shiny::reactive({
-      #   IPD_data <- IPD_data()
-      #   IPD_data$`5_Meta_Pipe_X`$MetaPipeX_Data
-      # })
-
 
       ### ReplicationSum Input
 
@@ -1092,30 +979,11 @@ just type it in the Search field and all lines containing that word will be disp
         } else if (input$select_upload == "ReplicationSum") {
           ReplicationSum_data_input()
         } else if (input$select_upload == "IPD") {
-          #shiny::isolate(IPD_reactive_Values$IPD_data_input)
           IPD_reactive_Values$IPD_data_input
         } else {
           c()
         }
       })
-
-      # MA_data <- reactiveVal(data.frame())
-      #
-      # shiny::observeEvent( input$confirm_upload, {
-      #   if (input$select_upload == "MetaPipeX") {
-      #     MA_data() <- MetaPipeX_data_input()
-      #   } else if (input$select_upload == "MergedReplicationSum") {
-      #     MA_data() <- MergedReplicationSum_data_input()
-      #   } else if (input$select_upload == "ReplicationSum") {
-      #     MA_data() <- ReplicationSum_data_input()
-      #   } else if (input$select_upload == "IPD") {
-      #     #shiny::isolate(IPD_reactive_Values$IPD_data_input)
-      #     MA_data() <- IPD_reactive_Values$IPD_data_input
-      #   } else {
-      #     MA_data() <- c()
-      #   }
-      # })
-
 
       ### Data Selection
 
@@ -1252,8 +1120,7 @@ just type it in the Search field and all lines containing that word will be disp
       })
 
 
-      ## download button
-
+      ## download button for data as displayed
       output$downloadData <- shiny::downloadHandler(
         filename = function() {
           paste("MetaPipeX Data Selection-", Sys.Date(), ".csv", sep="")

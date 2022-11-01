@@ -23,7 +23,6 @@ Imports:
     puniform,
     readr,
     shiny,
-    shinyFiles,
     shinythemes,
     shinyWidgets,
     stats

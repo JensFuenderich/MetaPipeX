@@ -1264,10 +1264,10 @@ just type it in the Search field and all lines containing that word will be disp
         }
       )
 
-      ## download button for the full MetaPipeX Output directory (only for IPD upload)
+      ## download button for the full MetaPipeX Output dDrectory (only for IPD upload)
       output$out_zip_download <- renderUI({
         if (input$select_upload == "IPD") {
-          downloadButton("zip_download", "Download MetaPipeX Output directory")
+          downloadButton("zip_download", "Download MetaPipeX Output Directory")
         }else{}
       })
 
@@ -1723,22 +1723,22 @@ just type it in the Search field and all lines containing that word will be disp
 
           if (input$hist_include_variable2 == TRUE & input$hist_include_variable3 == TRUE) {
             base::subset(data,
-                         (data[,paste(input$hist_data1)] < (round(input$hist_hover$x, 0)  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                            data[,paste(input$hist_data1)] > (round(input$hist_hover$x, 0)  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
-                           (data[,paste(input$hist_data2)] < (round(input$hist_hover$x, 0)  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                              data[,paste(input$hist_data2)] > (round(input$hist_hover$x, 0)  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
-                           (data[,paste(input$hist_data3)] < (round(input$hist_hover$x, 0)  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                              data[,paste(input$hist_data3)] > (round(input$hist_hover$x, 0)  -  max(hist_data$Data, na.rm = TRUE)/80) ) )
+                         (data[,paste(input$hist_data1)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
+                            data[,paste(input$hist_data1)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
+                           (data[,paste(input$hist_data2)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
+                              data[,paste(input$hist_data2)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
+                           (data[,paste(input$hist_data3)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
+                              data[,paste(input$hist_data3)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) )
           } else if (input$hist_include_variable2 == TRUE & input$hist_include_variable3 != TRUE){
             base::subset(data,
-                         (data[,paste(input$hist_data1)] < (round(input$hist_hover$x, 0)  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                            data[,paste(input$hist_data1)] > (round(input$hist_hover$x, 0)  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
-                           (data[,paste(input$hist_data2)] < (round(input$hist_hover$x, 0)  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                              data[,paste(input$hist_data2)] > (round(input$hist_hover$x, 0)  -  max(hist_data$Data, na.rm = TRUE)/80) ))
+                         (data[,paste(input$hist_data1)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
+                            data[,paste(input$hist_data1)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
+                           (data[,paste(input$hist_data2)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
+                              data[,paste(input$hist_data2)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ))
           } else if (input$hist_include_variable2 != TRUE & input$hist_include_variable3 != TRUE){
             base::subset(data,
-                         data[,paste(input$hist_data1)] < (round(input$hist_hover$x, 0)  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                           data[,paste(input$hist_data1)] > (round(input$hist_hover$x, 0)  -  max(hist_data$Data, na.rm = TRUE)/80))
+                         data[,paste(input$hist_data1)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
+                           data[,paste(input$hist_data1)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80))
           }
 
         }else{}
@@ -1830,7 +1830,7 @@ just type it in the Search field and all lines containing that word will be disp
         violin_data$common_statistic <- rep(base::strsplit(violin_data$Statistic, " for")[[1]][1], base::nrow(violin_data))
         violin_data$Statistic <- gsub("model estimate for ", "", violin_data$Statistic)
         violin_data$Statistic <- gsub("Tau2 for ", "", violin_data$Statistic)
-        violin_data$Statistic <- gsub("Tau for ", "")
+        violin_data$Statistic <- gsub("Tau for ", "", violin_data$Statistic)
         violin_data$Statistic <- gsub("CoeffVar for ", "", violin_data$Statistic)
         violin_data$Statistic <- gsub("I2 for ", "", violin_data$Statistic)
         violin_data$Statistic <- gsub("H2 for ", "", violin_data$Statistic)
@@ -1919,10 +1919,9 @@ just type it in the Search field and all lines containing that word will be disp
                            data[codebook$Variable_Name[grepl(unique(violin_data$common_statistic), codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (round(as.numeric(input$violin_hover[2]), 0) - max(violin_data$Data, na.rm = TRUE)/80))
           } else if (unique(violin_data$common_level) == "replication level") {
             base::subset(data,
-                         data[codebook$Variable_Name[grepl("replication level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (round(as.numeric(input$violin_hover[2]), 0) + max(violin_data$Data, na.rm = TRUE)/80) &
-                           data[codebook$Variable_Name[grepl("replication level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (round(as.numeric(input$violin_hover[2]), 0) - max(violin_data$Data, na.rm = TRUE)/80))
+                         data[codebook$Variable_Name[grepl("replication level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (as.numeric(input$violin_hover[2]) + max(violin_data$Data, na.rm = TRUE)/80) &
+                           data[codebook$Variable_Name[grepl("replication level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (as.numeric(input$violin_hover[2]) - max(violin_data$Data, na.rm = TRUE)/80))
           }
-
 
 
         }else{}
@@ -2003,10 +2002,10 @@ just type it in the Search field and all lines containing that word will be disp
         # select rows
         if (is.null(input$scatter_hover) == FALSE) {
 
-          base::subset(data, data[,paste(input$x_plot)] < (round(as.numeric(input$scatter_hover[1]), 0) +  max(scatter_data$X, na.rm = TRUE)/80) &
-                         data[,paste(input$x_plot)] > (round(as.numeric(input$scatter_hover[1]), 0) -  max(scatter_data$X, na.rm = TRUE)/80) &
-                         data[,paste(input$y_plot)] < (round(as.numeric(input$scatter_hover[2]), 0) +  max(scatter_data$Y, na.rm = TRUE)/80) &
-                         data[,paste(input$y_plot)] > (round(as.numeric(input$scatter_hover[2]), 0) -  max(scatter_data$Y, na.rm = TRUE)/80)
+          base::subset(data, data[,paste(input$x_plot)] < (as.numeric(input$scatter_hover[1]) +  max(scatter_data$X, na.rm = TRUE)/80) &
+                         data[,paste(input$x_plot)] > (as.numeric(input$scatter_hover[1]) -  max(scatter_data$X, na.rm = TRUE)/80) &
+                         data[,paste(input$y_plot)] < (as.numeric(input$scatter_hover[2]) +  max(scatter_data$Y, na.rm = TRUE)/80) &
+                         data[,paste(input$y_plot)] > (as.numeric(input$scatter_hover[2]) -  max(scatter_data$Y, na.rm = TRUE)/80)
 
           )
 
@@ -2048,7 +2047,10 @@ just type it in the Search field and all lines containing that word will be disp
         metafor::forest(x = plot_data[,"Est"],
                         sei = plot_data[,"SE"],
                         slab = plot_data[,c("Unit")],
-                        xlab = base::subset(codebook, codebook$Variable_Name == input$forest_data_statistics)$Variable_Description)
+                        xlab = base::subset(codebook, codebook$Variable_Name == input$forest_data_statistics)$Variable_Description,
+                        order = "obs",
+                        #addpoly
+                        )
 
       })
 
@@ -2113,10 +2115,10 @@ just type it in the Search field and all lines containing that word will be disp
         # select rows
         if (is.null(input$funnel_hover) == FALSE) {
 
-          base::subset(data, data[,paste(input$funnel_data_est)] < (round(as.numeric(input$funnel_hover[1]), 2) +  max(funnel_data$Est, na.rm = TRUE)/20) &
-                         data[,paste(input$funnel_data_est)] > (round(as.numeric(input$funnel_hover[1]), 2) -  max(funnel_data$Est, na.rm = TRUE)/20) &
-                         data[,paste(input$funnel_data_SE)] < (round(as.numeric(input$funnel_hover[2]), 2) +  max(funnel_data$SE, na.rm = TRUE)/20) &
-                         data[,paste(input$funnel_data_SE)] > (round(as.numeric(input$funnel_hover[2]), 2) -  max(funnel_data$SE, na.rm = TRUE)/20))
+          base::subset(data, data[,paste(input$funnel_data_est)] < (round(as.numeric(input$funnel_hover[1]), 4) +  max(funnel_data$Est, na.rm = TRUE)/80) &
+                         data[,paste(input$funnel_data_est)] > (round(as.numeric(input$funnel_hover[1]), 4) -  max(funnel_data$Est, na.rm = TRUE)/80) &
+                         data[,paste(input$funnel_data_SE)] < (round(as.numeric(input$funnel_hover[2]), 4) +  max(funnel_data$SE, na.rm = TRUE)/1) &
+                         data[,paste(input$funnel_data_SE)] > (round(as.numeric(input$funnel_hover[2]), 4) -  max(funnel_data$SE, na.rm = TRUE)/1))
         }else{}
 
       })

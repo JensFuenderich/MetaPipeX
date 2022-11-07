@@ -181,7 +181,7 @@ merge_replication_summaries <- function(data, output_folder = NULL, suppress_lis
       gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
       gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .)
 
-    description_vector <- sub(pattern = "_", replacement = " ", description_vector)
+    description_vector <- gsub(pattern = "_", replacement = " ", description_vector)
 
     codebook_for_merged_replication_summeries <- data.frame(Variable_Name = names(merged_replication_summaries), Variable_Description = description_vector)
 

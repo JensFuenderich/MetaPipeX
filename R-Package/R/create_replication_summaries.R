@@ -409,7 +409,8 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
 
     ## calculating standard errors of standard deviations
 
-    # custom function for standard error of the standard deviation
+    # define function for standard error of the standard deviation
+    # standard error according to Ahn & Fessler (2003)
     SE_SD_fct <- function(x){
       SE_SD <- stats::sd(x) / sqrt(2*(length(x)-1)) # for large n
       return(SE_SD)
@@ -487,7 +488,8 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
 
     ## calculating standard error of pooled standard deviation
 
-    # creating custom function estimating standard error as estimate of a common population
+    # define function estimating standard error as estimate of a common population
+    # standard error according to Ahn & Fessler (2003)
     SE_pooled_SD_fct <- function(t,c){
       pooled_SD <- sqrt(
         (
@@ -507,7 +509,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       SE_pooled_SD_fct(treatment_group$DV, control_group$DV)
     }
 
-    # 8.1 getting to SMD (Borenstein's g)
+    # 7.1 getting to SMD (Borenstein's g)
     replication.df["SMD"] <- if (length(treatment_group$DV) < 1 | length(control_group$DV) < 1) {
       NA
     }else{
@@ -522,7 +524,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       )$yi
     }
 
-    # 8.2 getting to SE_SMD
+    # 7.2 getting to SE_SMD
     replication.df["SE_SMD"] <- if (length(treatment_group$DV) < 1 | length(control_group$DV) < 1) {
       NA
     }else{
@@ -537,10 +539,10 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
       )$vi)
     }
 
-    # 9.1 n of Treatment
+    # 8.1 n of Treatment
     replication.df["T_N"] <- length(treatment_group$DV)
 
-    # 9.1 n of Control
+    # 8.2 n of Control
     replication.df["C_N"] <- length(control_group$DV)
 
     # add descriptive columns
@@ -618,7 +620,8 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
     gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
     gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .)
 
-  description_vector <- sub(pattern = "_", replacement = " ", description_vector)
+  description_vector <- gsub(pattern = "_", replacement = " ", description_vector)
+  #description_vector <- sub(pattern = "_", replacement = " ", description_vector)
 
   codebook <- data.frame(Variable_Name = names(List_of_Replication_Summaries_per_ReplicationProject[[1]]), Variable_Description = description_vector)
   codebook <- codebook[-c(1:2),]

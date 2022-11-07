@@ -206,7 +206,6 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
       100 * rma_mv_obj$sigma2 / (rma_mv_obj$sigma2 + vt)
     }
 
-
     # H2_fct <- function(rma_mv_obj, v_est){
     #   # calculating H2 from tau and v of rma.mv output
     #   (rma_mv_obj$sigma2 + v_est) / v_est
@@ -217,6 +216,19 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
       wi <- 1/rma_mv_obj$vi
       vt <- (k-1) * sum(wi) / (sum(wi)^2 - sum(wi^2))
       (rma_mv_obj$sigma2 + vt)/vt
+    }
+
+
+    ## log transformation for meta-analyses of standard deviations
+    # transformations according to Nakagawa et al.(2015: "Meta‐analysis of variation")
+
+    # define ln of standard deviation
+    ln_SD_fun <- function(SD, n) {
+      base::log(SD) + 1 / (2 * (n - 1))
+    }
+    # define standard error for ln of standard deviation
+    SE_lnSD_fun <- function(n) {
+      sqrt(1 / (2 * (n - 1)))
     }
 
 
@@ -270,50 +282,75 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
       rm(Het_C_M)
     }
 
-    # 3 Heterogeneity of treatment group sd
-    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")])) <= 1) {} else {
+    # 3 Heterogeneity of treatment group SD
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "T_N", "T_SD")])) <= 1) {} else {
+      # use the subset of columns relevant to this analysis
+      column_subset <- stats::na.omit(subset_ReplicationProject[, c("Replication", "T_N", "T_SD")])
+      # create df with ln data
+      ln_data <- data.frame(
+        Replication = column_subset$Replication,
+        ln_SD = ln_SD_fun(SD = column_subset$T_SD,
+                          n = column_subset$T_N),
+        SE_ln_SD = SE_lnSD_fun(n = column_subset$T_N)
+
+      )
       # run the meta-analysis
-      Het_T_SD <- metafor::rma.mv(yi = T_SD,
-                                  V = SE_T_SD^2,
+      Het_T_SD <- metafor::rma.mv(yi = ln_SD,
+                                  V = SE_ln_SD^2,
                                   random = ~ 1 | Replication,
                                   method = method,
                                   sparse = TRUE,
-                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "T_SD", "SE_T_SD")]))
+                                  data = ln_data)
       # insert the meta analysical results at the appropriate columns in the df
-      Replication.df["Est__T_SD"] <- as.vector(Het_T_SD$b)
+      # transformations for Est_, Tau_ and /Tau2_ according to:
+      # https://stats.stackexchange.com/questions/241187/calculating-standard-deviation-after-log-transformation
+      Replication.df["Est__T_SD"] <- as.vector(base::exp(Het_T_SD$b + 0.5 * Het_T_SD$sigma2))
       Replication.df["Est__T_SD_K"] <- Het_T_SD$k
-      Replication.df["Tau2__T_SD"] <- Het_T_SD$sigma2
-      Replication.df["Tau__T_SD"] <- sqrt(Het_T_SD$sigma2)
-      Replication.df["CoeffVar__T_SD"] <- sqrt(Het_T_SD$sigma2)/abs(as.vector(Het_T_SD$b))
+      Replication.df["Tau2__T_SD"] <- base::exp(Replication.df["Est__T_SD"]^2 * (base::exp(Het_T_SD$sigma2)-1))
+      Replication.df["Tau__T_SD"] <- sqrt(Replication.df["Tau2__T_SD"])
+      Replication.df["CoeffVar__T_SD"] <- Replication.df["Tau__T_SD"]/abs(Replication.df["Est__T_SD"])
       Replication.df["I2__T_SD"] <- I2_fct(rma_mv_obj = Het_T_SD)
       Replication.df["H2__T_SD"] <- H2_fct(rma_mv_obj = Het_T_SD)
       Replication.df["QE__T_SD"] <- Het_T_SD$QE
       Replication.df["QEp__T_SD"] <- Het_T_SD$QEp
 
-      rm(Het_T_SD)
+      rm(column_subset, ln_data, Het_T_SD)
     }
 
-    # 4 Heterogeneity of control group sd
-    if (nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")])) <= 1) {} else {
+
+    # 4 Heterogeneity of control group SD
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "C_N", "C_SD")])) <= 1) {} else {
+      # use the subset of columns relevant to this analysis
+      column_subset <- stats::na.omit(subset_ReplicationProject[, c("Replication", "C_N", "C_SD")])
+      # create df with ln data
+      ln_data <- data.frame(
+        Replication = column_subset$Replication,
+        ln_SD = ln_SD_fun(SD = column_subset$C_SD,
+                          n = column_subset$C_N),
+        SE_ln_SD = SE_lnSD_fun(n = column_subset$C_N)
+
+      )
       # run the meta-analysis
-      Het_C_SD <- metafor::rma.mv(yi = C_SD,
-                                  V = SE_C_SD^2,
+      Het_C_SD <- metafor::rma.mv(yi = ln_SD,
+                                  V = SE_ln_SD^2,
                                   random = ~ 1 | Replication,
                                   method = method,
                                   sparse = TRUE,
-                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "C_SD", "SE_C_SD")]))
+                                  data = ln_data)
       # insert the meta analysical results at the appropriate columns in the df
-      Replication.df["Est__C_SD"] <- as.vector(Het_C_SD$b)
+      # transformations for Est_, Tau_ and /Tau2_ according to:
+      # https://stats.stackexchange.com/questions/241187/calculating-standard-deviation-after-log-transformation
+      Replication.df["Est__C_SD"] <- as.vector(base::exp(Het_C_SD$b + 0.5 * Het_C_SD$sigma2))
       Replication.df["Est__C_SD_K"] <- Het_C_SD$k
-      Replication.df["Tau2__C_SD"] <- Het_C_SD$sigma2
-      Replication.df["Tau__C_SD"] <- sqrt(Het_C_SD$sigma2)
-      Replication.df["CoeffVar__C_SD"] <- sqrt(Het_C_SD$sigma2)/abs(as.vector(Het_C_SD$b))
+      Replication.df["Tau2__C_SD"] <- base::exp(Replication.df["Est__C_SD"]^2 * (base::exp(Het_C_SD$sigma2)-1))
+      Replication.df["Tau__C_SD"] <- sqrt(Replication.df["Tau2__C_SD"])
+      Replication.df["CoeffVar__C_SD"] <- Replication.df["Tau__C_SD"]/abs(Replication.df["Est__C_SD"])
       Replication.df["I2__C_SD"] <- I2_fct(rma_mv_obj = Het_C_SD)
       Replication.df["H2__C_SD"] <- H2_fct(rma_mv_obj = Het_C_SD)
       Replication.df["QE__C_SD"] <- Het_C_SD$QE
       Replication.df["QEp__C_SD"] <- Het_C_SD$QEp
 
-      rm(Het_C_SD)
+      rm(column_subset, ln_data, Het_C_SD)
     }
 
     # 5 Heterogeneity of mean difference
@@ -340,30 +377,41 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
     }
 
     # 6 Heterogeneity of pooled SD
-    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")])) <= 1 ) {} else {
+    if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "T_N", "C_N", "pooled_SD")])) <= 1) {} else {
+      # use the subset of columns relevant to this analysis
+      column_subset <- stats::na.omit(subset_ReplicationProject[, c("Replication", "T_N", "C_N", "pooled_SD")])
+      # create df with ln data
+      ln_data <- data.frame(
+        Replication = column_subset$Replication,
+        ln_SD = ln_SD_fun(SD = column_subset$pooled_SD,
+                          n = column_subset$T_N + column_subset$C_N),
+        SE_ln_SD = SE_lnSD_fun(n =  column_subset$T_N + column_subset$C_N)
+
+      )
       # run the meta-analysis
-      Het_pooled_SD <- metafor::rma.mv(yi = pooled_SD,
-                                       V = SE_pooled_SD^2,
-                                       random = ~ 1 | Replication,
-                                       method = method,
-                                       sparse = TRUE,
-                                       data = stats::na.omit(subset_ReplicationProject[, c("Replication", "pooled_SD", "SE_pooled_SD")]))
+      Het_pooled_SD <- metafor::rma.mv(yi = ln_SD,
+                                  V = SE_ln_SD^2,
+                                  random = ~ 1 | Replication,
+                                  method = method,
+                                  sparse = TRUE,
+                                  data = ln_data)
       # insert the meta analysical results at the appropriate columns in the df
-      Replication.df["Est__pooled_SD"] <- as.vector(Het_pooled_SD$b)
+      # transformations for Est_, Tau_ and /Tau2_ according to:
+      # https://stats.stackexchange.com/questions/241187/calculating-standard-deviation-after-log-transformation
+      Replication.df["Est__pooled_SD"] <- as.vector(base::exp(Het_pooled_SD$b + 0.5 * Het_pooled_SD$sigma2))
       Replication.df["Est__pooled_SD_K"] <- Het_pooled_SD$k
-      Replication.df["Tau2__pooled_SD"] <- Het_pooled_SD$sigma2
-      Replication.df["Tau__pooled_SD"] <- sqrt(Het_pooled_SD$sigma2)
-      Replication.df["CoeffVar__pooled_SD"] <- sqrt(Het_pooled_SD$sigma2)/abs(as.vector(Het_pooled_SD$b))
+      Replication.df["Tau2__pooled_SD"] <- base::exp(Replication.df["Est__pooled_SD"]^2 * (base::exp(Het_pooled_SD$sigma2)-1))
+      Replication.df["Tau__pooled_SD"] <- sqrt(Replication.df["Tau2__pooled_SD"])
+      Replication.df["CoeffVar__pooled_SD"] <- Replication.df["Tau__pooled_SD"]/abs(Replication.df["Est__pooled_SD"])
       Replication.df["I2__pooled_SD"] <- I2_fct(rma_mv_obj = Het_pooled_SD)
       Replication.df["H2__pooled_SD"] <- H2_fct(rma_mv_obj = Het_pooled_SD)
       Replication.df["QE__pooled_SD"] <- Het_pooled_SD$QE
       Replication.df["QEp__pooled_SD"] <- Het_pooled_SD$QEp
 
-      rm(Het_pooled_SD)
+      rm(column_subset, ln_data, Het_pooled_SD)
     }
 
-
-    # 8 Heterogeneity of effect size g (Borenstein)
+    # 7 Heterogeneity of effect size g (Borenstein)
     if ( nrow(stats::na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")])) <= 1 ) {} else {
       # run the meta-analysis
       Het_SMD <- metafor::rma.mv(yi = SMD,

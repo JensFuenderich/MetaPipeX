@@ -7,58 +7,58 @@
 
 ## load/install packages, including MetaPipeX (from github)
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(readr, glue)
+pacman::p_load(dplyr, glue, magrittr, readr, stats)
 pacman::p_load_gh("JensFuenderich/MetaPipeX/R-Package")
 
 ## Building an input for the function
 
 # import the according table template
-Merged_Replication_Summaries_template <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary%20Material/Table%20Templates/3%20Merged%20Replication%20Summaries/Merged_Replication_Summaries_template.csv"))
+Merged_Replication_Summaries_template <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/Merged_Replication_Summaries_template.csv"))
 
 # set seed for drawing data
 set.seed(1973)
 
-# random sampling for simulated data
-data_example <- as.data.frame(matrix(data = rnorm(n = 200 * (ncol(Merged_Replication_Summaries_template)-3), mean = 5, sd = 0.5), nrow = 200, ncol = ncol(Merged_Replication_Summaries_template)-3))
-names(data_example) <- names(Merged_Replication_Summaries_template)[4:length(names(Merged_Replication_Summaries_template))]
-
-# random sampling for simulated data: some deviation to imply different target-effects
-Multi_Lab_1_Effect_A_Replication_summaries <- data_example + rnorm(n = ncol(data_example)*nrow(data_example), mean = 0, sd = 0.5)
-Multi_Lab_1_Effect_B_Replication_summaries <- data_example + rnorm(n = ncol(data_example)*nrow(data_example), mean = 0, sd = 1)
-Multi_Lab_2_Effect_C_Replication_summaries <- data_example + rnorm(n = ncol(data_example)*nrow(data_example), mean = 0.5, sd = 0.5)
-Multi_Lab_2_Effect_D_Replication_summaries <- data_example + rnorm(n = ncol(data_example)*nrow(data_example), mean = 0.5, sd = 1)
-
-# create identification columns: Project, Replication and Lab names
-Multi_Lab_1 <- rep("Multi_Lab_1", times = nrow(data_example))
-Multi_Lab_2 <- rep("Multi_Lab_2", times = nrow(data_example))
-Multi_Lab_1_Effect_A <- rep("Effect_A", times = nrow(data_example))
-Multi_Lab_1_Effect_B <- rep("Effect_B", times = nrow(data_example))
-Multi_Lab_2_Effect_C <- rep("Effect_C", times = nrow(data_example))
-Multi_Lab_2_Effect_D <- rep("Effect_D", times = nrow(data_example))
-Multi_Lab_1_Replications <- rep(c("Lab_A", "Lab_B", "Lab_C", "Lab_D"), each = nrow(data_example)/4)
-Multi_Lab_2_Replications <- rep(c("Lab_E", "Lab_F", "Lab_G", "Lab_H"), each = nrow(data_example)/4)
-
-# combine identification columns and data and rename according to table template
-Multi_Lab_1_Effect_A_Replication_summaries <- cbind(Multi_Lab_1, Multi_Lab_1_Rep_A, Multi_Lab_1_Replications, Multi_Lab_1_Effect_A_Replication_summaries)
-names(Multi_Lab_1_Effect_A_Replication_summaries) <- names(Merged_Replication_Summaries_template)
-Multi_Lab_1_Effect_B_Replication_summaries <- cbind(Multi_Lab_1, Multi_Lab_1_Effect_B, Multi_Lab_1_Replications, Multi_Lab_1_Effect_B_Replication_summaries)
-names(Multi_Lab_1_Effect_B_Replication_summaries) <- names(Merged_Replication_Summaries_template)
-Multi_Lab_2_Effect_C_Replication_summaries <- cbind(Multi_Lab_1, Multi_Lab_2_Effect_C, Multi_Lab_2_Replications, Multi_Lab_2_Effect_C_Replication_summaries)
-names(Multi_Lab_2_Effect_C_Replication_summaries) <- names(Merged_Replication_Summaries_template)
-Multi_Lab_2_Effect_D_Replication_summaries <- cbind(Multi_Lab_1, Multi_Lab_2_Effect_D, Multi_Lab_2_Replications, Multi_Lab_2_Effect_D_Replication_summaries)
-names(Multi_Lab_2_Effect_D_Replication_summaries) <- names(Merged_Replication_Summaries_template)
+# create vectors with names
+MultiLab_names <- c("MultiLab_1", "MultiLab_1", "MultiLab_2",  "MultiLab_2")
+ReplicationProject_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
+Replication_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E", "Lab_F", "Lab_G", "Lab_H")
 
 
-# create list of replication summaries
-list_of_replication_summaries <- list(Multi_Lab_1_Effect_A_Replication_summaries, Multi_Lab_1_Effect_B_Replication_summaries, Multi_Lab_2_Effect_C_Replication_summaries, Multi_Lab_2_Effect_D_Replication_summaries)
-names(list_of_replication_summaries) <- c("Multi_Lab_1_Effect_A_Replication_summaries", "Multi_Lab_1_Effect_B_Replication_summaries", "Multi_Lab_2_Effect_C_Replication_summaries", "Multi_Lab_2_Effect_D_Replication_summaries")
+# random sampling for simulated data & building identifier variables
+list_of_replication_summaries <- lapply(1:4, function(x){
+  # sampling
+  data_example <- as.data.frame(matrix(data = stats::rnorm(n = 200 * (ncol(Merged_Replication_Summaries_template)-3), mean = 5, sd = 0.5), nrow = 200, ncol = ncol(Merged_Replication_Summaries_template)-3))
+  # rename columns according to template
+  names(data_example) <- names(Merged_Replication_Summaries_template)[4:length(names(Merged_Replication_Summaries_template))]
+  data_example$T_N <- round(data_example$T_N, 0)
+  data_example$T_N <- round(data_example$C_N, 0)
+  # building identifier variables
+  MultiLab <- rep(MultiLab_names[x], times = nrow(data_example))
+  ReplicationProject <- rep(ReplicationProject_names[x], times = nrow(data_example))
+  Replication <- rep(if (x == 1 | x == 2) {Replication_names[1:4]} else if (x == 3 | x == 4) {Replication_names[5:8]}, each = nrow(data_example)/4)
+  # combine data & identifiers
+  cbind(MultiLab, ReplicationProject, Replication, data_example)
+})
+
+# merge list object
+merged_replication_summaries <- rbind(list_of_replication_summaries[[1]],
+                                      list_of_replication_summaries[[2]],
+                                      list_of_replication_summaries[[3]],
+                                      list_of_replication_summaries[[4]])
+
 
 ## applying the input to the MetaPipeX function
 
 # run merge_replication_summaries
-example_MetaPipeX_output <- MetaPipeX::merge_replication_summaries(data = list_of_replication_summaries,
-                                                                   output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
+example_MetaPipeX_output <- MetaPipeX::meta_analyses(data = merged_replication_summaries,
+                                                     output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
 )
 
+## results
+View(example_MetaPipeX_output) # meta-analysis results & codebook as list object
 
+# check the current working directory for the .csv output files
+# the according templates are on github: https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates/4_Meta_Analyses
+
+## The data table from the output of the function (example_MetaPipeX_output$Merged_Replication_Summaries) may be used as input for the MetaPipeX::merge_replication_summaries() function.
 

@@ -5,10 +5,10 @@
 ### It will create a list output and export a folder with the same structure as the list that is created in your current working directory.
 ### If you run the whole script, it first builds an input for the function and then applies that function.
 
-## installing and loading MetaPipeX
-library(devtools)
-install_github("JensFuenderich/MetaPipeX/R-Package")
-library(MetaPipeX)
+## load/install packages, including MetaPipeX (from github)
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(stats)
+pacman::p_load_gh("JensFuenderich/MetaPipeX/R-Package")
 
 ## Building an input for the function
 
@@ -25,7 +25,7 @@ set.seed(1973)
 example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
                               ReplicationProject = rep(ReplicationProject_names, each = 50),
                               Replication = rep(Replication_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
-                              DV = round(rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
+                              DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
                               Treatment = rep(c(1,0), times = 100))
 
 # split the data per replication project to prepare for use in MetaPipeX::full_pipeline()
@@ -44,5 +44,10 @@ example_MetaPipeX_output <- MetaPipeX::create_replication_summaries(data = examp
                                                                     output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
 )
 
-## The data output of the function may be used as input for the MetaPipeX::merge_replication_summaries() function.
+## results
+View(example_MetaPipeX_output) # replication summaries & codebook as list object
 
+# check the current working directory for the .csv output files
+# the according templates are on github: https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates/2_Replication_Summaries
+
+## The data list from the output of the function (example_MetaPipeX_output$Replication_Summaries) may be used as input for the MetaPipeX::merge_replication_summaries() function.

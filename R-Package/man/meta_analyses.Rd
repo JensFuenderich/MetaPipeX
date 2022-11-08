@@ -21,8 +21,8 @@ meta_analyses(
 \item{method}{A character string to specify the type of model to be fitted. Default is “REML”. For more details, refer to the \href{https://www.metafor-project.org/doku.php/help}{{metafor}}  documentation.}
 }
 \value{
-The output is a list with two objects: A data frame with the meta-analytical results and a codebook for unambiguous identification of its columns.
-## meta analyses
+The output is a list with two objects: A data frame with the meta-analytical results and a codebook for unambiguous identification of its columns. \cr
+\cr ## meta analyses \cr
 The data frame contains information to identify each analysis (MultiLab, ReplicationProject) and statistical output from the seven meta-analyses per replication project. The statistical output for each meta-analysis includes:
 \itemize{
 \item{A model estimate for the y of interest (Est__).}
@@ -45,29 +45,103 @@ with
 }
 ## codebook
 A codebook that applies to the data frame (meta_analyses).
-
-
-#### Example
-
-For an example, please refer to the github repository: LINK EINFUEGEN
 }
 \description{
 \loadmathjax{}
 \(
 \\let\\underscore_
 \)
-Function to run meta-analyses one the standardized mean difference and its components (group means & standatd deviations, pooled standard deviation and unstandardized mean difference).  All meta-analyses are run on the rma.mv function from the metafor package (Viechtbauer & Viechtbauer, 2015). For more details on the meta-analyses, refer to the Details and Return section. This function is the third step of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
+Function to run meta-analyses one the standardized mean difference and its components (group means & standatd deviations, pooled standard deviation and unstandardized mean difference).  All meta-analyses are run with the metafor::rma.mv function (Viechtbauer, 2010). For more details on the meta-analyses, refer to the Details and Return section. This function is the third (and fifth computational step) of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
-All meta-analyses within the function are written with metafor::rma.mv. The multivariate version of the rma function is deployed to enable the use of sparse matrices (“sparse = TRUE”) for optimal performance, where possible. They are fitted as a random-effects model with “random = ~ 1 | Replication” and a restricted maximum likelihood estimation (“REML”).
+All meta-analyses within the function are written with metafor::rma.mv (Viechtbauer, 2010). The multivariate version of the rma function is deployed to enable the use of sparse matrices (“sparse = TRUE”) for optimal performance, where possible. They are fitted as a random-effects model with “random = ~ 1 | Replication” and a restricted maximum likelihood estimation (“REML”).
 The function runs seven meta-analyses per replication project:
 \itemize{
  \item{treatment mean (yi = T_M, sei = SE_T_M)}
  \item{control mean (yi = C_M, sei = SE_C_M)}
- \item{treatment standard deviation (yi = T_SD, sei = SE_T_SD)}
- \item{control standard deviation (yi = C_SD, sei = SE_C_SD)}
+ \item{treatment standard deviation* (yi = T_SD, sei = SE_T_SD)}
+ \item{control standard deviation* (yi = C_SD, sei = SE_C_SD)}
  \item{mean difference (yi = MD, sei = SE_MD)}
- \item{pooled standard deviation (yi = pooled_SD, sei = SE_pooled_SD)}
+ \item{pooled standard deviation* (yi = pooled_SD, sei = SE_pooled_SD)}
  \item{standardized mean difference (yi = SMD, sei = SE_SMD)}
  }
+
+*Meta-Analyses of standard deviations are performed with a log transformation as described in Nakagawa et al. (2015). That includes the following transformations: \cr
+
+## log transformed SD
+\itemize{
+ \item{R-Code} \cr
+ \code{# define ln of standard deviation} \cr
+ \code{ln_SD_fun <- function(SD, n) {base::log(SD) + 1 / (2 * (n - 1))}}
+ \item{Model} \cr
+{
+\mjdeqn{ ln\\ \hat{\sigma}  = ln\\ \textit{s} + \frac{ 1 }{2(n-1)}    }{}
+}
+}
+
+## SE of log transformed SD
+\itemize{
+ \item{R-Code} \cr
+ \code{# define standard error for ln of standard deviation} \cr
+ \code{SE_lnSD_fun <- function(n) {sqrt(1 / (2 * (n - 1)))}}
+ \item{Model} \cr
+{
+\mjdeqn{ s \underscore{ln\\  \hat{\sigma}}  = \sqrt{\frac{ 1 }{2(n-1)}}   }{}
+}
+}
+}
+\examples{
+
+# import the according table template
+Merged_Replication_Summaries_template <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/Merged_Replication_Summaries_template.csv"))
+
+# set seed for drawing data
+set.seed(1973)
+
+# create vectors with names
+MultiLab_names <- c("MultiLab_1", "MultiLab_1", "MultiLab_2",  "MultiLab_2")
+ReplicationProject_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
+Replication_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E", "Lab_F", "Lab_G", "Lab_H")
+
+
+# random sampling for simulated data & building identifier variables
+list_of_replication_summaries <- lapply(1:4, function(x){
+  # sampling
+  data_example <- as.data.frame(matrix(data = stats::rnorm(n = 200 * (ncol(Merged_Replication_Summaries_template)-3), mean = 5, sd = 0.5), nrow = 200, ncol = ncol(Merged_Replication_Summaries_template)-3))
+  # rename columns according to template
+  names(data_example) <- names(Merged_Replication_Summaries_template)[4:length(names(Merged_Replication_Summaries_template))]
+  data_example$T_N <- round(data_example$T_N, 0)
+  data_example$T_N <- round(data_example$C_N, 0)
+  # building identifier variables
+  MultiLab <- rep(MultiLab_names[x], times = nrow(data_example))
+  ReplicationProject <- rep(ReplicationProject_names[x], times = nrow(data_example))
+  Replication <- rep(if (x == 1 | x == 2) {Replication_names[1:4]} else if (x == 3 | x == 4) {Replication_names[5:8]}, each = nrow(data_example)/4)
+  # combine data & identifiers
+  cbind(MultiLab, ReplicationProject, Replication, data_example)
+})
+
+# merge list object
+merged_replication_summaries <- rbind(list_of_replication_summaries[[1]],
+                                      list_of_replication_summaries[[2]],
+                                      list_of_replication_summaries[[3]],
+                                      list_of_replication_summaries[[4]])
+
+
+## applying the input to the MetaPipeX function
+
+# run merge_replication_summaries
+example_MetaPipeX_output <- MetaPipeX::meta_analyses(data = merged_replication_summaries,
+                                                     output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
+)
+
+\dontrun{
+All examples with additional comments are available on github:
+https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples
+}
+
+}
+\references{
+Nakagawa, S., Poulin, R., Mengersen, K., Reinhold, K., Engqvist, L., Lagisz, M., & Senior, A. M. (2015). Meta-analysis of variation: ecological and evolutionary applications and beyond. Methods in Ecology and Evolution, 6(2), 143-152. https://doi.org/10.1111/2041-210X.12309
+
+Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. Journal of Statistical Software, 36(3), 1-48. doi: 10.18637/jss.v036.i03
 }

@@ -13,17 +13,17 @@
 #' \\let\\underscore_
 #' \)
 #'
-#' Function to compute  replication aggregates from  person level data. Components of the standardized mean difference and their standard errors are calculated and reported. This function is the first step of the MetaPipeX pipeline. For more details on the replication statistics, refer to the Details section. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
+#' Function to compute  replication aggregates from  person level data. Components of the standardized mean difference and their standard errors are calculated and reported. This is the first function (and the third computational step) of the MetaPipeX pipeline. For more details on the replication statistics, refer to the Details section. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 #'
 #'
 #' @param data
-#' A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the MultiLab (e.g., Many Labs 2), the ReplicationProject (e.g., Ross1), the Replication (the lab a data point is assigned to), the group (either the treatment or control condition) and the single data point of the dependent variable (DV) per person.
+#' A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the MultiLab (e.g., Many Labs 2), the ReplicationProject (e.g., Ross1), the Replication (the lab a data point is assigned to), the group (either the treatment or control condition) and the single data point of the dependent variable (DV) per person. A template of this data frame is available on \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/IPD_template.csv}{{github}}, as is a \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv}{{codebook}} for unambiguous identification of the abbreviations.
 #' @param MultiLab
 #' Character vector with the name of the columns in the list elements of "data" that contain the multi-lab name(s). If \emph{is.null(MultiLab) == TRUE}, "MultiLab" is chosen as the default.
 #' @param ReplicationProject
 #' Character vector with the name of the columns in the list elements of "data" that contain the replication project name(s). If \emph{is.null(ReplicationProject) == TRUE}, "ReplicationProject" is chosen as the default. Each replication project comprises a single target-effect with direct replications across multiple replications (/labs).
 #' @param Replication
-#' Character vector with the name of the columns in the list elements of "data" that contain the lab names. If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Replication”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).
+#' Character vector with the name of the columns in the list elements of "data" that contain the replication names. If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Replication”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).
 #' @param DV
 #' Character vector with the name of the columns in the list elements of "data" that contain the (aggregated) dependent variable. If \emph{is.null(DV) == TRUE}, "DV" is chosen as the default.
 #' @param Group
@@ -35,10 +35,10 @@
 #'
 #' @details
 #'
-#' ### Lab Statistics
+#' ### Replication Statistics
 #'
-#' All components of the standardized mean difference and their standard errors are returned by the function. Each standard error is returned to enable a meta-analysis on each component. The components and their standard errors are implemented as follows (unless other sources are given, effect size statistics are calculated according to Borenstein et al):
-#' ## mean
+#' All components of the standardized mean difference and their standard errors are returned by the function. Each standard error is returned to enable a meta-analysis on each component. The components and their standard errors are implemented as follows. Unless other sources are provided, effect size statistics are calculated according to Borenstein et al., 2009. The metafor::escalc function was used for SMD and MD (Viechtbauer, 2010). \cr
+#' ## mean (M)
 #' \itemize{
 #'  \item{R-Code} \cr
 #'  \code{## apply the function} \cr
@@ -48,13 +48,13 @@
 #'  \code{mean(control_group$DV)} \cr
 #' \item{Model} \cr
 #' {
-#' treatment group mean:
-#' \mjdeqn{\bar{x}\_{T} = \frac{1}{n}\sum\_{i \in T} x}{}
-#' control group mean:
-#' \mjdeqn{\bar{x}\_{C} = \frac{1}{n}\sum\_{i \in C} x}{}
+#' treatment group mean (T_M):
+#' \mjdeqn{\bar{x}\underscore{T} = \frac{1}{n}\sum\underscore{i \in T} x}{}
+#' control group mean (C_M):
+#' \mjdeqn{\bar{x}\underscore{C} = \frac{1}{n}\sum\underscore{i \in C} x}{}
 #' }
 #' }
-#' ## standard error of the mean
+#' ## standard error of the mean (SE_T_M, SE_C_M)
 #' \itemize{
 #'  \item{R-Code} \cr
 #'  \code{## define the function} \cr
@@ -69,10 +69,10 @@
 #'  \code{SE_of_mean_fct(control_group$DV)} \cr
 #'  \item{Model} \cr
 #'  {
-#'  \mjdeqn{ \hat{\sigma}\_{\bar{x}} = \frac{\hat{\sigma}\_{x}}{\sqrt{n}} = \sqrt{\frac{\frac{1}{n-1}\sum\_{i=1}^n(x - \bar{x})^2}{n}} }{}
+#'  \mjdeqn{ \hat{\sigma}\underscore{\bar{x}} = \frac{\hat{\sigma}\underscore{x}}{\sqrt{n}} = \sqrt{\frac{\frac{1}{n-1}\sum\underscore{i=1}^n(x - \bar{x})^2}{n}} }{}
 #'  }
 #' }
-#' ## standard deviation
+#' ## standard deviation (T_SD, C_SD)
 #' \itemize{
 #' \item{R-Code} \cr
 #' \code{## apply the function} \cr
@@ -85,7 +85,7 @@
 #' \mjdeqn{ \hat{\sigma}  = \sqrt{ \frac{ \sum(x-\bar{x}^2) }{n-1}   } }{}
 #' }
 #' }
-#' ## standard error of the standard deviation
+#' ## standard error of the standard deviation (SE_T_SD, SE_C_SD)
 #' \itemize{
 #' \item{R-Code} \cr
 #' \code{## define the function} \cr
@@ -99,9 +99,8 @@
 #' \code{SE_SD_fct(control_group$DV)}
 #'  \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\_{\hat{\sigma}} = \frac{\hat{\sigma}\_{x}}{\sqrt{2(n-1)}} = \sqrt{\frac{\frac{1}{n-1}\sum\_{i=1}^n(x - \bar{x})^2}{2(n-1)}} }{}
-#' \mjeqn{ \hat{\sigma}\_{\hat{\sigma}} }{} is a simplified version of \mjeqn{ \sigma\_{K\_{n}S} }{} in Ahn & Fessler (2003). The authors demonstrate that for n > 10 it is reasonable to use Kn = 1. As for the overwhelming majority of samples n > k may be assumed, we excluded the term \mjeqn{K\_{n}}{}. For more details, please refer to \cr
-#' \emph{ Ahn, S., & Fessler, J. A. (2003). Standard errors of mean, variance, and standard deviation estimators. EECS Department, The University of Michigan, 1-2.}
+#' \mjdeqn{ \hat{\sigma}\underscore{\hat{\sigma}} = \frac{\hat{\sigma}\underscore{x}}{\sqrt{2(n-1)}} = \sqrt{\frac{\frac{1}{n-1}\sum\underscore{i=1}^n(x - \bar{x})^2}{2(n-1)}} }{}
+#' \mjeqn{ \hat{\sigma}\underscore{\hat{\sigma}} }{} is a simplified version of \mjeqn{ \sigma\underscore{K\underscore{n}S} }{} in Ahn & Fessler (2003). The authors demonstrate that for n > 10 it is reasonable to use Kn = 1. As for the overwhelming majority of samples n > k may be assumed, we excluded the term \mjeqn{K\underscore{n}}{}.
 #' }
 #' }
 #' ## mean difference (MD)
@@ -120,7 +119,7 @@
 #' \code{)$yi } \cr
 #'  \item{Model} \cr
 #' {
-#' \mjdeqn{ D = \bar{x}\_{T} -  \bar{x}\_{C} }{}
+#' \mjdeqn{ D = \bar{x}\underscore{T} -  \bar{x}\underscore{C} }{}
 #' }
 #' }
 #' ## standard error of mean difference (SE_MD)
@@ -139,7 +138,7 @@
 #' \code{)$vi } \cr
 #'  \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\_{\bar{x}\_{T} -  \bar{x}\_{C}} = \sqrt{ \frac{n\_{T}+ n\_{C}}{ n\_{T} n\_{C} } \sigma^2\_{TC} } = \sqrt{ \frac{n\_{T}+ n\_{C}}{ n\_{T} n\_{C} } \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 }   } }{}
+#' \mjdeqn{ \hat{\sigma}\underscore{\bar{x}\underscore{T} -  \bar{x}\underscore{C}} = \sqrt{ \frac{n\underscore{T}+ n\underscore{C}}{ n\underscore{T} n\underscore{C} } \sigma^2\underscore{TC} } = \sqrt{ \frac{n\underscore{T}+ n\underscore{C}}{ n\underscore{T} n\underscore{C} } \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 }   } }{}
 #' }
 #' }
 #' ## pooled standard deviation (pooled_SD)
@@ -157,7 +156,7 @@
 #' \code{pooled_SD_fct(treatment_group$DV, control_group$DV)}
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\_{TC} = \sqrt{ \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 } } }{}
+#' \mjdeqn{ \hat{\sigma}\underscore{TC} = \sqrt{ \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 } } }{}
 #' }
 #' }
 #' ## standard error of pooled standard deviation (SE_pooled_SD)
@@ -177,7 +176,7 @@
 #'
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\_{\hat{\sigma}\_{TC}} = \frac{ \hat{\sigma}\_{TC} }{ \sqrt{ 2(n\_{T}+n\_{C}-1) } } }{}
+#' \mjdeqn{ \hat{\sigma}\underscore{\hat{\sigma}\underscore{TC}} = \frac{ \hat{\sigma}\underscore{TC} }{ \sqrt{ 2(n\underscore{T}+n\underscore{C}-1) } } }{}
 #' The standard error is equivalent to that of the standard deviation. For further information, refer to the "standard error of the standard deviation" section.
 #' }
 #' }
@@ -198,9 +197,9 @@
 #' \code{## apply the function} \cr
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ g = d \left( 1 - \frac{3}{4(n\_{T}+n\_{C}-2) -1} \right)  }{}
+#' \mjdeqn{ g = d \left( 1 - \frac{3}{4(n\underscore{T}+n\underscore{C}-2) -1} \right)  }{}
 #' with
-#' \mjdeqn{ d =  \frac{ \bar{x}\_{T} -  \bar{x}\_{C} }{ \sqrt{ \frac{ \sum\_{i = 1}^n (x\_{T}-\bar{x}\_{T})^2 + \sum\_{i = 1}^n (x\_{C}-\bar{x}\_{C})^2 }{ n\_{T} + n\_{C} - 2 } }   }}{}
+#' \mjdeqn{ d =  \frac{ \bar{x}\underscore{T} -  \bar{x}\underscore{C} }{ \sqrt{ \frac{ \sum\underscore{i = 1}^n (x\underscore{T}-\bar{x}\underscore{T})^2 + \sum\underscore{i = 1}^n (x\underscore{C}-\bar{x}\underscore{C})^2 }{ n\underscore{T} + n\underscore{C} - 2 } }   }}{}
 #' }
 #' }
 #' ## standard error of standardized mean difference (SE_SMD)
@@ -220,33 +219,27 @@
 #' \code{## apply the function} \cr
 #' \item{Model} \cr
 #' {
-#' \mjdeqn{ \hat{\sigma}\_{g} = \sqrt{ \hat{\sigma}\_{d}^2 \left( 1 - \frac{3}{4(n\_{T}+n\_{C}-2) -1} \right)^2 } }{}
+#' \mjdeqn{ \hat{\sigma}\underscore{g} = \sqrt{ \hat{\sigma}\underscore{d}^2 \left( 1 - \frac{3}{4(n\underscore{T}+n\underscore{C}-2) -1} \right)^2 } }{}
 #' with
-#' \mjdeqn{ \hat{\sigma}\_{d}^2 = \frac{n\_{T}+n\_{C}}{n\_{T}n\_{C}} + \frac{d^2}{2(n\_{T}+n\_{C})} }{}
+#' \mjdeqn{ \hat{\sigma}\underscore{d}^2 = \frac{n\underscore{T}+n\underscore{C}}{n\underscore{T}n\underscore{C}} + \frac{d^2}{2(n\underscore{T}+n\underscore{C})} }{}
 #' }
 #' }
 #'
 #'
 #'
 #' @return
-#' The function create_replication_summaries returns a list consisting of two elements: A codebook and a list of data frames. Each data frame contains all replication summary statistics for the according Replication/Effect.
-#' The summary statistics returned (including their standard error) are the means and standard deviations for control and experimental groups, pooled standard deviations, raw mean differences and standardized mean differences (Hedge's g according to Borenstein).
+#' The function create_replication_summaries returns a list consisting of two elements: A codebook and a list of data frames. Each data frame contains all replication summary statistics for the according replication (/effect).
+#' The summary statistics returned (including their standard error) are the means and standard deviations for control and experimental groups, pooled standard deviations, raw mean differences and standardized mean differences (Hedge's g according to Borenstein et al., 2009).
+#'
+#' @references
+#'
+#' Ahn, S., & Fessler, J. A. (2003). Standard errors of mean, variance, and standard deviation estimators. EECS Department, The University of Michigan, 1(2).
+#'
+#' Borenstein, M., Hedges, L. V., Higgins, J. P. T., & Rothstein, H. R. (2009). Introduction to Meta-Analysis John Wiley & Sons. Ltd, Chichester, UK. 10.1002/9780470743386
+#'
+#' Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. Journal of Statistical Software, 36(3), 1-48. doi: 10.18637/jss.v036.i03
 #'
 #' @examples
-#' \dontrun{
-#' ##### Example: MetaPipeX::create_replication_summaries()
-#'
-#' ### This script is an example for the create_replication_summaries() function in the MetaPipeX package.
-#' ### The create_replication_summaries() function performs the first step of the MetaPipeX. Afterwards the merge_lab_summaries() function may be applied to the data output.
-#' ### It will create a list output and export a folder with the same structure as the list that is created in your current working directory.
-#' ### If you run the whole script, it first builds an input for the function and then applies that function.
-#'
-#' ## installing and loading MetaPipeX
-#' library(devtools)
-#' install_github("JensFuenderich/MetaPipeX/R-Package")
-#' library(MetaPipeX)
-#'
-#' ## Building an input for the function
 #'
 #' # create vectors with names
 #' MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2") # two projects
@@ -261,7 +254,7 @@
 #' example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
 #'                               ReplicationProject = rep(ReplicationProject_names, each = 50),
 #'                               Replication = rep(Replication_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
-#'                               DV = round(rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
+#'                               DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
 #'                               Treatment = rep(c(1,0), times = 100))
 #'
 #' # split the data per replication project to prepare for use in MetaPipeX::full_pipeline()
@@ -270,7 +263,7 @@
 #'
 #' ## applying the input to the MetaPipeX function
 #'
-# run create_replication_summaries
+#' # run create_replication_summaries
 #' example_MetaPipeX_output <- MetaPipeX::create_replication_summaries(data = example_data_list,
 #'                                                                     MultiLab = "MultiLab", # column name needs no change
 #'                                                                     ReplicationProject = "ReplicationProject",
@@ -280,7 +273,9 @@
 #'                                                                     output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
 #' )
 #'
-#' ## The data output of the function may be used as input for the MetaPipeX::merge_replication_summaries() function.
+#' \dontrun{
+#' All examples with additional comments are available on github:
+#' https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples
 #' }
 #'
 #' @export

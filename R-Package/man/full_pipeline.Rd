@@ -18,11 +18,11 @@ full_pipeline(
 )
 }
 \arguments{
-\item{data}{A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the project (e.g., Many Labs 2), the replication (e.g., Ross1), the replication (the source a data point is assigned to, usually a lab name), the group (either the treatment or control condition) and the single data point of the dependent variable per person.}
+\item{data}{A list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the MultiLab (e.g., Many Labs 2), the ReplicationProject (e.g., Ross1), the Replication (the lab a data point is assigned to), the group (either the treatment or control condition) and the single data point of the dependent variable (DV) per person. A template of this data frame is available on \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/IPD_template.csv}{{github}}, as is a \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv}{{codebook}} for unambiguous identification of the abbreviations.}
 
 \item{MultiLab}{Character vector with the name of the columns in the list elements of "data" that contain the project name(s). If \emph{is.null(Project) == TRUE}, "Project" is chosen as the default.}
 
-\item{ReplicationProject}{Character vector with the name of the columns in the list elements of "data" that contain the replication projects name(s). If \emph{is.null(Replication) == TRUE}, "Replication_Project" is chosen as the default. Each replication project comprises a single target effect with direct replications across multiple labs.}
+\item{ReplicationProject}{Character vector with the name of the columns in the list elements of "data" that contain the replication projects name(s). If \emph{is.null(Replication) == TRUE}, "Replication_Project" is chosen as the default. Each replication project comprises a single target effect with direct replications across multiple replications (/labs).}
 
 \item{Replication}{Character vector with the name of the columns in the list elements of "data" that contain the replication names (usually the name of the lab). If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Replication”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).}
 
@@ -40,12 +40,6 @@ full_pipeline(
 }
 \value{
 The output is a nested list object that represents the folder structure that is available under LINK EINFUEGEN
-
-
-#### Example
-
-For an example, please refer to the github repository:
-LINK EINFUEGEN
 }
 \description{
 \loadmathjax{}
@@ -53,14 +47,14 @@ LINK EINFUEGEN
 \\let\\underscore_
 \)
 
-This function is built on three MetaPipeX functions (create_replication_summaries, merge_replication_summaries, meta_analyses), but also combines the meta-analytical data with the lab data in order to achieve the MetaPipeX data format. As input it expects the same specifications as the create_replication_summaries function. This function performs all standardized steps of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
+This function is built on three MetaPipeX functions (create_replication_summaries, merge_replication_summaries, meta_analyses), but also combines the meta-analytical data with the lab data in order to achieve the MetaPipeX data format. As input it expects the same specifications as the create_replication_summaries function. This function performs all standardized computational steps (3-6) of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
 ## General notes on the pipeline
 
 The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available on \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material}{{github}}
-The dark blue blocks are .csv files. The dark green blocks each refer to a step in the pipeline that is performed by a MetaPipeX function. MetaPipeX::full_pipeline() performs all of these steps and returns "MetaPipeX_Data.csv" which may be provided to the MetaPipeX App for handy data selection and basic plotting of the analysis results.
-For an example of the MetaPipeX Output structure, please refer to LINK EINFUEGEN
+The yellow blocks with rounded corners are .csv files. The purple/white rectangles each refer to a step in the pipeline that is performed by a MetaPipeX function. MetaPipeX::full_pipeline() performs the steps 3-6 and returns "MetaPipeX_Data.csv" which may be provided to the MetaPipeX App for handy data selection and basic plotting of the analysis results.
+Pleasre refer to github for \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates}{{an example of the MetaPipeX Output structure}}.
 
 ## full_pipeline
 
@@ -72,4 +66,45 @@ This function executes the pipeline as follows:
  \item{MetaPipeX::meta_analyses()} \cr
  \item{merging replication- and meta-level data to achieve MetaPipeX data format} \cr
 }
+}
+\examples{
+
+# create vectors with names
+MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2") # two projects
+ReplicationProject_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D") # two replications per project
+Replication_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
+                       "Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
+                       "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J",
+                       "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J") # k = 5 per replication
+
+# create df with all example data
+set.seed(1973)
+example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
+                              ReplicationProject = rep(ReplicationProject_names, each = 50),
+                              Replication = rep(Replication_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
+                              DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
+                              Treatment = rep(c(1,0), times = 100))
+
+# split the data per replication project to prepare for use in MetaPipeX::full_pipeline()
+example_data_list <- split(example_data_df,
+                           example_data_df$ReplicationProject)
+
+## applying the input to the MetaPipeX function
+
+# run full_pipeline
+example_MetaPipeX_output <- MetaPipeX::full_pipeline(data = example_data_list,
+                                                     MultiLab = "MultiLab", # column name needs no change
+                                                     ReplicationProject = "ReplicationProject",
+                                                     Replication = "Replication",
+                                                     DV = "DV",
+                                                     Group = "Treatment", # column name needs changing
+                                                     output_path = file.path(paste0(getwd(), "/")), # creates a folder in the current working directory
+                                                     folder_name = "MetaPipeX_Example" # the name of that folder
+)
+
+\dontrun{
+All examples with additional comments are available on github:
+https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples
+}
+
 }

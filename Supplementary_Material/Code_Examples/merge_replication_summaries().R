@@ -47,7 +47,7 @@ names(list_of_replication_summaries) <- c("MultiLab_1_ReplicationProject_A_Repli
 
 ## applying the input to the MetaPipeX function
 
-# run merge_lab_summaries
+# run merge_replication_summaries
 example_MetaPipeX_output <- MetaPipeX::merge_replication_summaries(data = list_of_replication_summaries,
                                                          output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
 )

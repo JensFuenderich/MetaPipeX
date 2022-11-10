@@ -491,7 +491,9 @@ just type it in the Search field and all lines containing that word will be disp
                                                 data = data()),
                           shiny::varSelectInput(inputId = "metaplot_data_c_n",
                                                 label = "choose control group n",
-                                                data = data())
+                                                data = data()),
+                          h5("For details on how to interpret the meta-plot, please refer to the preprint by van Assen et al. (2020):"),
+                          h5("https://psyarxiv.com/cwhnq/")
                         ),
                         mainPanel(
                           h4("Meta Plot for selected statistics"),

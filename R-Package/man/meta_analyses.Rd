@@ -66,7 +66,7 @@ The function runs seven meta-analyses per replication project:
  \item{standardized mean difference (yi = SMD, sei = SE_SMD)}
  }
 
-*Meta-Analyses of standard deviations are performed with a log transformation as described in Nakagawa et al. (2015). That includes the following transformations: \cr
+*Meta-Analyses of standard deviations are applied with a log transformation as described in Nakagawa et al. (2015). That includes the following transformations: \cr
 
 ## log transformed SD
 \itemize{

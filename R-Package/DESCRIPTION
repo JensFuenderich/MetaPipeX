@@ -1,9 +1,9 @@
 Package: MetaPipeX
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Standardizing data structure, analysis code & reporting for experimental data of between groups comparisons in replication projects
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: Jens Fuenderich
+Maintainer: Jens Fuenderich <Jens.Fuenderich@uni-erfurt.de>
 Description: The MetaPipeX framework is a reaction to the diversity in reporting standards
     and data formats in multi-lab replication projects. It serves as a proposal to
     standardize the data structure, analysis code and reporting for experimental

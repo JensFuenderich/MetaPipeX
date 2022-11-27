@@ -22,4 +22,7 @@ utils::globalVariables(c("data",
                          "pooled_SD",
                          "SE_pooled_SD",
                          "SMD",
-                         "SE_SMD"))
+                         "SE_SMD",
+                         "Rep_Stat",
+                         "Model_Est",
+                         "Tau"))

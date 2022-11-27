@@ -26,7 +26,7 @@ Description: The MetaPipeX framework is a reaction to the diversity in reporting
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.2
 Imports: 
     dplyr,
     DT,

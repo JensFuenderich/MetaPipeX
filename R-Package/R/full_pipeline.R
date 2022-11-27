@@ -48,36 +48,37 @@
 #' @examples
 #'
 #' # create vectors with names
-#' MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2") # two projects
-#' ReplicationProject_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D") # two replications per project
-#' Replication_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
-#'                        "Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
-#'                        "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J",
-#'                        "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J") # k = 5 per replication
+#' # two projects
+#' MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2")
+#' # two replications per project
+#' ReplicationProject_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
+#' Multi_Lab_1 <- rep(c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E"), times = 2)
+#' Multi_Lab_2 <- rep(c("Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J"), times = 2)
+#' Replication_names <- c(Multi_Lab_1, Multi_Lab_2) # k = 5 per replication
 #'
 #' # create df with all example data
 #' set.seed(1973)
 #' example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
-#'                               ReplicationProject = rep(ReplicationProject_names, each = 50),
-#'                               Replication = rep(Replication_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
-#'                               DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
-#'                               Treatment = rep(c(1,0), times = 100))
+#' ReplicationProject = rep(ReplicationProject_names, each = 50),
+#' Replication = rep(Replication_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
+#' DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
+#' Treatment = rep(c(1,0), times = 100)
+#' )
 #'
 #' # split the data per replication project to prepare for use in MetaPipeX::full_pipeline()
 #' example_data_list <- split(example_data_df,
 #'                            example_data_df$ReplicationProject)
 #'
-#' ## applying the input to the MetaPipeX function
+#' ## applying the input to the MetaPipeX function \cr
 #'
 #' # run full_pipeline
-#' example_MetaPipeX_output <- MetaPipeX::full_pipeline(data = example_data_list,
-#'                                                      MultiLab = "MultiLab", # column name needs no change
-#'                                                      ReplicationProject = "ReplicationProject",
-#'                                                      Replication = "Replication",
-#'                                                      DV = "DV",
-#'                                                      Group = "Treatment", # column name needs changing
-#'                                                      output_path = file.path(paste0(getwd(), "/")), # creates a folder in the current working directory
-#'                                                      folder_name = "MetaPipeX_Example" # the name of that folder
+#' example_MetaPipeX_output <- MetaPipeX::full_pipeline(
+#' data = example_data_list,
+#' MultiLab = "MultiLab", # column name needs no change
+#' ReplicationProject = "ReplicationProject",
+#' Replication = "Replication",
+#' DV = "DV",
+#' Group = "Treatment" # column name needs changing
 #' )
 #'
 #' \dontrun{
@@ -294,7 +295,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                                             c("Replication__", "replication level:__"), # redundant but maybe necessary for code (if pooled works but (for example) "Estimate" does not, I'll know)
                                             c("__Tau2_", "__Tau2 for_"),
                                             c("__Tau_", "__Tau for_"),
-                                            c("__CoeffVar_", "__Coefficient of Variation (tau/mu) for_"),
+                                            c("__CoeffVar_", "__Coefficient of Variation (tau/model_est) for_"),
                                             c("__I2_", "__I2 for_"),
                                             c("__H2_", "__H2 for_"),
                                             c("__QE_", "__QE for_"),

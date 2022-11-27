@@ -39,7 +39,11 @@ No transformations are performed on the data in this step of the MetaPipeX pipel
 \examples{
 
 # import the according table template
-Replication_Summaries_template <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/2_Replication_Summaries/Replication_Summaries_template.csv"))
+Replication_Summaries_template <- readr::read_csv(url(
+paste("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/",
+"Table_Templates/2_Replication_Summaries/Replication_Summaries_template.csv",
+sep = ""
+)))
 
 # set seed for drawing data
 set.seed(1973)
@@ -52,15 +56,25 @@ Replication_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E", "Lab_F", "La
 # random sampling for simulated data & building identifier variables
 list_of_replication_summaries <- lapply(1:4, function(x){
   # sampling
-  data_example <- as.data.frame(matrix(data = stats::rnorm(n = 200 * (ncol(Replication_Summaries_template)-3), mean = 5, sd = 0.5), nrow = 200, ncol = ncol(Replication_Summaries_template)-3))
+  data_example <- as.data.frame(matrix(
+  data = stats::rnorm(n = 200*(ncol(Replication_Summaries_template)-3), mean = 5, sd = 0.5),
+  nrow = 200,
+  ncol = ncol(Replication_Summaries_template)-3)
+  )
   # rename columns according to template
-  names(data_example) <- names(Replication_Summaries_template)[4:length(names(Replication_Summaries_template))]
+  names(data_example) <- names(
+  Replication_Summaries_template
+  )[4:length(names(Replication_Summaries_template))]
   data_example$T_N <- round(data_example$T_N, 0)
   data_example$T_N <- round(data_example$C_N, 0)
   # building identifier variables
   MultiLab <- rep(MultiLab_names[x], times = nrow(data_example))
   ReplicationProject <- rep(ReplicationProject_names[x], times = nrow(data_example))
-  Replication <- rep(if (x == 1 | x == 2) {Replication_names[1:4]} else if (x == 3 | x == 4) {Replication_names[5:8]}, each = nrow(data_example)/4)
+  Replication <- rep(if (x == 1 | x == 2) {
+  Replication_names[1:4]
+  } else if (x == 3 | x == 4) {
+  Replication_names[5:8]
+  }, each = nrow(data_example)/4)
   # combine data & identifiers
   cbind(MultiLab, ReplicationProject, Replication, data_example)
 })
@@ -73,8 +87,8 @@ names(list_of_replication_summaries) <- c("MultiLab_1_ReplicationProject_A_Repli
 ## applying the input to the MetaPipeX function
 
 # run merge_replication_summaries
-example_MetaPipeX_output <- MetaPipeX::merge_replication_summaries(data = list_of_replication_summaries,
-                                                                   output_folder = file.path(paste0(getwd(), "/")) # chooses the current working directory as folder for exports
+example_MetaPipeX_output <- MetaPipeX::merge_replication_summaries(
+data = list_of_replication_summaries
 )
 
 \dontrun{

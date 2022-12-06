@@ -30,9 +30,9 @@ RoxygenNote: 7.2.2
 Imports: 
     dplyr,
     DT,
-    foreign,
     ggplot2,
     grDevices,
+    haven,
     janitor,
     magrittr,
     mathjaxr,

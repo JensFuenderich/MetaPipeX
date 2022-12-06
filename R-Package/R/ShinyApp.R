@@ -1,18 +1,18 @@
 #' MetaPipeX Shiny App
 #'
-#' @import shiny
-#' @import readr
 #' @import ggplot2
-#' @import shinyWidgets
-#' @import shinythemes
+#' @import grDevices
 #' @import magrittr
 #' @import metafor
-#' @import puniform
-#' @import grDevices
-#' @importFrom janitor compare_df_cols
+#' @import readr
+#' @import shiny
+#' @import shinythemes
+#' @import shinyWidgets
 #' @importFrom DT renderDT
 #' @importFrom DT DTOutput
-#' @importFrom foreign read.spss
+#' @importFrom haven read_sav
+#' @importFrom janitor compare_df_cols
+#' @importFrom puniform meta_plot
 #' @importFrom stats na.omit
 #' @importFrom stats cor
 #' @importFrom utils zip
@@ -123,12 +123,14 @@ just type it in the Search field and all lines containing that word will be disp
                                                      label = "MultiLab:",
                                                      choices = ""),
                                   shiny::checkboxInput(inputId = "create_custom_multilab_col",
-                                                       label = "Create a generic MultiLab column"),
+                                                       label = "Create a MultiLab column"),
+                                  uiOutput("out_custom_multilab_col"),
                                   shiny::selectInput(inputId = "replicationproject_col",
                                                      label = "ReplicationProject:",
                                                      choices = ""),
                                   shiny::checkboxInput(inputId = "create_custom_replicationproject_col",
-                                                       label = "Create a generic ReplicationProject column"),
+                                                       label = "Create a ReplicationProject column"),
+                                  uiOutput("out_custom_replicationproject_col"),
                                   shiny::selectInput(inputId = "replication_col",
                                                      label = "Replication:",
                                                      choices = ""),
@@ -138,6 +140,14 @@ just type it in the Search field and all lines containing that word will be disp
                                   shiny::selectInput(inputId = "group_col",
                                                      label = "Group:",
                                                      choices = ""),
+                                  shiny::checkboxInput(inputId = "filter_question",
+                                                       label = "Do you need to filter data?"),
+                                  shiny::selectInput(inputId = "filter_col",
+                                                     label = "Filter Variable:",
+                                                     choices = ""),
+                                  tags$style("#expr-container label {font-weight: 400;}"),
+                                  tags$div(id = "expr-container",
+                                           uiOutput("out_filter_identifier")),
                                   h5("Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
           ),
 
@@ -278,9 +288,11 @@ just type it in the Search field and all lines containing that word will be disp
                                label = "Replication",
                                choices = c("all", unique(MetaPipeX_data_full$Replication))
             ),
+
             shiny::actionButton(inputId = "exclusion",
-                                label = "Exclude!"
+                                label = "Exclude!*"
             ),
+            h5("*If it does not respond after the first click, click again!"),
             h3("Remove Exclusion"),
             shiny::selectInput(inputId = "Remove_MultiLab_Exclusion",
                                label = "MultiLab",
@@ -536,8 +548,7 @@ just type it in the Search field and all lines containing that word will be disp
                       shiny::sidebarLayout(
                         shiny::sidebarPanel(
                           h3("How to use this codebook:"),
-                          shiny::p(codebook_text_vec)#,
-                          #verbatimTextOutput("codebook_text",  placeholder = FALSE)
+                          shiny::p(codebook_text_vec)
                         ),
                         mainPanel(
                           h4("Tabular Codebook"),
@@ -573,9 +584,9 @@ just type it in the Search field and all lines containing that word will be disp
       ## Create Object for analysis results from data imports
 
       # create empty reactive values object
-      data_import <- reactiveValues()
+      data_import <- shiny::reactiveValues()
       # after applying MetaPipeX functions (depending on the data type imported),
-      # the df that is then provided to "Data Selection" is stored as MetaPipeX_data_full()
+      # the df that is then provided to "Data Selection" is stored as MetaPipeX_data$full
 
 
       ## This chunk creates the "confirm upload" button, only when data is supplied to the app
@@ -603,7 +614,7 @@ just type it in the Search field and all lines containing that word will be disp
             base::lapply(upload_info$datapath,readr::read_csv)
           }
           else if (base::length(base::grep(".sav", upload_info$datapath)) > 0) {
-            base::lapply(upload_info$datapath, function(x){foreign::read.spss(x, to.data.frame=TRUE)})
+            base::lapply(upload_info$datapath, function(x){haven::read_sav(x)})
           }
           else if (base::length(base::grep(".rds", upload_info$datapath))  > 0){
             base::lapply(upload_info$datapath,base::readRDS)
@@ -647,6 +658,35 @@ just type it in the Search field and all lines containing that word will be disp
                                  choices = IPD_raw_data_import_columns(),
                                  selected = if ( any(IPD_raw_data_import_columns() == "Group") ) {"Group"}else{})
       })
+      shiny::observe({
+        shiny::updateSelectInput(session, "filter_col",
+                                 choices = IPD_raw_data_import_columns(),
+                                 selected = if ( any(IPD_raw_data_import_columns() == "Exclusions") ) {"Exclusions"}else{NULL})
+      })
+
+
+
+      output$out_custom_multilab_col <- renderUI({
+        if (input$create_custom_multilab_col == TRUE) {
+          shiny::textInput(inputId = "custom_multilab_col",
+                           label = "Type in a name for the multi-lab:" )
+        }else{}
+      })
+
+      output$out_custom_replicationproject_col <- renderUI({
+        if (input$create_custom_replicationproject_col == TRUE) {
+          shiny::textInput(inputId = "custom_replicationproject_col",
+                           label = "Type in a name for the replication project:" )
+        }else{}
+      })
+
+      output$out_filter_identifier <- renderUI({
+        if (input$filter_question == TRUE) {
+          shiny::textInput(inputId = "filter_identifier",
+                           label = HTML("Define filter (use x to refer to the filter column):") )
+        }else{}
+      })
+
 
       ## run the pipeline, as soon as the column selection is confirmed
 
@@ -662,13 +702,12 @@ just type it in the Search field and all lines containing that word will be disp
                               {
 
                                 if (input$create_custom_multilab_col == TRUE) {
-                                  IPD_list <- lapply(IPD_list, cbind, MultiLab = "MultiLab")
+                                  IPD_list <- lapply(IPD_list, cbind, MultiLab = input$custom_multilab_col)
                                 }else{}
 
                                 if (input$create_custom_replicationproject_col == TRUE) {
-                                  IPD_list <- lapply(IPD_list, cbind, ReplicationProject = "ReplicationProject")
+                                  IPD_list <- lapply(IPD_list, cbind, ReplicationProject = input$custom_replicationproject_col)
                                 }else{}
-
 
                                 # If a single data frame is provided to the function it is transformed to a list object. Each list element represents a replication projects/target-effect.
                                 if (length(IPD_list) > 1) {}else{
@@ -688,14 +727,27 @@ just type it in the Search field and all lines containing that word will be disp
                                   }
                                 }
 
+                                # apply filter if necessary
+                                if (input$filter_question == TRUE) {
+                                  apply_filter <- function(x){
+
+                                    IPD_list[[x]] <- IPD_list[[x]] %>% dplyr::filter(eval(parse(text = gsub(pattern = "x",
+                                                                                                            replacement = "IPD_list[[x]][input$filter_col]",
+                                                                                                            input$filter_identifier))))
+                                  }
+                                  IPD_list <- lapply(1:length(IPD_list), apply_filter)
+                                } else {}
+
 
                                 # reduce to the relevant columns
                                 reduce_cols <- function(x){
-                                  single_df <- base::subset(IPD_list[[x]], select =  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col},
-                                                                                       if(input$create_custom_replicationproject_col == TRUE){"ReplicationProject"}else{input$replicationproject_col},
-                                                                                       input$replication_col,
-                                                                                       input$DV_col,
-                                                                                       input$group_col))
+                                  single_df <- base::subset(IPD_list[[x]],
+                                                            select =  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col},
+                                                                        if(input$create_custom_replicationproject_col == TRUE){"ReplicationProject"}else{input$replicationproject_col},
+                                                                        input$replication_col,
+                                                                        input$DV_col,
+                                                                        input$group_col))
+
                                   IPD_list[[x]] <- single_df
                                 }
 
@@ -704,6 +756,10 @@ just type it in the Search field and all lines containing that word will be disp
                                 # remove NA
                                 IPD_list <- lapply(1:length(IPD_list), function(x){IPD_list[[x]] <- stats::na.omit(IPD_list[[x]])})
 
+                                # create indicators for data_import$transformations
+                                original_group_indicators <- paste(unique(as.factor(unlist(IPD_list[[1]][[input$group_col]]))), collapse = ",")
+                                MetaPipeX_group_indicators = paste(unique(abs(as.numeric(as.factor(unlist(IPD_list[[1]][[input$group_col]])))-1)), collapse = ",")
+
                                 # modify variables that could be in in an annoying format (added after trying to import a .sav file)
                                 IPD_list <- lapply(1:length(IPD_list), function(x){
                                   single_df <- data.frame(
@@ -711,7 +767,8 @@ just type it in the Search field and all lines containing that word will be disp
                                     IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}]],
                                     as.character(IPD_list[[x]][[input$replication_col]]),
                                     IPD_list[[x]][[input$DV_col]],
-                                    abs(as.numeric(unlist(IPD_list[[x]][[input$group_col]]))-1)
+                                    #abs(as.numeric(unlist(IPD_list[[x]][[input$group_col]]))-1)
+                                    abs(as.numeric(as.factor(unlist(IPD_list[[x]][[input$group_col]])))-1)
                                   )
                                   names(single_df) <-  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}, if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}, input$replication_col, input$DV_col, input$group_col)
                                   IPD_list[[x]] <- single_df
@@ -728,6 +785,25 @@ just type it in the Search field and all lines containing that word will be disp
 
                               })
 
+          data_import$input <- IPD_list()
+          data_import$transformations <- data.frame(MultiLab = input$custom_multilab_col,
+                                                    ReplicationProject = input$custom_replicationproject_col,
+                                                    Replication = input$replication_col,
+                                                    DV = input$DV_col,
+                                                    Group = input$group_col,
+                                                    Original_Group_Indicators = original_group_indicators,
+                                                    MetaPipeX_Group_Indicators = MetaPipeX_group_indicators,
+                                                    Filter_Col_x = if (input$filter_question == TRUE) {
+                                                      input$filter_col
+                                                      }else{"no filter"},
+                                                    Filter = if (input$filter_question == TRUE) {
+                                                      input$filter_identifier
+                                                    }else{"no filter"}
+                                                      )
+          data_import$codebook_transformations <- rbind(IPD_analzed$`1_Individual_Participant_Data`$codebook_for_individual_participant_data,
+                                                        data.frame(Column_Name = c("Filter_Col_x", "Filter"),
+                                                                   Description = c("The column containing the information that the filter is applied to (x).",
+                                                                                   "The filter as it was applied to x. For example: 'x > 170'.")))
           data_import$IPD_data <- IPD_analzed
           data_import$IPD_MetaPipeX <- IPD_analzed$`5_Meta_Pipe_X`$MetaPipeX_Data
 
@@ -740,8 +816,6 @@ just type it in the Search field and all lines containing that word will be disp
       ## run the pipeline, as soon as the input is confirmed
 
       shiny::observeEvent(input$confirm_upload,{ # stores results in data_import$ReplicationSum_MetaPipeX
-
-        #ReplicationSum_data_import <- shiny::eventReactive( input$confirm_upload, {
 
         if (input$select_upload == "ReplicationSum") {
 
@@ -778,13 +852,8 @@ just type it in the Search field and all lines containing that word will be disp
                                 # expand df
                                 expanded_MA <- meta_analyses[duplications,]
 
-                                saveRDS(merged_replication_summaries, "merged_replication_summaries.rds")
-                                saveRDS(expanded_MA, "expanded_MA.rds")
-
                                 # reorder both data frames (so they match) and combine them to create the MetaPipeX App data format
                                 ReplicationSum_MetaPipeX <- cbind(merged_replication_summaries, expanded_MA)
-
-                                saveRDS(ReplicationSum_MetaPipeX, "ReplicationSum_MetaPipeX1.rds")
 
                                 # add "Replication__Result__" to all Replication related columns and "MA__" to all meta-analysis columns
                                 # Replication
@@ -805,7 +874,6 @@ just type it in the Search field and all lines containing that word will be disp
 
                               })
 
-          #saveRDS(MetaPipeX_Data, "MetaPipeX_Data2.rds")
           data_import$ReplicationSum_MetaPipeX <- ReplicationSum_MetaPipeX
 
         } else {}
@@ -906,7 +974,8 @@ just type it in the Search field and all lines containing that word will be disp
 
       ## final output from Upload Data
 
-      MetaPipeX_data_full <- shiny::eventReactive( input$confirm_upload, {
+
+      MetaPipeX_data_upload <- shiny::eventReactive( input$confirm_upload, {
         if (input$select_upload == "MetaPipeX") {
           data_import$MetaPipeX_MetaPipeX
         } else if (input$select_upload == "MergedReplicationSum") {
@@ -920,21 +989,26 @@ just type it in the Search field and all lines containing that word will be disp
         }
       })
 
+      MetaPipeX_data <- shiny::reactiveValues()
+
+      shiny::observeEvent(input$confirm_upload,{
+        MetaPipeX_data$full <- base::rbind(MetaPipeX_data$full, MetaPipeX_data_upload())
+      })
 
       ### Data Selection
 
       ## selectInput dependencies
 
       multilab_choices <- shiny::reactive({
-        MetaPipeX_data_full <- MetaPipeX_data_full()
+        MetaPipeX_data_full <- MetaPipeX_data$full
         c("all", unique(MetaPipeX_data_full$MultiLab))
       })
       replicationproject_choices <- shiny::reactive({
-        MetaPipeX_data_full <- MetaPipeX_data_full()
+        MetaPipeX_data_full <- MetaPipeX_data$full
         unique(MetaPipeX_data_full$ReplicationProject)
       })
       replication_choices <- shiny::reactive({
-        MetaPipeX_data_full <- MetaPipeX_data_full()
+        MetaPipeX_data_full <- MetaPipeX_data$full
         c("all", unique(MetaPipeX_data_full$Replication))
       })
 
@@ -947,7 +1021,7 @@ just type it in the Search field and all lines containing that word will be disp
                                  choices = if (input$MultiLab == "all") { # return all ReplicationProjects
                                    c("all", replicationproject_choices())
                                  } else { # only return ReplicationProjects from the selected multilab
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$ReplicationProject))
                                  }
         )
@@ -955,10 +1029,10 @@ just type it in the Search field and all lines containing that word will be disp
       shiny::observe({
         shiny::updateSelectInput(session, "Replication",
                                  choices = if (input$MultiLab == "all") {
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$Replication))
                                  } else {
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$Replication))
                                  }
         )
@@ -973,7 +1047,7 @@ just type it in the Search field and all lines containing that word will be disp
         if (is.na(input$exclusion) == TRUE) {}
 
         # create df from reactive object
-        MetaPipeX_data_full <- MetaPipeX_data_full()
+        MetaPipeX_data_full <- MetaPipeX_data$full
 
         # decide if Replication level data is included
         if (input$Level == TRUE) {
@@ -1140,6 +1214,14 @@ just type it in the Search field and all lines containing that word will be disp
         content = function(file){
           # create directory
           dir.create("MetaPipeX_folder")
+          # create folder for data input
+          dir.create("MetaPipeX_folder/0_Input")
+          # save data as imported
+          base::saveRDS(data_import$input, file = "MetaPipeX_folder/0_Input/Input_Data.rds")
+          # save data transformations
+          write.csv(data_import$transformations, file = "MetaPipeX_folder/0_Input/transform_to_IPD.csv")
+          # save codebook for transformations
+          write.csv(data_import$codebook_transformations, file = "MetaPipeX_folder/0_Input/codebook_for_transform_to_IPD.csv")
           # create folder for individual participant data
           dir.create(paste("MetaPipeX_folder", "/1_Individual_Participant_Data", sep = ""))
           readr::write_csv(data_import$IPD_data$`1_Individual_Participant_Data`$codebook_for_individual_participant_data, paste("MetaPipeX_folder/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))
@@ -1188,7 +1270,7 @@ just type it in the Search field and all lines containing that word will be disp
                                  choices = if (input$MultiLab_Exclusion == "all") { # return all ReplicationProjects
                                    c("all", replicationproject_choices())
                                  } else { # only return ReplicationProjects from the selected multilab
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$ReplicationProject))
                                  }
         )
@@ -1196,10 +1278,10 @@ just type it in the Search field and all lines containing that word will be disp
       shiny::observe({
         shiny::updateSelectInput(session, "Replication_Exclusion",
                                  choices = if (input$MultiLab_Exclusion == "all") {
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$Replication))
                                  } else {
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$Replication))
                                  }
         )
@@ -1280,7 +1362,7 @@ just type it in the Search field and all lines containing that word will be disp
                                  choices = if (input$Remove_MultiLab_Exclusion == "all") { # return all replications
                                    c("all", replicationproject_choices())
                                  } else { # only return replications from the selected multilab
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$ReplicationProject))
                                  }
         )
@@ -1288,10 +1370,10 @@ just type it in the Search field and all lines containing that word will be disp
       shiny::observe({
         shiny::updateSelectInput(session, "Remove_Replication_Exclusion",
                                  choices = if (input$Remove_MultiLab_Exclusion == "all") {
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$Replication))
                                  } else {
-                                   MetaPipeX_data_full <- MetaPipeX_data_full()
+                                   MetaPipeX_data_full <- MetaPipeX_data$full
                                    c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$Replication))
                                  }
         )
@@ -1848,9 +1930,6 @@ just type it in the Search field and all lines containing that word will be disp
       output$scatter_plot <- shiny::renderPlot({
 
         plot_data <- as.data.frame(scatter_plot_data())
-
-        # plot_data <- plot_data[ vals_scatter$keeprows, , drop = FALSE]
-        # exclude <- plot_data[!vals_scatter$keeprows, , drop = FALSE]
 
         # Plotting
 

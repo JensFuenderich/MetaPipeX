@@ -786,8 +786,8 @@ just type it in the Search field and all lines containing that word will be disp
                               })
 
           data_import$input <- IPD_list()
-          data_import$transformations <- data.frame(MultiLab = input$custom_multilab_col,
-                                                    ReplicationProject = input$custom_replicationproject_col,
+          data_import$transformations <- data.frame(MultiLab = if (input$create_custom_multilab_col == TRUE) {input$custom_multilab_col} else {input$multilab_col},
+                                                    ReplicationProject = if (input$create_custom_replicationproject_col == TRUE) {input$custom_replicationproject_col} else {input$replicationproject_col},
                                                     Replication = input$replication_col,
                                                     DV = input$DV_col,
                                                     Group = input$group_col,
@@ -795,11 +795,11 @@ just type it in the Search field and all lines containing that word will be disp
                                                     MetaPipeX_Group_Indicators = MetaPipeX_group_indicators,
                                                     Filter_Col_x = if (input$filter_question == TRUE) {
                                                       input$filter_col
-                                                      }else{"no filter"},
+                                                    }else{"no filter"},
                                                     Filter = if (input$filter_question == TRUE) {
                                                       input$filter_identifier
                                                     }else{"no filter"}
-                                                      )
+          )
           data_import$codebook_transformations <- rbind(IPD_analzed$`1_Individual_Participant_Data`$codebook_for_individual_participant_data,
                                                         data.frame(Column_Name = c("Filter_Col_x", "Filter"),
                                                                    Description = c("The column containing the information that the filter is applied to (x).",

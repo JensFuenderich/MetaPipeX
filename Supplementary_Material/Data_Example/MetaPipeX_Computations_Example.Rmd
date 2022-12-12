@@ -26,7 +26,7 @@ dir.create(output_folder_path)
 
 #### Documenting:
 
-#### Item Data
+##### Item Data
 
 Creating a folder 0_Item_Data and storing data in that folder.
 
@@ -50,7 +50,7 @@ Item_Level_RRR4 <- readr::read_csv(RRR4_data_path$local_path)
 
 #### Computational Step 2:
 
-#### Creating Individual Participant Data (IPD)
+##### Creating Individual Participant Data (IPD)
 
 Selecting relevant columns & recoding group indication. Applying data cleaning.
 
@@ -78,8 +78,6 @@ IPD_RRR4 <- base::subset(IPD_RRR4, IPD_RRR4$Exclusion == 1)
 
 #### Computational Steps 3-6:
 
-##### Creating Individual Participant Data (IPD)
-
 ##### Creating Replication-Level Data
 
 ##### Creating Replication-Level Data (merged)
@@ -90,14 +88,13 @@ IPD_RRR4 <- base::subset(IPD_RRR4, IPD_RRR4$Exclusion == 1)
 
 #### Documenting:
 
-#### Item Data
-
 Creating the folders\
 1_Individual_Participant_Data\
 2_Replication_Summaries\
 3_Merged_Replication_Summaries\
 4_Meta_Analyses\
-5_Meta_Pipe_X   and storing data in those folders.
+5_Meta_Pipe_X\
+and storing data in those folders.
 
 ```{r steps 3-6 & documenting}
 

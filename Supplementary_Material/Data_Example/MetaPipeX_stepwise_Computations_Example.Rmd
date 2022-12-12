@@ -1,0 +1,262 @@
+---
+title: "MetaPipeX_stepwise_Computations_Example"
+author: "Jens Fuenderich"
+date: "2022-12-04"
+output: pdf_document
+---
+
+#### Prepare Environment for Example
+
+```{r setup}
+
+## load/install packages, including MetaPipeX (from github)
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(magrittr, osfr, readr, stats)
+pacman::p_load_gh("JensFuenderich/MetaPipeX/R-Package")
+
+## set up output folder 
+# define output path (set to working directory) 
+custom_output_path <- getwd() 
+# define path for output folder
+output_folder_path <- paste(custom_output_path, "MetaPipeX_Output", sep = "/")
+# create folder
+dir.create(output_folder_path)
+
+```
+
+#### Documenting:
+
+##### Item Data
+
+Creating a folder 0_Item_Data and storing data in that folder.
+
+```{r documenting item data}
+
+## download data from osf (to output_folder_path)
+# define path to folder
+folder_path_item <- paste(output_folder_path, "0_Item_Data", sep = "/")
+# create folder
+dir.create(folder_path_item)
+# download 
+RRR4_data_path <- osfr::osf_retrieve_file("t3mns") %>%
+  osfr::osf_download(., path = folder_path_item)
+Dang_data_path <- osfr::osf_retrieve_file("8egc5") %>%
+  osfr::osf_download(., path = folder_path_item)
+
+## import data from folder
+Item_Level_RRR4 <- readr::read_csv(RRR4_data_path$local_path)
+
+```
+
+#### Computational Step 2:
+
+##### Creating Individual Participant Data (IPD)
+
+Selecting relevant columns & recoding group indication. Applying data cleaning.
+
+```{r step 2}
+
+## select relevant columns 
+IPD_RRR4 <- data.frame(MultiLab =  rep("RRR4", 
+                                       times = length(Item_Level_RRR4$Site)), 
+                       ReplicationProject = rep("Sripada", 
+                                                times = length(Item_Level_RRR4$Site)), 
+                       Replication = Item_Level_RRR4$Site , 
+                       DV = Item_Level_RRR4$ExGauss.I.RTVar.MSIT, 
+                       Group = base::ifelse(Item_Level_RRR4$Task == "H", 
+                                            yes = 1, 
+                                            no = base::ifelse(
+                                              Item_Level_RRR4$Task == "E", 
+                                              yes = 0, 
+                                              no = NA)),
+                       Exclusion = Item_Level_RRR4$Exclusions)
+
+## apply data cleaning 
+IPD_RRR4 <- base::subset(IPD_RRR4, IPD_RRR4$Exclusion == 1)
+
+```
+
+#### Documenting:
+
+##### Individual Participant Data (IPD)
+
+Creating a folder 0_Item_Data and storing data in that folder.
+
+```{r documenting ipd}
+
+## document data & download codebook 
+# define path to folder
+folder_path_ipd <- paste(output_folder_path, "1_Individual_Participant_Data", sep = "/")
+# create folder
+dir.create(folder_path_ipd)
+# export data 
+readr::write_csv(IPD_RRR4, paste(folder_path_ipd, "RRR4.csv", sep = "/"))
+# download codebook 
+readr::write_csv(readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv")), 
+                 paste(folder_path_ipd, "codebook_for_individual_participant_data.csv", sep = "/"))
+
+```
+
+#### Computational Step 3:
+
+##### Creating Replication-Level Data (Replication Summaries)
+
+#### Documenting:
+
+2_Replication_Summaries\
+and storing data in the folder.
+
+```{r step 3 & documenting replication summaries}
+
+# define path to folder
+folder_path_rep_sum <- paste(output_folder_path, 
+                             "2_Replication_Summaries/", 
+                             sep = "/")
+# create folder
+dir.create(folder_path_rep_sum)
+
+# apply MetaPipeX function
+Replication_Summaries_RRR4 <- MetaPipeX::create_replication_summaries(
+  data = IPD_RRR4, 
+  output_folder = folder_path_rep_sum)
+
+```
+
+#### Computational Step 4:
+
+##### Creating Replication-Level Data (merged)
+
+#### Documenting:
+
+3_Merged_Replication_Summaries\
+and storing data in the folder.
+
+```{r step 4 & documenting merged replication summaries}
+
+# define path to folder
+folder_path_m_rep_sum <- paste(output_folder_path, 
+                               "3_Merged_Replication_Summaries/", 
+                               sep = "/")
+# create folder
+dir.create(folder_path_m_rep_sum)
+
+## combine into single data set
+Merged_Replication_Summaries_RRR4 <- MetaPipeX::merge_replication_summaries(
+  data = Replication_Summaries_RRR4$Replication_Summaries,
+  output_folder = folder_path_m_rep_sum)
+
+```
+
+#### Computational Step 5:
+
+##### Creating Meta-Level Data
+
+#### Documenting:
+
+4_Meta_Analyses\
+and storing data in the folder.
+
+```{r step 5 & documenting meta-level data}
+
+# define path to folder
+folder_path_meta_analyses <- paste(output_folder_path, 
+                                   "4_Meta_Analyses/", 
+                                   sep = "/")
+# create folder
+dir.create(folder_path_meta_analyses)
+
+## run meta-analyses
+Meta_Analyses <- MetaPipeX::meta_analyses(
+  data = Merged_Replication_Summaries_RRR4$Merged_Replication_Summaries, 
+  output_folder = folder_path_meta_analyses)
+
+```
+
+#### Computational Step 6:
+
+##### Creating Creating MetaPipeX Data
+
+#### Documenting:
+
+5_Meta_Pipe_X\
+and storing data in the folder.
+
+```{r step 6 & documenting MetaPipeX data}
+
+## step 6
+
+# define path to folder
+folder_path_MetaPipeX <- paste(output_folder_path, 
+                                   "5_Meta_Pipe_X/", 
+                                   sep = "/")
+# create folder
+dir.create(folder_path_MetaPipeX)
+
+## combine replication- & meta-level data 
+
+# reorder data frames
+merged_replication_summaries <- dplyr::arrange(
+  Merged_Replication_Summaries_RRR4$Merged_Replication_Summaries, 
+  ReplicationProject)
+meta_analyses <- dplyr::arrange(
+  Meta_Analyses$Meta_Analyses, 
+  ReplicationProject)
+
+# number of replications per replication project 
+# (= "How many labs are in each replication project?")
+k_per_ReplicationProject <- merged_replication_summaries %>%
+  dplyr::count(.,ReplicationProject) %>%
+  dplyr::pull(.,n)
+
+# duplication vector (indicates how often replication level column needs to be 
+# repeated to match the replication level structure)
+duplications <- rep(1:nrow(meta_analyses), k_per_ReplicationProject)
+
+# expand df
+expanded_MA <- meta_analyses[duplications,]
+
+# reorder both data frames (so they match) and 
+# combine them to create the MetaPipeX App data format
+MetaPipeX_Data <- cbind(merged_replication_summaries, expanded_MA)
+
+# add "Replication__Result__" to all lab related columns and 
+# "MA__" to all meta-analysis columns
+# Replication columns from "T_N" to "SE_SMD"
+first_replication_col <- base::which(names(MetaPipeX_Data) == "T_N")
+last_replication_col <- base::which(names(MetaPipeX_Data) == "SE_SMD")
+names(MetaPipeX_Data)[first_replication_col:last_replication_col] <- paste(
+  "Replication__Result__", 
+  names(MetaPipeX_Data[,first_replication_col:last_replication_col]), 
+  sep = "")
+
+# MA
+first_replication_MA <- last_replication_col + 1
+last_replication_MA <- ncol(MetaPipeX_Data)
+names(MetaPipeX_Data)[first_replication_MA:last_replication_MA] <- paste(
+  "MA__", 
+  names(MetaPipeX_Data[,first_replication_MA:last_replication_MA]), 
+  sep = "")
+
+# delete duplicate/redundant columns
+MetaPipeX_Data$MA__MultiLab <- NULL
+MetaPipeX_Data$MA__ReplicationProject <- NULL
+base::rownames(MetaPipeX_Data) <- NULL
+
+
+## documenting MetaPipeX data & codebook 
+
+# export data 
+readr::write_csv(MetaPipeX_Data, paste(folder_path_MetaPipeX, "MetaPipeX_Data.csv", sep = "/"))
+# download codebook 
+readr::write_csv(readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/5_MetaPipeX/codebook_for_meta_pipe_x_data.csv")), 
+                 paste(folder_path_MetaPipeX, "codebook_for_meta_pipe_x.csv", sep = "/"))
+
+```
+
+#### Run App
+
+```{r }
+
+MetaPipeX::ShinyApp()
+
+```

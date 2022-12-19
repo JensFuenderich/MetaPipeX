@@ -306,7 +306,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
   }
 
   ## turn single df into list object
-  if (class(data) == "data.frame") {
+  if (inherits(data, "data.frame")) {
     data <- list(df = data)
     names(data) <- unique(data$MultiLab)
   }else{}

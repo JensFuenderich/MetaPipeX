@@ -22,6 +22,7 @@
 #' @param folder_name Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX_Output”.
 #' @param suppress_list_output Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.
 #' @param method Optional argument to specify the estimation method of the meta-analyses (the default is “REML”). For more information, please refer to the documentation of the metafor package.
+#' @param sparse A logical indicating whether sparse matrices should be used.
 #'
 #' @details
 #'
@@ -87,7 +88,7 @@
 #' }
 #'
 #' @export
-full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_path = NULL, folder_name = NULL, suppress_list_output = FALSE, method = "REML"){
+full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_path = NULL, folder_name = NULL, suppress_list_output = FALSE, method = "REML", sparse = FALSE){
 
   ### Run full pipeline
 
@@ -140,7 +141,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   }
 
   ## turn single df into list object
-  if (class(data) == "data.frame") {
+  if (inherits(data, "data.frame")) {
     data <- list(df = data)
     names(data) <- unique(data$MultiLab)
   }else{}
@@ -233,12 +234,14 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   if (is.null(output_path) == TRUE) {
     output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$Merged_Replication_Summaries,
                                                          suppress_list_output = FALSE,
-                                                         method = method)
+                                                         method = method,
+                                                         sparse = sparse)
   } else {
     output_list$Meta_Analyses <- MetaPipeX::meta_analyses(data = output_list$Merged_Replication_Summaries$Merged_Replication_Summaries,
                                                          output_folder = paste(MetaPipeX_folder, "/4_Meta_Analyses/", sep = ""),
                                                          suppress_list_output = FALSE,
-                                                         method = method)
+                                                         method = method,
+                                                         sparse = sparse)
   }
 
   ## 5. Step of Pipeline: create a data frame for the MetaPipeX App

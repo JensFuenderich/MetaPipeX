@@ -8,7 +8,8 @@ meta_analyses(
   data,
   output_folder = NULL,
   suppress_list_output = FALSE,
-  method = "REML"
+  method = "REML",
+  sparse = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ meta_analyses(
 \item{suppress_list_output}{A logical indicating whether results should be returned in R. If TRUE, no output is returned in R.}
 
 \item{method}{A character string to specify the type of model to be fitted. Default is “REML”. For more details, refer to the \href{https://www.metafor-project.org/doku.php/help}{{metafor}}  documentation.}
+
+\item{sparse}{A logical indicating whether sparse matrices should be used.}
 }
 \value{
 The output is a list with two objects: A data frame with the meta-analytical results and a codebook for unambiguous identification of its columns. \cr
@@ -54,7 +57,7 @@ A codebook that applies to the data frame (meta_analyses).
 Function to run meta-analyses on the mean difference (MD) and the standardized mean difference (SMD). The meta-analyses are run with the metafor::rma.mv function (Viechtbauer, 2010). For more details on the meta-analyses, refer to the Details and Return section. This function is the third (and fifth computational step) of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
-The meta-analyses within the function are written with metafor::rma.mv (Viechtbauer, 2010). The multivariate version of the rma function is deployed to enable the use of sparse matrices (“sparse = TRUE”) for optimal performance, where possible. They are fitted as a random-effects model with “random = ~ 1 | Replication” and a restricted maximum likelihood estimation (“REML”).
+The meta-analyses within the function are written with metafor::rma.mv (Viechtbauer, 2010). The multivariate version of the rma function is deployed to allow for the use of sparse matrices (“sparse = TRUE”) for optimal performance in meta-analyses with thousands of replications. They are fitted as a random-effects model with “random = ~ 1 | Replication” and a restricted maximum likelihood estimation (“REML”).
 The function runs two meta-analyses per replication project:
 \itemize{
  \item{mean difference (yi = MD, sei = SE_MD)}

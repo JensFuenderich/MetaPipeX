@@ -14,7 +14,8 @@ full_pipeline(
   output_path = NULL,
   folder_name = NULL,
   suppress_list_output = FALSE,
-  method = "REML"
+  method = "REML",
+  sparse = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ full_pipeline(
 \item{suppress_list_output}{Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.}
 
 \item{method}{Optional argument to specify the estimation method of the meta-analyses (the default is “REML”). For more information, please refer to the documentation of the metafor package.}
+
+\item{sparse}{A logical indicating whether sparse matrices should be used.}
 }
 \value{
 The output is a nested list object that represents the folder structure that is available under LINK EINFUEGEN

@@ -8,6 +8,7 @@
 #' @import shiny
 #' @import shinythemes
 #' @import shinyWidgets
+#' @import utils
 #' @importFrom DT renderDT
 #' @importFrom DT DTOutput
 #' @importFrom haven read_sav
@@ -15,7 +16,6 @@
 #' @importFrom puniform meta_plot
 #' @importFrom stats na.omit
 #' @importFrom stats cor
-#' @importFrom utils zip
 #'
 #' @description
 #'

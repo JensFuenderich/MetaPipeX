@@ -14,18 +14,15 @@
 #' \)
 #' Function to run meta-analyses on the mean difference (MD) and the standardized mean difference (SMD). The meta-analyses are run with the metafor::rma.mv function (Viechtbauer, 2010). For more details on the meta-analyses, refer to the Details and Return section. This function is the third (and fifth computational step) of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 #'
-#' @param data
-#' The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available on \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/Merged_Replication_Summaries_template.csv}{{github}}, as is a \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/codebook_for_merged_replication_summeries.csv}{{codebook}} for unambiguous identification of the abbreviations. Further, it is possible to use a \href{INSERT LINK}{{reduced version of the codebook}}, as meta-analyses are applied to MD and SMD only.
-#' @param output_folder
-#' Specify the output folder for the replication summaries and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
-#' @param suppress_list_output
-#' A logical indicating whether results should be returned in R. If TRUE, no output is returned in R.
-#' @param method
-#' A character string to specify the type of model to be fitted. Default is “REML”. For more details, refer to the \href{https://www.metafor-project.org/doku.php/help}{{metafor}}  documentation.
+#' @param data The function expects the input to be a data frame. The input may either be the data frame produced by the MetaPipeX::merge_replication_summaries() function, or one with the same columns names. A template of this data frame is available on \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/Merged_Replication_Summaries_template.csv}{{github}}, as is a \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/codebook_for_merged_replication_summeries.csv}{{codebook}} for unambiguous identification of the abbreviations. Further, it is possible to use a \href{INSERT LINK}{{reduced version of the codebook}}, as meta-analyses are applied to MD and SMD only.
+#' @param output_folder Specify the output folder for the replication summaries and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).
+#' @param suppress_list_output A logical indicating whether results should be returned in R. If TRUE, no output is returned in R.
+#' @param method A character string to specify the type of model to be fitted. Default is “REML”. For more details, refer to the \href{https://www.metafor-project.org/doku.php/help}{{metafor}}  documentation.
+#' @param sparse A logical indicating whether sparse matrices should be used.
 #'
 #' @details
 #'
-#' The meta-analyses within the function are written with metafor::rma.mv (Viechtbauer, 2010). The multivariate version of the rma function is deployed to enable the use of sparse matrices (“sparse = TRUE”) for optimal performance, where possible. They are fitted as a random-effects model with “random = ~ 1 | Replication” and a restricted maximum likelihood estimation (“REML”).
+#' The meta-analyses within the function are written with metafor::rma.mv (Viechtbauer, 2010). The multivariate version of the rma function is deployed to allow for the use of sparse matrices (“sparse = TRUE”) for optimal performance in meta-analyses with thousands of replications. They are fitted as a random-effects model with “random = ~ 1 | Replication” and a restricted maximum likelihood estimation (“REML”).
 #' The function runs two meta-analyses per replication project:
 #' \itemize{
 #'  \item{mean difference (yi = MD, sei = SE_MD)}
@@ -125,7 +122,7 @@
 #' }
 #'
 #' @export
-meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FALSE, method = "REML"){
+meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FALSE, method = "REML", sparse = FALSE){
 
   ## input is a large df with all multi-labs & replication projects
 
@@ -215,7 +212,7 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                 V = SE_MD^2,
                                 random = ~ 1 | Replication,
                                 method = method,
-                                sparse = TRUE,
+                                sparse = sparse,
                                 data = stats::na.omit(subset_ReplicationProject[, c("Replication", "MD", "SE_MD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__MD"] <- as.vector(Het_MD$b)
@@ -238,7 +235,7 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
                                  V = SE_SMD^2,
                                  random = ~ 1 | Replication,
                                  method = method,
-                                 sparse = TRUE,
+                                 sparse = sparse,
                                  data = stats::na.omit(subset_ReplicationProject[, c("Replication", "SMD", "SE_SMD")]))
       # insert the meta analysical results at the appropriate columns in the df
       Replication.df["Est__SMD"] <- as.vector(Het_SMD$b)

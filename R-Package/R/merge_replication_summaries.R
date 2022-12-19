@@ -146,8 +146,7 @@ merge_replication_summaries <- function(data, output_folder = NULL, suppress_lis
                                               c("_SD", "_standard deviation"),
                                               c("SE_", "standard error of the_"),
                                               c("SMD", "standardized mean difference"),
-                                              c("pooled_", "pooled_"),
-                                              c("Replication__", "replication level:__")
+                                              c("pooled_", "pooled_")
     ))
 
     # rename columns of df
@@ -171,15 +170,24 @@ merge_replication_summaries <- function(data, output_folder = NULL, suppress_lis
       gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
       gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
       gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
-      gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
-      gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .)
+      gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .)
 
     description_vector <- gsub(pattern = "_", replacement = " ", description_vector)
 
     codebook_for_merged_replication_summeries <- data.frame(Variable_Name = names(merged_replication_summaries), Variable_Description = description_vector)
+    codebook_for_merged_replication_summeries <- codebook_for_merged_replication_summeries[-c(1:3),]
 
     # do this one by hand, otherwise the abbr "MD" messes up the code
     codebook_for_merged_replication_summeries[codebook_for_merged_replication_summeries$Variable_Name == "MD",2] <- "mean difference"
+
+    # add identifiers
+    codebook_for_merged_replication_summeries <- rbind(data.frame(Variable_Name = c("MultiLab",
+                                                                                    "ReplicationProject",
+                                                                                    "Replication"),
+                                                                  Variable_Description = c("The multi-lab in which the replication project was publicised (e.g., ML2)",
+                                                                                           "The name of the replication project (or replicated target-effect)",
+                                                                                           "The replication (e.g., lab name) that a data point is associated with")),
+                                                       codebook_for_merged_replication_summeries)
 
   }
 

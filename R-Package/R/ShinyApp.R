@@ -339,7 +339,7 @@ just type it in the Search field and all lines containing that word will be disp
                         ),
                         mainPanel(
                           h4("Kernel Density Estimations for selected statistics"),
-                          uiOutput("kernel_density_estmary_out"),
+                          uiOutput("kernel_density_est_out"),
                           shiny::downloadLink("download_kernel_density_est", "Download Kernel Density Estimations")
                         )
                       )
@@ -478,7 +478,8 @@ just type it in the Search field and all lines containing that word will be disp
                         ),
                         mainPanel(
                           h4("Forest Plot for selected statistics"),
-                          shiny::plotOutput(outputId = "forest_plot"),
+                          uiOutput("forest_plot_out"),
+                          #shiny::plotOutput(outputId = "forest_plot"),
                           shiny::downloadLink("download_forest", "Download Forest Plot")
                         )
                       )
@@ -1534,14 +1535,14 @@ just type it in the Search field and all lines containing that word will be disp
       })
 
       # provide plot to UI
-      output$kernel_density_estmary <- shiny::renderPlot({
+      output$kernel_density_est <- shiny::renderPlot({
         kernel_density_est_plot()
       })
 
       # render plot UI (dependent on th number of ReplicationProjects)
-      output$kernel_density_estmary_out <- shiny::renderUI({
+      output$kernel_density_est_out <- shiny::renderUI({
 
-        shiny::plotOutput(outputId = "kernel_density_estmary",
+        shiny::plotOutput(outputId = "kernel_density_est",
                           height = paste(length(unique(kernel_density_est_data()$ReplicationProject)) * 120, "px", sep = "")
         )
       })
@@ -2005,23 +2006,38 @@ just type it in the Search field and all lines containing that word will be disp
 
       })
 
+      forest_plot_data <- shiny::reactive({
+
+        data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$forest_data_statistics))),
+                   SE = as.numeric(unlist(original_data() %>% dplyr::select(input$forest_data_SE))),
+                   Unit = unlist(original_data() %>% dplyr::select(input$forest_data_replication))
+        )
+
+
+      })
+
       forest_plot <- shiny::reactive({
 
-        plot_data <- data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$forest_data_statistics))),
-                                SE = as.numeric(unlist(original_data() %>% dplyr::select(input$forest_data_SE))),
-                                Unit = unlist(original_data() %>% dplyr::select(input$forest_data_replication)))
-
-        metafor::forest(x = plot_data[,"Est"],
-                        sei = plot_data[,"SE"],
-                        slab = plot_data[,c("Unit")],
+        metafor::forest(x = forest_plot_data()[,"Est"],
+                        sei = forest_plot_data()[,"SE"],
+                        slab = forest_plot_data()[,c("Unit")],
                         xlab = base::subset(codebook, codebook$Variable_Name == input$forest_data_statistics)$Variable_Description,
                         order = "obs"
         )
 
       })
 
+      # provide plot to UI
       output$forest_plot <- shiny::renderPlot({
         forest_plot()
+      })
+
+      # render plot UI (dependent on th number of Replications)
+      output$forest_plot_out <- shiny::renderUI({
+
+        shiny::plotOutput(outputId = "forest_plot",
+                          height = paste(length(forest_plot_data()$Unit) * 30, "px", sep = "")
+        )
       })
 
       ## download button
@@ -2031,8 +2047,15 @@ just type it in the Search field and all lines containing that word will be disp
           paste("MetaPipeX Forest Plot-", Sys.Date(), ".pdf", sep="")
         },
         content = function(file) {
-          grDevices::pdf(file=file, width = 10, height = 12)
-          plot(forest_plot())
+          grDevices::pdf(file=file,
+                         width = 10,
+                         height = length(forest_plot_data()$Unit) * 0.3)
+          metafor::forest(x = forest_plot_data()[,"Est"],
+                          sei = forest_plot_data()[,"SE"],
+                          slab = forest_plot_data()[,c("Unit")],
+                          xlab = base::subset(codebook, codebook$Variable_Name == input$forest_data_statistics)$Variable_Description,
+                          order = "obs"
+          )
           grDevices::dev.off()
         }
       )
@@ -2066,12 +2089,10 @@ just type it in the Search field and all lines containing that word will be disp
 
       funnel_plot <- shiny::reactive({
 
-        plot_data <- funnel_data()
-
-        metafor::funnel(x = plot_data$Est,
-                        sei = plot_data$SE,
-                        refline = unique(plot_data$Model_Est),
-                        xlab = unique(plot_data$x_lab))
+        metafor::funnel(x = funnel_data()$Est,
+                        sei = funnel_data()$SE,
+                        refline = unique(funnel_data()$Model_Est),
+                        xlab = unique(funnel_data()$x_lab))
 
       })
 
@@ -2111,20 +2132,24 @@ just type it in the Search field and all lines containing that word will be disp
 
 
 
-      funnel_CE_plot <- shiny::reactive({
+      funnel_CE_plot_data <- shiny::reactive({
 
-        plot_data <- data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est))),
-                                SE = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_SE))),
-                                Model_Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_model_est))),
-                                x_lab = rep(
-                                  base::subset(codebook, codebook$Variable_Name == input$funnel_data_est)$Variable_Description,
-                                  times = length(as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est)))))
+        data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est))),
+                   SE = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_SE))),
+                   Model_Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_model_est))),
+                   x_lab = rep(
+                     base::subset(codebook, codebook$Variable_Name == input$funnel_data_est)$Variable_Description,
+                     times = length(as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est)))))
         )
 
-        metafor::funnel(x = plot_data$Est,
-                        sei = plot_data$SE,
+      })
+
+      funnel_CE_plot <- shiny::reactive({
+
+        metafor::funnel(x = funnel_CE_plot_data()$Est,
+                        sei = funnel_CE_plot_data()$SE,
                         refline = 0,
-                        xlab = unique(plot_data$x_lab),
+                        xlab = unique(funnel_CE_plot_data()$x_lab),
                         level=c(90, 95, 99),
                         shade=c("white", "gray55", "gray75"))
 
@@ -2141,8 +2166,17 @@ just type it in the Search field and all lines containing that word will be disp
           paste("MetaPipeX Funnel Plot-", Sys.Date(), ".pdf", sep="")
         },
         content = function(file) {
-          grDevices::pdf(file=file, width = 10, height = 12)
-          plot(funnel_plot())
+          grDevices::pdf(file=file, width = 10, height = 7)
+          metafor::funnel(x = funnel_data()$Est,
+                          sei = funnel_data()$SE,
+                          refline = unique(funnel_data()$Model_Est),
+                          xlab = unique(funnel_data()$x_lab))
+          metafor::funnel(x = funnel_CE_plot_data()$Est,
+                          sei = funnel_CE_plot_data()$SE,
+                          refline = 0,
+                          xlab = unique(funnel_CE_plot_data()$x_lab),
+                          level=c(90, 95, 99),
+                          shade=c("white", "gray55", "gray75"))
           grDevices::dev.off()
         }
       )
@@ -2164,21 +2198,21 @@ just type it in the Search field and all lines containing that word will be disp
 
       })
 
+      meta_plot_data <- shiny::reactive({
+
+        data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_est))),
+                   SE = as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_SE))),
+                   T_N = as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_t_n))),
+                   C_N =as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_c_n))))
+
+      })
+
       meta_plot <- shiny::reactive({
 
-        #X <- unlist(data() %>% dplyr::select(input$x_plot))
-
-        plot_data <- data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_est))),
-                                SE = as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_SE))),
-                                T_N = as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_t_n))),
-                                C_N =as.numeric(unlist(original_data() %>% dplyr::select(input$metaplot_data_c_n))))
-
-        puniform::meta_plot(gi = plot_data$Est,
-                            vgi = plot_data$SE^2,
-                            n1i = plot_data$T_N,
-                            n2i = plot_data$C_N)
-
-
+        puniform::meta_plot(gi = meta_plot_data()$Est,
+                            vgi = meta_plot_data()$SE^2,
+                            n1i = meta_plot_data()$T_N,
+                            n2i = meta_plot_data()$C_N)
 
       })
 
@@ -2188,13 +2222,16 @@ just type it in the Search field and all lines containing that word will be disp
 
       ## download button
 
-      output$download_funnel <- shiny::downloadHandler(
+      output$download_meta <- shiny::downloadHandler(
         filename = function() {
-          paste("MetaPipeX Funnel Plot-", Sys.Date(), ".pdf", sep="")
+          paste("MetaPipeX Meta Plot-", Sys.Date(), ".pdf", sep="")
         },
         content = function(file) {
-          grDevices::pdf(file=file, width = 10, height = 12)
-          plot(funnel_plot())
+          grDevices::pdf(file=file, width = 10, height = 8)
+          puniform::meta_plot(gi = meta_plot_data()$Est,
+                              vgi = meta_plot_data()$SE^2,
+                              n1i = meta_plot_data()$T_N,
+                              n2i = meta_plot_data()$C_N)
           grDevices::dev.off()
         }
       )

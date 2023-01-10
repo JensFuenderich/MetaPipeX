@@ -2049,7 +2049,7 @@ just type it in the Search field and all lines containing that word will be disp
         content = function(file) {
           grDevices::pdf(file=file,
                          width = 10,
-                         height = length(forest_plot_data()$Unit) * 0.3)
+                         height = length(forest_plot_data()$Unit) * 0.37)
           metafor::forest(x = forest_plot_data()[,"Est"],
                           sei = forest_plot_data()[,"SE"],
                           slab = forest_plot_data()[,c("Unit")],

@@ -2,8 +2,7 @@
 
 ## define path to 0_Input folder
 # the folder contains data necessary for this analysis
-
-Input_folder_path <- "~/Downloads/MetaPipeX_folder 9/0_Input"
+Input_folder_path <- ".../0_Input" # make sure to insert the correct path for the "..."!
 
 ## load/install packages, including MetaPipeX (from github)
 if (!require("pacman")) install.packages("pacman")
@@ -27,6 +26,7 @@ if (transform_to_IPD$Filter != "no filter") {
 if (transform_to_IPD$custum_MultiLab == "yes") {
   Input_Data <- lapply(1:length(Input_Data), function(x){
     Input_Data[[x]]$MultiLab <- rep(transform_to_IPD$MultiLab, times = nrow(Input_Data[[x]]))
+    Input_Data[[x]]
   })
 } else {}
 
@@ -34,6 +34,7 @@ if (transform_to_IPD$custum_MultiLab == "yes") {
 if (transform_to_IPD$custum_ReplicationProject == "yes") {
   Input_Data <- lapply(1:length(Input_Data), function(x){
     Input_Data[[x]]$ReplicationProject <- rep(transform_to_IPD$ReplicationProject, times = nrow(Input_Data[[x]]))
+    Input_Data[[x]]
   })
 } else {}
 

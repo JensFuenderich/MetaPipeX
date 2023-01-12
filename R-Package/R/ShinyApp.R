@@ -556,7 +556,8 @@ just type it in the Search field and all lines containing that word will be disp
                           DT::DTOutput("codebook"),
                           downloadButton("downloadCodebook", "Download Codebook"),
                         )
-                      )
+                      ),
+                      shiny::tags$footer("Version: 2022.01.11")
       )
     ),
 
@@ -788,7 +789,9 @@ just type it in the Search field and all lines containing that word will be disp
 
           data_import$input <- IPD_list()
           data_import$transformations <- data.frame(MultiLab = if (input$create_custom_multilab_col == TRUE) {input$custom_multilab_col} else {input$multilab_col},
+                                                    custum_MultiLab = if (input$create_custom_multilab_col == TRUE) {"yes"} else {"no"},
                                                     ReplicationProject = if (input$create_custom_replicationproject_col == TRUE) {input$custom_replicationproject_col} else {input$replicationproject_col},
+                                                    custum_ReplicationProject = if (input$create_custom_replicationproject_col == TRUE) {"yes"} else {"no"},
                                                     Replication = input$replication_col,
                                                     DV = input$DV_col,
                                                     Group = input$group_col,
@@ -1223,6 +1226,9 @@ just type it in the Search field and all lines containing that word will be disp
           write.csv(data_import$transformations, file = "MetaPipeX_folder/0_Input/transform_to_IPD.csv")
           # save codebook for transformations
           write.csv(data_import$codebook_transformations, file = "MetaPipeX_folder/0_Input/codebook_for_transform_to_IPD.csv")
+          # download MetaPipeX analysis documentation
+          download.file("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Analysis_Documentation/MetaPipeX_Analysis_Documentation.R",
+                        "MetaPipeX_folder/0_Input/MetaPipeX_Analysis_Documentation.R")
           # create folder for individual participant data
           dir.create(paste("MetaPipeX_folder", "/1_Individual_Participant_Data", sep = ""))
           readr::write_csv(data_import$IPD_data$`1_Individual_Participant_Data`$codebook_for_individual_participant_data, paste("MetaPipeX_folder/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))

@@ -25,10 +25,15 @@ This pdf contains the documentation for the R-package MetaPipeX.
 ### Supplementary Materials 
 
 This folder contains materials for the framework, such as: 
-- [Examples to run the code](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples) Examples to run the code, also available in the help documentation in R 
--   
+- [Examples of the analysis functions with simulated data](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples), also available in the help documentation in R 
+- [Graphics](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Graphics) to visualize components of the framework 
+- A [MetaPipeX output folder structure](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates) filled with templates and codebooks 
+- Materials for our preprint "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" ([code examples](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples) and a [documentation example](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Analysis_Documentation)
 
 ## Useful links
+
+The preprint for "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" is available at: 
+https://psyarxiv.com/bcpkt/
 
 A web version of the app is currently available at: 
 https://www.apps.meta-rep.lmu.de/MetaPipeX_App_ServerVersion/ 

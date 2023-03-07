@@ -3,7 +3,7 @@
 # MetaPipeX
 
 ## How to install the R-package
-library(devtools)
+library(devtools)  
 install_github("JensFuenderich/MetaPipeX/R-Package")
 
 ## The structure of this repository 

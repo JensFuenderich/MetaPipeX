@@ -32,12 +32,12 @@ This folder contains materials for the framework, such as:
 
 ## Useful links
 
-The preprint for "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" is available at: 
+The preprint for "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" is available at:  
 https://psyarxiv.com/bcpkt/
 
-A web version of the app is currently available at: 
+A web version of the app is currently available at:  
 https://www.apps.meta-rep.lmu.de/MetaPipeX_App_ServerVersion/ 
-The functionality of the server version is equivalent to that in this repository, but the project structure differs (the UI and server code are provided in seperate scripts). To inspect the code of the server version, please refer to: 
+The functionality of the server version is equivalent to that in this repository, but the project structure differs (the UI and server code are provided in seperate scripts). To inspect the code of the server version, please refer to:  
 https://github.com/JensFuenderich/MetaPipeX_App_ServerVersion
 
 ## Description of the framework 

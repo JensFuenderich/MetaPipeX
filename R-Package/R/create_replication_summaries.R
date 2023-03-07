@@ -288,6 +288,42 @@
 #'
 create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProject = NULL, Replication = NULL, DV = NULL, Group = NULL, output_folder = NULL, suppress_list_output = FALSE){
 
+
+  data <- data
+
+  ## create error message in case the column names would cause trouble
+  if (is.null(MultiLab) != TRUE) {
+    if (MultiLab != "MultiLab" & is.null(data$MultiLab) == FALSE) {
+      stop("There is a 'MultiLab' column in your data set, but you are specifiying a different column for 'MultiLab'.
+         The function cannot be executed because it would create columns with identical names.")
+    }
+  }
+  if (is.null(ReplicationProject) != TRUE) {
+    if (ReplicationProject != "ReplicationProject" & is.null(data$ReplicationProject) == FALSE) {
+      stop("There is a 'ReplicationProject' column in your data set, but you are specifiying a different column for 'ReplicationProject'.
+         The function cannot be executed because it would create columns with identical names.")
+    }
+  }
+  if (is.null(Replication) != TRUE) {
+    if (Replication != "Replication" & is.null(data$Replication) == FALSE) {
+      stop("There is a 'Replication' column in your data set, but you are specifiying a different column for 'Replication'.
+         The function cannot be executed because it would create columns with identical names.")
+    }
+  }
+  if (is.null(DV) != TRUE) {
+    if (DV != "DV" & is.null(data$DV) == FALSE) {
+      stop("There is a 'DV' column in your data set, but you are specifiying a different column for 'DV'.
+         The function cannot be executed because it would create columns with identical names.")
+    }
+  }
+  if (is.null(Group) != TRUE) {
+    if (Group != "Group" & is.null(data$Group) == FALSE) {
+      stop("There is a 'Group' column in your data set, but you are specifiying a different column for 'Group'.
+         The function cannot be executed because it would create columns with identical names.")
+    }
+  }
+
+
   ## use standard column names in case is.null("column name") == TRUE
   if (is.null(MultiLab) == TRUE) {
     MultiLab <- "MultiLab"
@@ -315,11 +351,12 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
   # creating a function to rename the columns
   renamer <- function(x){
     data[[x]] %>%
-      rename(MultiLab = {{ MultiLab }},
-             ReplicationProject = {{ ReplicationProject }},
-             Replication = {{ Replication }},
-             DV = {{ DV }},
-             Group = {{ Group }})
+      dplyr::rename(.,
+                    MultiLab = {{ MultiLab }},
+                    ReplicationProject = {{ ReplicationProject }},
+                    Replication = {{ Replication }},
+                    DV = {{ DV }},
+                    Group = {{ Group }})
   }
 
   # applying the function

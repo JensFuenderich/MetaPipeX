@@ -152,7 +152,8 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   # creating a function to rename the columns
   renamer <- function(x){
     data[[x]] %>%
-      dplyr::rename(MultiLab = {{ MultiLab }},
+      dplyr::rename(.,
+                    MultiLab = {{ MultiLab }},
                     ReplicationProject = {{ ReplicationProject }},
                     Replication = {{ Replication }},
                     DV = {{ DV }},

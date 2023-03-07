@@ -28,7 +28,7 @@ This folder contains materials for the framework, such as:
 - [Examples of the analysis functions with simulated data](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples), also available in the help documentation in R 
 - [Graphics](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Graphics) to visualize components of the framework 
 - A [MetaPipeX output folder structure](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates) filled with templates and codebooks 
-- Materials for our preprint "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" ([code examples](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples) and a [documentation example](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Analysis_Documentation)
+- Materials for our preprint "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" ([code examples](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples) and a [documentation example](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Analysis_Documentation))
 
 ## Useful links
 

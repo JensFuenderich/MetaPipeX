@@ -1,10 +1,8 @@
 #' Creating Replication Summaries
 #'
-#' @import dplyr
-#' @import metafor
 #' @import mathjaxr
-#' @import readr
-#' @importFrom stats sd
+#' @importFrom magrittr %>%
+#' @importFrom magrittr %<>%
 #'
 #'
 #' @description
@@ -350,7 +348,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
   ## renaming all list object columns according to function input
   # creating a function to rename the columns
   renamer <- function(x){
-    data[[x]] %>%
+    x %>%
       dplyr::rename(.,
                     MultiLab = {{ MultiLab }},
                     ReplicationProject = {{ ReplicationProject }},
@@ -360,7 +358,7 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
   }
 
   # applying the function
-  data_List <- lapply(1:length(data), renamer)
+  data_List <- lapply(data, renamer)
   # renaming the list according to original data list    ###### MIGHT BE IRRELEVANT
   names(data_List) <- names(data)
 
@@ -610,16 +608,16 @@ create_replication_summaries <- function(data, MultiLab = NULL, ReplicationProje
   ## perform the replication summaries
   # create a function that applies the single_replication_summary function to all replication projects
   create_summaries <- function(x){
-    Single_ReplicationProject <- data_List_Nested_Replications[[x]]
+    Single_ReplicationProject <- x
     dplyr::bind_rows(lapply(Single_ReplicationProject, single_replication_summary))
   }
   # apply the function
-  List_of_Replication_Summaries_per_ReplicationProject <- lapply(1:length(data_List_Nested_Replications), create_summaries)
+  List_of_Replication_Summaries_per_ReplicationProject <- lapply(data_List_Nested_Replications, create_summaries)
 
   ## rename the output with MultiLab and Replication name
   # create vector with names
-  names_for_list <- unlist(lapply(1:length(List_of_Replication_Summaries_per_ReplicationProject), function(x){
-    paste(unique(List_of_Replication_Summaries_per_ReplicationProject[[x]]$MultiLab), "_", unique(List_of_Replication_Summaries_per_ReplicationProject[[x]]$ReplicationProject), sep = "")
+  names_for_list <- unlist(lapply(List_of_Replication_Summaries_per_ReplicationProject, function(x){
+    paste(unique(x$MultiLab), "_", unique(x$ReplicationProject), sep = "")
   }))
   # rename output
   names(List_of_Replication_Summaries_per_ReplicationProject) <- names_for_list

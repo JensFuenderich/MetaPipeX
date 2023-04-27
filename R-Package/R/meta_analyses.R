@@ -1,11 +1,8 @@
 #' Meta Analyses
 #'
-#' @import metafor
-#' @import dplyr
 #' @import mathjaxr
-#' @import readr
-#' @importFrom stats na.omit
-#'
+#' @importFrom magrittr %>%
+#' @importFrom magrittr %<>%
 #'
 #' @description
 #' \loadmathjax{}
@@ -266,14 +263,14 @@ meta_analyses <- function(data, output_folder = NULL, suppress_list_output = FAL
   data_list_MultiLab_split <- split(data, data$MultiLab)
 
   # create nested list with the replications as level 2 list objects
-  nested_data_list_ReplicationProject_split <- lapply(1:length(data_list_MultiLab_split), function(x){split(data_list_MultiLab_split[[x]], data_list_MultiLab_split[[x]]$ReplicationProject)})
+  nested_data_list_ReplicationProject_split <- lapply(data_list_MultiLab_split, function(x){split(x, x$ReplicationProject)})
   names(nested_data_list_ReplicationProject_split) <- names(data_list_MultiLab_split)
 
-  nested_list_output <- lapply(1:length(nested_data_list_ReplicationProject_split),function(x){lapply(nested_data_list_ReplicationProject_split[[x]], single_replication_project_analyses)})
+  nested_list_output <- lapply(nested_data_list_ReplicationProject_split,function(x){lapply(x, single_replication_project_analyses)})
 
   names(nested_list_output) <- names(data_list_MultiLab_split)
 
-  meta_analyses <- dplyr::bind_rows(lapply(1:length(nested_list_output), function(x){dplyr::bind_rows(nested_list_output[[x]])}))
+  meta_analyses <- dplyr::bind_rows(lapply(nested_list_output, function(x){dplyr::bind_rows(x)}))
 
   ### Create codebook
 

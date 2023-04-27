@@ -1,8 +1,8 @@
 #' Merging Replication Summaries
 #'
-#'
-#' @import readr
-#' @import dplyr
+#' @import mathjaxr
+#' @importFrom magrittr %>%
+#' @importFrom magrittr %<>%
 #'
 #'
 #' @description
@@ -108,7 +108,7 @@ merge_replication_summaries <- function(data, output_folder = NULL, suppress_lis
     files <- list.files(path = file.path(data), pattern = "*.csv", full.names = T)
 
     # import the files and store as data frame
-    tbl <- sapply(files, read_csv, simplify=FALSE) %>% bind_rows(.id = "id")
+    tbl <- sapply(files, readr::read_csv, simplify=FALSE) %>% dplyr::bind_rows(.id = "id")
     merged_replication_summaries <- as.data.frame(tbl)
 
     # drop id column

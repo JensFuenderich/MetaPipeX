@@ -1,14 +1,13 @@
 
-utils::globalVariables(c("data",
-                         "ReplicationProject",
+utils::globalVariables(c("Data",
+                         "data",
                          ".",
+
                          "MultiLab",
+                         "ReplicationProject",
                          "Replication",
-                         "Data",
-                         "Statistic",
-                         "dot_size",
-                         "violin_plot",
-                         "scatter_plot",
+                         "C_N",
+                         "T_N",
                          "T_M",
                          "SE_T_M",
                          "C_M",
@@ -25,4 +24,19 @@ utils::globalVariables(c("data",
                          "SE_SMD",
                          "Rep_Stat",
                          "Model_Est",
-                         "Tau"))
+                         "Tau",
+                         "n",
+                         "Statistic",
+                         "dot_size",
+                         "violin_plot",
+                         "scatter_plot",
+                         # functions
+                         "ln_SD",
+                         "SE_ln_SD",
+                         # to be deleted
+                         "MA__cor_pooled_SD_MD",
+                         "MA__cor_pooled_SD_SMD",
+                         "MA__cor_C_M_MD",
+                         "MA__cor_T_M_MD",
+                         "MA__cor_C_SD_T_SD"
+))

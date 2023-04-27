@@ -1,8 +1,9 @@
 #' Full Pipeline Function
 #'
 #'
-#' @import dplyr
 #' @import mathjaxr
+#' @importFrom magrittr %>%
+#' @importFrom magrittr %<>%
 #'
 #' @description
 #' \loadmathjax{}
@@ -151,7 +152,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   ## renaming all list object columns according to function input
   # creating a function to rename the columns
   renamer <- function(x){
-    data[[x]] %>%
+    x %>%
       dplyr::rename(.,
                     MultiLab = {{ MultiLab }},
                     ReplicationProject = {{ ReplicationProject }},
@@ -159,13 +160,14 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
                     DV = {{ DV }},
                     Group = {{ Group }})
   }
+
   # applying the function
-  data_list <- lapply(1:length(data), renamer)
+  data_List <- lapply(data, renamer)
 
   # renaming the list according to original data list
   # if no list names are available, use replication project names from list objects
   if (is.null(names(data)) == TRUE) {
-    names(data_list) <- unlist(lapply(1:length(data_list), function(x){unique(data_list[[x]]$ReplicationProject)}))
+    names(data_list) <- unlist(lapply(data_list, function(x){unique(x$ReplicationProject)}))
   } else {
     names(data_list) <- names(data)
   }

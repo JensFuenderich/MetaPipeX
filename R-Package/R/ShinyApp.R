@@ -553,6 +553,10 @@ just type it in the Search field and all lines containing that word will be disp
     server <- function(input, output, session){
 
 
+      # 500 mb upload maximum
+      options(shiny.maxRequestSize = 500*1024^2)
+
+
       #### Content:
       ### Upload Data
       ### Data Selection

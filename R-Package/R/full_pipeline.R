@@ -162,7 +162,7 @@ full_pipeline <- function(data, MultiLab = NULL, ReplicationProject = NULL, Repl
   }
 
   # applying the function
-  data_List <- lapply(data, renamer)
+  data_list <- lapply(data, renamer)
 
   # renaming the list according to original data list
   # if no list names are available, use replication project names from list objects

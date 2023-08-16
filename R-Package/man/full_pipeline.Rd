@@ -7,8 +7,8 @@
 full_pipeline(
   data,
   MultiLab = NULL,
-  ReplicationProject = NULL,
-  Replication = NULL,
+  MASC = NULL,
+  Data_Collection_Site = NULL,
   DV = NULL,
   Group = NULL,
   output_path = NULL,
@@ -19,13 +19,13 @@ full_pipeline(
 )
 }
 \arguments{
-\item{data}{A data frame or list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the MultiLab (e.g., Many Labs 2), the ReplicationProject (e.g., Ross1), the Replication (the lab a data point is assigned to), the group (either the treatment or control condition) and the single data point of the dependent variable (DV) per person. A template of this data frame is available on \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/IPD_template.csv}{{github}}, as is a \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv}{{codebook}} for unambiguous identification of the abbreviations.}
+\item{data}{A data frame or list of data frames that contain the individual participant data. The function expects the relevant columns to be named consistently across all list objects. Relevant to this function are columns that represent information on the multi-lab (e.g., Many Labs 2), the MASC (meta-analytical-site-collection; e.g., Ross1), the data collection site (the lab a data point is assigned to), the group (either the treatment or control condition) and the single data point of the dependent variable (DV) per person. A template of this data frame is available on \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/lvl1_individual_participant_data/IPD_template.csv}{{github}}, as is a \href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/lvl1_individual_participant_data/codebook_for_individual_participant_data.csv}{{codebook}} for unambiguous identification of the abbreviations.}
 
 \item{MultiLab}{Character vector with the name of the columns in the list elements of "data" that contain the project name(s). If \emph{is.null(Project) == TRUE}, "Project" is chosen as the default.}
 
-\item{ReplicationProject}{Character vector with the name of the columns in the list elements of "data" that contain the replication projects name(s). If \emph{is.null(Replication) == TRUE}, "Replication_Project" is chosen as the default. Each replication project comprises a single target effect with direct replications across multiple replications (/labs).}
+\item{MASC}{Character vector with the name of the columns in the list elements of "data" that contain the meta-analytical-study-collections (MASCs) name(s). If \emph{is.null(Data_Collection_Site) == TRUE}, "MASC" is chosen as the default. Each MASC comprises a single target effect with implementations across multiple sites (/labs).}
 
-\item{Replication}{Character vector with the name of the columns in the list elements of "data" that contain the replication names (usually the name of the lab). If \emph{is.null(Replication) == TRUE}, "Replication" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Replication”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).}
+\item{Data_Collection_Site}{Character vector with the name of the columns in the list elements of "data" that contain the site names (usually the name of the lab). If \emph{is.null(Data_Collection_Site) == TRUE}, "Data_Collection_Site" is chosen as the default. The meta-analyses in MetaPipeX::meta_analyses() and MetaPipeX::full_pipeline() are run as random effects models in metafor::rma.mv() with “random = ~ 1 | Data_Collection_Site”. Thus, the pipeline assumes a distribution of true statistics (e.g., treatment means, mean differences, standardized mean differences).}
 
 \item{DV}{Character vector with the name of the columns in the list elements of "data" that contain the (aggregated) dependent variable. If \emph{is.null(DV) == TRUE}, "DV" is chosen as the default.}
 
@@ -35,7 +35,7 @@ full_pipeline(
 
 \item{folder_name}{Optional character string to assign a custom name to the output folder. When folder_name is not specified, the folder name is set to “MetaPipeX_Output”.}
 
-\item{suppress_list_output}{Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the replication summaries and the codebook. If TRUE, these are not returned to the environment.}
+\item{suppress_list_output}{Logical. FALSE by default. If FALSE, the function will return a list output to the environment, containing the site summaries and the codebook. If TRUE, these are not returned to the environment.}
 
 \item{method}{Optional argument to specify the estimation method of the meta-analyses (the default is “REML”). For more information, please refer to the documentation of the metafor package.}
 
@@ -50,13 +50,13 @@ The output is a nested list object that represents the folder structure that is 
 \\let\\underscore_
 \)
 
-This function is built on three MetaPipeX functions (create_replication_summaries, merge_replication_summaries, meta_analyses), but also combines the meta-analytical data with the lab data in order to achieve the MetaPipeX data format. As input it expects the same specifications as the create_replication_summaries function. This function performs all standardized computational steps (3-6) of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
+This function is built on four MetaPipeX functions (summarize_sites, merge_site_summaries, meta_analyze_MASCs, create_MetaPipeX_format). As input it expects the same specifications as the summarize_sites function. This function performs all standardized computational steps (3-6) of the MetaPipeX pipeline. For more details on the pipeline, refer to the documentation of the MetaPipeX-package.
 }
 \details{
 ## General notes on the pipeline
 
-The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab replication projects. A flowchart that depicts the whole process is available on \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material}{{github}}
-The yellow blocks with rounded corners are .csv files. The purple/white rectangles each refer to a step in the pipeline that is performed by a MetaPipeX function. MetaPipeX::full_pipeline() performs the steps 3-6 and returns "MetaPipeX_Data.csv" which may be provided to the MetaPipeX App for handy data selection and basic plotting of the analysis results.
+The MetaPipeX pipeline is a tool to provide structure to the meta-analytical-analyses of multi-lab MASCs. A flowchart that depicts the whole process is available on \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material}{{github}}
+The yellow blocks with rounded corners are .csv files. The purple/white rectangles each refer to a step in the pipeline that is performed by a MetaPipeX function. MetaPipeX::full_pipeline() performs the steps 3-6 and returns "meta_pipe_x_data.csv" which may be provided to the MetaPipeX App for handy data selection and basic plotting of the analysis results.
 Pleasre refer to github for \href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates}{{an example of the MetaPipeX Output structure}}.
 
 ## full_pipeline
@@ -64,10 +64,10 @@ Pleasre refer to github for \href{https://github.com/JensFuenderich/MetaPipeX/tr
 This function executes the pipeline as follows:
 
 \itemize{
- \item{MetaPipeX::create_replication_summaries()} \cr
- \item{MetaPipeX::merge_replication_summaries} \cr
+ \item{MetaPipeX::summarize_sites()} \cr
+ \item{MetaPipeX::merge_site_summaries} \cr
  \item{MetaPipeX::meta_analyses()} \cr
- \item{merging replication- and meta-level data to achieve MetaPipeX data format} \cr
+ \item{merging site- and meta-level data to achieve MetaPipeX data format} \cr
 }
 }
 \examples{
@@ -75,24 +75,23 @@ This function executes the pipeline as follows:
 # create vectors with names
 # two projects
 MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2")
-# two replications per project
-ReplicationProject_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
+# two sites per project
+MASC_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
 Multi_Lab_1 <- rep(c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E"), times = 2)
 Multi_Lab_2 <- rep(c("Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J"), times = 2)
-Replication_names <- c(Multi_Lab_1, Multi_Lab_2) # k = 5 per replication
 
 # create df with all example data
 set.seed(1973)
 example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
-ReplicationProject = rep(ReplicationProject_names, each = 50),
-Replication = rep(Replication_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
+MASC = rep(MASC_names, each = 50),
+Data_Collection_Site = rep(Site_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
 DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
 Treatment = rep(c(1,0), times = 100)
 )
 
-# split the data per replication project to prepare for use in MetaPipeX::full_pipeline()
+# split the data per MASC to prepare for use in MetaPipeX::full_pipeline()
 example_data_list <- split(example_data_df,
-                           example_data_df$ReplicationProject)
+                           example_data_df$MASC)
 
 ## applying the input to the MetaPipeX function \cr
 
@@ -100,8 +99,8 @@ example_data_list <- split(example_data_df,
 example_MetaPipeX_output <- MetaPipeX::full_pipeline(
 data = example_data_list,
 MultiLab = "MultiLab", # column name needs no change
-ReplicationProject = "ReplicationProject",
-Replication = "Replication",
+MASC = "MASC",
+Data_Collection_Site = "Data_Collection_Site",
 DV = "DV",
 Group = "Treatment" # column name needs changing
 )

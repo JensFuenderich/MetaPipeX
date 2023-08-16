@@ -15,8 +15,8 @@ ShinyApp <- function(){
 
   ### general imports
 
-  MetaPipeX_data_full <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/5_MetaPipeX/MetaPipeX_template.csv"))
-  codebook <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/5_MetaPipeX/codebook_for_meta_pipe_x_data.csv"))
+  MetaPipeX_data_full <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/lvl5_meta_pipe_x/meta_pipe_x_data_template.csv"))
+  codebook <- readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/lvl5_meta_pipe_x/codebook_for_meta_pipe_x_data.csv"))
 
   codebook_text_vec <- "This tabular codebook serves to inform the abbreviations used in this shiny app.
 If you are trying to understand a column in the data frame, just consult the appropriate line in the codebook.
@@ -76,12 +76,13 @@ just type it in the Search field and all lines containing that word will be disp
 
         sidebarPanel(
           selectInput(inputId = "select_upload",
-                             label = "Choose the type of data you want to use in the app from the dropdown menu:",
-                             choices = c("Individual Participant Data" = "IPD",
-                                         "Replication Summaries" =  "ReplicationSum",
-                                         "Merged Replication Summaries" = "MergedReplicationSum",
-                                         "MetaPipeX (Meta-Analysis & Replication Summaries)" = "MetaPipeX"),
-                             selected = "MetaPipeX"
+                      label = "Choose the type of data you want to use in the app from the dropdown menu:",
+                      choices = c("Simulate Data" = "SimulateData",
+                                  "Individual Participant Data" = "IPD",
+                                  "Site Summaries" =  "SiteSum",
+                                  "Merged Site Summaries" = "MergedSiteSum",
+                                  "MetaPipeX (Meta-Analysis & Site Summaries)" = "MetaPipeX"),
+                      selected = "MetaPipeX"
           ),
           fluidRow(
             column(6,align="left",uiOutput("confirm_upload2"))
@@ -91,57 +92,71 @@ just type it in the Search field and all lines containing that word will be disp
 
         mainPanel(
 
+          ## panel for data simulation
+
+          conditionalPanel(condition = "input.select_upload == 'SimulateData'",
+                           h3("Simulate Individual Participant Data"),
+                           h5("[Attention!] Write something instructive."),
+                           actionButton(inputId = "run_simulation",
+                                        label = "Run Simulation!"),
+                           h5("Hit the button 'Provide MetaPipeX data format to the app.' and go to the Data Selection tab."),
+                           DT::DTOutput("simulated_data")
+          ),
+
+
           ## panel for upload of IPD
           conditionalPanel(condition = "input.select_upload == 'IPD'",
-                                  h3("Individual Participant Data"),
-                                  h5("Please provide at least one .csv/.sav/.rds file. The ",
-                                     tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", "codebook on github."),
-                                     "describes the 5 columns that are needed for the analysis. The names do not have to be the same as in this codebook, but they should be consistent across the .csv files. If only data from a single multi-lab or a single replication project (or targer-effect) is uploaded, a placeholder for the name needs to be provided. It is possible to create such a placeholer by clicking the corresponding checkbox."),
-                                  fileInput("IPD", "choose .csv/.sav/.rds file with individual participant data",
-                                            multiple = TRUE,
-                                            accept = c("text/csv",
-                                                       "text/comma-separated-values,text/plain",
-                                                       ".csv",
-                                                       ".sav",
-                                                       ".rds")),
+                           h3("Individual Participant Data"),
+                           h5("Please provide at least one .csv/.sav/.rds file. The ",
+                              tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/lvl1_individual_participant_data/codebook_for_individual_participant_data.csv", "codebook on github."),
+                              "describes the 5 columns that are needed for the analysis. The names do not have to be the same as in this codebook, but they should be consistent across the .csv files. If only data from a single multi-lab or a single site project (or targer-effect) is uploaded, a placeholder for the name needs to be provided. It is possible to create such a placeholer by clicking the corresponding checkbox."),
+                           fileInput(inputId = "IPD_Input",
+                                     label = "choose .csv/.sav/.rds file with individual participant data",
+                                     multiple = TRUE,
+                                     accept = c("text/csv",
+                                                "text/comma-separated-values,text/plain",
+                                                ".csv",
+                                                ".sav",
+                                                ".rds")),
                                   h5("The MetaPipeX needs to know which columns of the data should be used. Select them accordingly:"),
                                   selectInput(inputId = "multilab_col",
-                                                     label = "MultiLab:",
-                                                     choices = ""),
+                                              label = "MultiLab:",
+                                              choices = ""),
                                   checkboxInput(inputId = "create_custom_multilab_col",
-                                                       label = "Create a MultiLab column"),
+                                                label = "Create a MultiLab column"),
                                   uiOutput("out_custom_multilab_col"),
-                                  selectInput(inputId = "replicationproject_col",
-                                                     label = "ReplicationProject:",
-                                                     choices = ""),
-                                  checkboxInput(inputId = "create_custom_replicationproject_col",
-                                                       label = "Create a ReplicationProject column"),
-                                  uiOutput("out_custom_replicationproject_col"),
-                                  selectInput(inputId = "replication_col",
-                                                     label = "Replication:",
-                                                     choices = ""),
+                                  selectInput(inputId = "MASC_col",
+                                              label = "MASC:",
+                                              choices = ""),
+                                  checkboxInput(inputId = "create_custom_MASC_col",
+                                                label = "Create a MASC column"),
+                                  uiOutput("out_custom_MASC_col"),
+                                  selectInput(inputId = "site_col",
+                                              label = "Data Collection Site:",
+                                              choices = ""),
                                   selectInput(inputId = "DV_col",
-                                                     label = "DV:",
-                                                     choices = ""),
+                                              label = "DV:",
+                                              choices = ""),
                                   selectInput(inputId = "group_col",
-                                                     label = "Group:",
-                                                     choices = ""),
+                                              label = "Group:",
+                                              choices = ""),
                                   checkboxInput(inputId = "filter_question",
-                                                       label = "Do you need to filter data?"),
+                                                label = "Do you need to filter data?"),
                                   selectInput(inputId = "filter_col",
-                                                     label = "Filter Variable:",
-                                                     choices = ""),
+                                              label = "Filter Variable:",
+                                              choices = ""),
                                   tags$style("#expr-container label {font-weight: 400;}"),
                                   tags$div(id = "expr-container",
                                            uiOutput("out_filter_identifier")),
                                   h5("Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
           ),
 
-          ## panel for upload of Replication summaries
-          conditionalPanel(condition = "input.select_upload == 'ReplicationSum'",
-                                  h3("Replication Level Data"),
-                                  h5("Please provide at least one .csv that has been produced by MetaPipeX::create_replication_summaries() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/2_Replication_Summaries/Replication_Summaries_template.csv", "template on github.")),
-                                  fileInput("ReplicationSum", "choose file(s) from local drive",
+          ## panel for upload of Site summaries
+          conditionalPanel(condition = "input.select_upload == 'SiteSum'",
+                                  h3("Site Level Data"),
+                                  h5("Please provide at least one .csv that has been produced by MetaPipeX::summarize_sites() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/lvl2_site_summaries/site_summaries_template.csv", "template on github.")),
+                                  fileInput(inputId = "SiteSum_Input",
+                                            label = "choose file(s) from local drive",
                                             multiple = TRUE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
@@ -149,13 +164,12 @@ just type it in the Search field and all lines containing that word will be disp
                                   h5("Hit the button 'Provide MetaPipeX data format to the app.' in order for the MetaPipeX package to run its analyses.")
           ),
 
-
-          ## panel for upload of merged Replication summaries
-
-          conditionalPanel(condition = "input.select_upload == 'MergedReplicationSum'",
-                                  h3("Merged Replication Level Data"),
-                                  h5("Please provide a single .csv that has been produced by MetaPipeX::merge_replication_summaries() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/3_Merged_Replication_Summaries/Merged_Replication_Summaries_template.csv", "template on github.")),
-                                  fileInput("MergedReplicationSum", "choose a single .csv file with merged replication level data",
+          ## panel for upload of Merged Site Summaries
+          conditionalPanel(condition = "input.select_upload == 'MergedSiteSum'",
+                                  h3("Merged Site Level Data"),
+                                  h5("Please provide a single .csv that has been produced by MetaPipeX::merge_site_summaries() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/lvl3_merged_site_summaries/merged_site_summaries_template.csv", "template on github.")),
+                                  fileInput(inputId = "MergedSiteSum_Input",
+                                            label = "choose a single .csv file with merged site level data",
                                             multiple = FALSE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
@@ -166,8 +180,9 @@ just type it in the Search field and all lines containing that word will be disp
           ## panel for upload of data from MetaPipeX
           conditionalPanel(condition = "input.select_upload == 'MetaPipeX'",
                                   h3("MetaPipeX Data"),
-                                  h5("Please provide a single .csv that has been produced by MetaPipeX::full_pipeline() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/5_MetaPipeX/MetaPipeX_template.csv", "template on github.")),
-                                  fileInput("MetaPipeX", "choose .csv file with MetaPipeX data",
+                                  h5("Please provide a single .csv that has been produced by MetaPipeX::full_pipeline() or is arranged according to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/lvl5_meta_pipe_x/meta_pipe_x_data_template.csv", "template on github.")),
+                                  fileInput(inputId = "MetaPipeX_Input",
+                                            label = "choose .csv file with MetaPipeX data",
                                             multiple = FALSE,
                                             accept = c("text/csv",
                                                        "text/comma-separated-values,text/plain",
@@ -193,16 +208,16 @@ just type it in the Search field and all lines containing that word will be disp
                                label = "MultiLab",
                                choices = ""
             ),
-            selectInput(inputId = "ReplicationProject",
-                               label = "ReplicationProject",
+            selectInput(inputId = "MASC",
+                               label = "MASC",
                                choices = ""
             ),
-            selectInput(inputId = "Replication",
-                               label = "Replication",
-                               choices = c("all", unique(MetaPipeX_data_full$Replication))
+            selectInput(inputId = "Site",
+                               label = "Site",
+                               choices = c("all", unique(MetaPipeX_data_full$Data_Collection_Site))
             ),
             shinyWidgets::prettyCheckboxGroup(inputId = "Statistics",
-                                              label = h3("Replication Statistics"),
+                                              label = h3("Site Statistics"),
                                               choices = Variables_List$Statistics,
                                               selected = "exclude",
                                               animation = "pulse",
@@ -213,7 +228,7 @@ just type it in the Search field and all lines containing that word will be disp
             ),
             # h3("Exclude Further Information"),
             shinyWidgets::materialSwitch(inputId = "Stat_SE",
-                                         label = "Exclude Standard Error of Replication Level Statistic?",
+                                         label = "Exclude Standard Error of Site Level Statistic?",
                                          status = "success"),
             shinyWidgets::prettyCheckboxGroup(inputId = "AnalysisResults",
                                               label = h3("Meta-analysis results (MD & SMD)"),
@@ -237,11 +252,11 @@ just type it in the Search field and all lines containing that word will be disp
             ),
             h3("Exclude Non-Effects?"),
             sliderInput(inputId = "exclude_effects",
-                               label = "Exlcude replication projects with a model estimate for |g| lower than...",
-                               min = 0,
-                               max = 3,
-                               value = 0,
-                               step = 0.1)
+                        label = "Exlcude MASCs with a model estimate for |g| lower than...",
+                        min = 0,
+                        max = 3,
+                        value = 0,
+                        step = 0.1)
 
           ),
           mainPanel(
@@ -266,13 +281,13 @@ just type it in the Search field and all lines containing that word will be disp
                                label = "MultiLab",
                                choices = ""
             ),
-            selectInput(inputId = "ReplicationProject_Exclusion",
-                               label = "ReplicationProject",
+            selectInput(inputId = "MASC_Exclusion",
+                               label = "MASC",
                                choices = ""
             ),
-            selectInput(inputId = "Replication_Exclusion",
-                               label = "Replication",
-                               choices = c("all", unique(MetaPipeX_data_full$Replication))
+            selectInput(inputId = "Site_Exclusion",
+                               label = "Site",
+                               choices = c("all", unique(MetaPipeX_data_full$Data_Collection_Site))
             ),
 
             actionButton(inputId = "exclusion",
@@ -284,13 +299,13 @@ just type it in the Search field and all lines containing that word will be disp
                                label = "MultiLab",
                                choices = ""
             ),
-            selectInput(inputId = "Remove_ReplicationProject_Exclusion",
-                               label = "ReplicationProject",
+            selectInput(inputId = "Remove_MASC_Exclusion",
+                               label = "MASC",
                                choices = ""
             ),
-            selectInput(inputId = "Remove_Replication_Exclusion",
-                               label = "Replication",
-                               choices = c("all", unique(MetaPipeX_data_full$Replication))
+            selectInput(inputId = "Remove_Site_Exclusion",
+                               label = "Site",
+                               choices = c("all", unique(MetaPipeX_data_full$Data_Collection_Site))
             ),
             actionButton(inputId = "remove_exclusion",
                                 label = "Remove Exclusion!"
@@ -314,7 +329,7 @@ just type it in the Search field and all lines containing that word will be disp
                           actionButton(inputId = "upload_kernel_density_est",
                                               label = "Upload Data"),
                           varSelectInput(inputId = "kernel_density_est_data_est",
-                                                label = "choose a replication statistic of interest",
+                                                label = "choose a site statistic of interest",
                                                 data = data()),
                           varSelectInput(inputId = "kernel_density_est_data_model_est",
                                                 label = "choose the model estimate",
@@ -453,13 +468,13 @@ just type it in the Search field and all lines containing that word will be disp
                           actionButton(inputId = "upload_forest",
                                               label = "Upload Data"),
                           varSelectInput(inputId = "forest_data_statistics",
-                                                label = "choose a replication statistic of interest",
+                                                label = "choose a site statistic of interest",
                                                 data = data()),
                           varSelectInput(inputId = "forest_data_SE",
                                                 label = "choose the according standard error",
                                                 data = data()),
-                          varSelectInput(inputId = "forest_data_replication",
-                                                label = "choose information on aggregation (likely the replication)",
+                          varSelectInput(inputId = "forest_data_site",
+                                                label = "choose information on aggregation (likely the site)",
                                                 data = data())
                         ),
                         mainPanel(
@@ -479,7 +494,7 @@ just type it in the Search field and all lines containing that word will be disp
                           actionButton(inputId = "upload_funnel",
                                               label = "Upload Data"),
                           varSelectInput(inputId = "funnel_data_est",
-                                                label = "choose a replication statistic of interest",
+                                                label = "choose a site statistic of interest",
                                                 data = data()),
                           varSelectInput(inputId = "funnel_data_SE",
                                                 label = "choose the according standard error",
@@ -507,7 +522,7 @@ just type it in the Search field and all lines containing that word will be disp
                           actionButton(inputId = "upload_metaplot",
                                               label = "Upload Data"),
                           varSelectInput(inputId = "metaplot_data_est",
-                                                label = "choose a replication statistic of interest",
+                                                label = "choose a site statistic of interest",
                                                 data = data()),
                           varSelectInput(inputId = "metaplot_data_SE",
                                                 label = "choose the according standard error",
@@ -580,15 +595,67 @@ just type it in the Search field and all lines containing that word will be disp
       # after applying MetaPipeX functions (depending on the data type imported),
       # the df that is then provided to "Data Selection" is stored as MetaPipeX_data$full
 
-
       ## This chunk creates the "confirm upload" button, only when data is supplied to the app
       # the dependency is created so that the app does not crash due to analyses being run without any input
       output$confirm_upload2 <- renderUI({
 
-        if(  is.null(input$IPD) == TRUE & is.null(input$ReplicationSum) == TRUE & is.null(input$MergedReplicationSum) == TRUE & is.null(input$MetaPipeX) == TRUE ){
-        } else {
+        if( is.null(SiteSum_list_reactive()) == TRUE &
+            is.null(input$IPD_Input) == TRUE &
+            is.null(input$SiteSum_Input) == TRUE &
+            is.null(input$MergedSiteSum_Input) == TRUE &
+            is.null(input$MetaPipeX_Input) == TRUE
+            ){ } else {
           actionButton("confirm_upload","Provide MetaPipeX data format to the app.")
         }
+      })
+
+      ## Simulated Data Input
+      # When the user presses "Run Simulation!", the MetaPipeX function creates an IPD file
+      SiteSum_list_reactive <- eventReactive( input$run_simulation, {
+        if (input$select_upload == "SimulateData") {
+          # create IPD for 10 MASCs (all from the same MultiLab)
+          sim_out <- lapply(1:10, MetaPipeX::simulate_IPD)
+          # rename list elements (the individual MASCs)
+          names(sim_out) <- paste("MASC", 1:10, sep = "")
+          sim_out
+        } else {
+          c()
+        }
+      })
+
+      ## create output
+
+      # Reactive Data Selection Table
+      output$simulated_data = DT::renderDT(
+        do.call(rbind, SiteSum_list_reactive()), options = list(lengthChange = FALSE)
+      )
+
+
+      ## run the pipeline, as soon as the input is confirmed
+
+      observeEvent(input$confirm_upload,{ # stores results in data_import$SiteSum_MetaPipeX
+
+        if (input$select_upload == "SimulateData") {
+
+          # import all selected .csv data
+          SiteSum_list <- SiteSum_list_reactive()
+
+          withProgress(message = 'Calculation in progress. This may take a moment.',
+                       detail = 'Go to the Data Selection tab.',
+                       style = "old",
+                       {
+                         # merge the Site summaries
+                         MetaPipeX_output <- MetaPipeX::full_pipeline(data = SiteSum_list)
+
+                         # extract data only (remove codebook)
+                         SimData_MetaPipeX <- MetaPipeX_output$lvl5_meta_pipe_x$MetaPipeX_data
+
+                       })
+
+          data_import$SimData_MetaPipeX <- SimData_MetaPipeX
+
+        } else {}
+
       })
 
       ## IPD Input
@@ -596,10 +663,10 @@ just type it in the Search field and all lines containing that word will be disp
       # object for columns selection (IPD upload)
       IPD_list <- reactive({
 
-        if (length(input$IPD) > 0) {
+        if (length(input$IPD_Input) > 0) {
 
           # extract upload info from UI input
-          upload_info <- input$IPD
+          upload_info <- input$IPD_Input
 
           # import all selected data
           if (length(grep(".csv", upload_info$datapath)) > 0) {
@@ -631,14 +698,14 @@ just type it in the Search field and all lines containing that word will be disp
       })
 
       observe({
-        updateSelectInput(session, "replicationproject_col",
+        updateSelectInput(session, "MASC_col",
                                  choices = IPD_raw_data_import_columns(),
-                                 selected = if ( any(IPD_raw_data_import_columns() == "ReplicationProject") ) {"ReplicationProject"}else{})
+                                 selected = if ( any(IPD_raw_data_import_columns() == "MASC") ) {"MASC"}else{})
       })
       observe({
-        updateSelectInput(session, "replication_col",
+        updateSelectInput(session, "site_col",
                                  choices = IPD_raw_data_import_columns(),
-                                 selected = if ( any(IPD_raw_data_import_columns() == "Replication") ) {"Replication"}else{})
+                                 selected = if ( any(IPD_raw_data_import_columns() == "Site") ) {"Site"}else{})
       })
       observe({
         updateSelectInput(session, "DV_col",
@@ -665,10 +732,10 @@ just type it in the Search field and all lines containing that word will be disp
         }else{}
       })
 
-      output$out_custom_replicationproject_col <- renderUI({
-        if (input$create_custom_replicationproject_col == TRUE) {
-          textInput(inputId = "custom_replicationproject_col",
-                           label = "Type in a name for the replication project:" )
+      output$out_custom_MASC_col <- renderUI({
+        if (input$create_custom_MASC_col == TRUE) {
+          textInput(inputId = "custom_MASC_col",
+                           label = "Type in a name for the MASC:" )
         }else{}
       })
 
@@ -697,22 +764,25 @@ just type it in the Search field and all lines containing that word will be disp
                                   IPD_list <- lapply(IPD_list, cbind, MultiLab = input$custom_multilab_col)
                                 }else{}
 
-                                if (input$create_custom_replicationproject_col == TRUE) {
-                                  IPD_list <- lapply(IPD_list, cbind, ReplicationProject = input$custom_replicationproject_col)
+                                if (input$create_custom_MASC_col == TRUE) {
+                                  IPD_list <- lapply(IPD_list, cbind, MASC = input$custom_MASC_col)
                                 }else{}
 
-                                # If a single data frame is provided to the function it is transformed to a list object. Each list element represents a replication projects/target-effect.
+                                # If a single data frame is provided to the function it is transformed to a list object. Each list element represents a site projects/target-effect.
                                 if (length(IPD_list) > 1) {}else{
 
-                                  if (input$create_custom_replicationproject_col == TRUE) {
-                                    IPD_list <- IPD_list[[1]] %>% dplyr::group_split( ReplicationProject )
+                                  if (input$create_custom_MASC_col == TRUE) {
+                                    IPD_list <- IPD_list[[1]] %>% dplyr::group_split( MASC )
                                   } else {
 
-                                    unique_replicationprojects <- unlist(unique(IPD_list[[1]][,input$replicationproject_col]))
+                                    unique_MASCs <- unlist(unique(IPD_list[[1]][,input$MASC_col]))
 
                                     IPD_new <- list()
 
-                                    IPD_new <- lapply(unique_replicationprojects, function(x){IPD_new[[x]] <- subset(IPD_list[[1]], IPD_list[[1]][input$replicationproject_col] == x)})
+                                    IPD_new <- lapply(unique_MASCs, function(x){
+                                      IPD_new[[x]] <- subset(IPD_list[[1]],
+                                                             IPD_list[[1]][input$MASC_col] == x)
+                                      })
 
                                     IPD_list <- IPD_new
 
@@ -735,8 +805,8 @@ just type it in the Search field and all lines containing that word will be disp
                                 reduce_cols <- function(x){
                                   single_df <- subset(IPD_list[[x]],
                                                             select =  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col},
-                                                                        if(input$create_custom_replicationproject_col == TRUE){"ReplicationProject"}else{input$replicationproject_col},
-                                                                        input$replication_col,
+                                                                        if(input$create_custom_MASC_col == TRUE){"MASC"}else{input$MASC_col},
+                                                                        input$site_col,
                                                                         input$DV_col,
                                                                         input$group_col))
 
@@ -756,21 +826,21 @@ just type it in the Search field and all lines containing that word will be disp
                                 IPD_list <- lapply(1:length(IPD_list), function(x){
                                   single_df <- data.frame(
                                     IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}]],
-                                    IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}]],
-                                    as.character(IPD_list[[x]][[input$replication_col]]),
+                                    IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"MASC"}else{input$MASC_col}]],
+                                    as.character(IPD_list[[x]][[input$site_col]]),
                                     IPD_list[[x]][[input$DV_col]],
                                     #abs(as.numeric(unlist(IPD_list[[x]][[input$group_col]]))-1)
                                     abs(as.numeric(as.factor(unlist(IPD_list[[x]][[input$group_col]])))-1)
                                   )
-                                  names(single_df) <-  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}, if(input$create_custom_multilab_col == TRUE){"ReplicationProject"}else{input$replicationproject_col}, input$replication_col, input$DV_col, input$group_col)
+                                  names(single_df) <-  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}, if(input$create_custom_multilab_col == TRUE){"MASC"}else{input$MASC_col}, input$site_col, input$DV_col, input$group_col)
                                   IPD_list[[x]] <- single_df
                                 })
 
                                 # run the pipeline function
                                 IPD_analzed <- MetaPipeX::full_pipeline(data = IPD_list,
                                                                         MultiLab = if(input$create_custom_multilab_col == TRUE){}else{input$multilab_col},
-                                                                        ReplicationProject = if(input$create_custom_replicationproject_col == TRUE){}else{input$replicationproject_col},
-                                                                        Replication = input$replication_col,
+                                                                        MASC = if(input$create_custom_MASC_col == TRUE){}else{input$MASC_col},
+                                                                        Data_Collection_Site = input$site_col,
                                                                         DV = input$DV_col,
                                                                         Group = input$group_col
                                 )
@@ -780,9 +850,9 @@ just type it in the Search field and all lines containing that word will be disp
           data_import$input <- IPD_list()
           data_import$transformations <- data.frame(MultiLab = if (input$create_custom_multilab_col == TRUE) {input$custom_multilab_col} else {input$multilab_col},
                                                     custum_MultiLab = if (input$create_custom_multilab_col == TRUE) {"yes"} else {"no"},
-                                                    ReplicationProject = if (input$create_custom_replicationproject_col == TRUE) {input$custom_replicationproject_col} else {input$replicationproject_col},
-                                                    custum_ReplicationProject = if (input$create_custom_replicationproject_col == TRUE) {"yes"} else {"no"},
-                                                    Replication = input$replication_col,
+                                                    MASC = if (input$create_custom_MASC_col == TRUE) {input$custom_MASC_col} else {input$MASC_col},
+                                                    custum_MASC = if (input$create_custom_MASC_col == TRUE) {"yes"} else {"no"},
+                                                    Data_Collection_Site = input$site_col,
                                                     DV = input$DV_col,
                                                     Group = input$group_col,
                                                     Original_Group_Indicators = original_group_indicators,
@@ -794,148 +864,88 @@ just type it in the Search field and all lines containing that word will be disp
                                                       input$filter_identifier
                                                     }else{"no filter"}
           )
-          data_import$codebook_transformations <- rbind(IPD_analzed$`1_Individual_Participant_Data`$codebook_for_individual_participant_data,
+          data_import$codebook_transformations <- rbind(IPD_analzed$lvl1_individual_participant_data$codebook_for_individual_participant_data,
                                                         data.frame(Column_Name = c("Filter_Col_x", "Filter"),
                                                                    Description = c("The column containing the information that the filter is applied to (x).",
                                                                                    "The filter as it was applied to x. For example: 'x > 170'.")))
           data_import$IPD_data <- IPD_analzed
-          data_import$IPD_MetaPipeX <- IPD_analzed$`5_Meta_Pipe_X`$MetaPipeX_Data
+          data_import$IPD_MetaPipeX <- IPD_analzed$lvl5_meta_pipe_x$MetaPipeX_data
 
         } else {}
 
       })
 
-      ## ReplicationSum Input
+      ## SiteSum Input
 
       ## run the pipeline, as soon as the input is confirmed
 
-      observeEvent(input$confirm_upload,{ # stores results in data_import$ReplicationSum_MetaPipeX
+      observeEvent(input$confirm_upload,{ # stores results in data_import$SiteSum_MetaPipeX
 
-        if (input$select_upload == "ReplicationSum") {
+        if (input$select_upload == "SiteSum") {
 
           # extract upload info from UI input
-          upload_info <- input$ReplicationSum
+          upload_info <- input$SiteSum_Input
 
           # import all selected .csv data
-          ReplicationSum_list <- lapply(upload_info$datapath,readr::read_csv)
+          SiteSum_list <- lapply(upload_info$datapath,readr::read_csv)
 
           withProgress(message = 'Calculation in progress. This may take a moment.',
                               detail = 'Go to the Data Selection tab.',
                               style = "old",
                               {
-                                # merge the Replication summaries
-                                ReplicationSum_merged <- MetaPipeX::merge_replication_summaries(data = ReplicationSum_list)
+                                # merge the Site summaries
+                                MergedSiteSum <- MetaPipeX::merge_site_summaries(data = SiteSum_list)
 
                                 # run meta analyses
-                                ReplicationSum_analyzed <- MetaPipeX::meta_analyses(data = ReplicationSum_merged$Merged_Replication_Summaries)
+                                Meta_Analyses <- MetaPipeX::meta_analyze_MASCs(data = MergedSiteSum$Merged_Site_Summaries)
 
-                                ## combine Replication and meta analysis data
+                                ## combine Site and meta analysis data
+                                MetaPipeX_output <- MetaPipeX::create_MetaPipeX_format(
+                                  Merged_Site_Summaries = MergedSiteSum$Merged_Site_Summaries,
+                                  Meta_Analyses = Meta_Analyses$Meta_Analyses)
 
-                                # reorder data frames
-                                merged_replication_summaries <- dplyr::arrange(ReplicationSum_merged$Merged_Replication_Summaries, ReplicationProject)
-                                meta_analyses <- dplyr::arrange(ReplicationSum_analyzed$Meta_Analyses, ReplicationProject)
-
-                                # number of Replications per ReplicationProject (= "How many Replications are in each ReplicationProject?")
-                                k_per_ReplicationProject <- merged_replication_summaries %>%
-                                  dplyr::count(.,ReplicationProject) %>%
-                                  dplyr::pull(.,n)
-
-                                # duplication vector (indicates how often ReplicationProject level column needs to be repeated to match the Replication level structure)
-                                duplications <- rep(1:nrow(meta_analyses), k_per_ReplicationProject)
-
-                                # expand df
-                                expanded_MA <- meta_analyses[duplications,]
-
-                                # reorder both data frames (so they match) and combine them to create the MetaPipeX App data format
-                                ReplicationSum_MetaPipeX <- cbind(merged_replication_summaries, expanded_MA)
-
-                                # add "Replication__Result__" to all Replication related columns and "MA__" to all meta-analysis columns
-                                # Replication
-                                # columns from "T_N" to "SE_SMD"
-                                first_replication_col <- which(names(ReplicationSum_MetaPipeX) == "T_N")
-                                last_replication_col <- which(names(ReplicationSum_MetaPipeX) == "SE_SMD")
-                                names(ReplicationSum_MetaPipeX)[first_replication_col:last_replication_col] <- paste("Replication__Result__", names(ReplicationSum_MetaPipeX[,first_replication_col:last_replication_col]), sep = "")
-
-                                # MA
-                                first_replication_MA <- last_replication_col + 1
-                                last_replication_MA <- ncol(ReplicationSum_MetaPipeX)
-                                names(ReplicationSum_MetaPipeX)[first_replication_MA:last_replication_MA] <- paste("MA__", names(ReplicationSum_MetaPipeX[,first_replication_MA:last_replication_MA]), sep = "")
-
-                                # delete duplicate/redundant columns
-                                ReplicationSum_MetaPipeX$MA__MultiLab <- NULL
-                                ReplicationSum_MetaPipeX$MA__ReplicationProject <- NULL
-                                rownames(ReplicationSum_MetaPipeX) <- NULL
+                                # extract data only (remove codebook)
+                                SiteSum_MetaPipeX <- MetaPipeX_output$MetaPipeX_data
 
                               })
 
-          data_import$ReplicationSum_MetaPipeX <- ReplicationSum_MetaPipeX
+          data_import$SiteSum_MetaPipeX <- SiteSum_MetaPipeX
 
         } else {}
 
       })
 
 
-      ## MergedReplicationSum Input
+      ## MergedSiteSum Input
 
       ## run the pipeline, as soon as the input is confirmed
 
-      observeEvent(input$confirm_upload,{ # stores results in data_import$MergedReplicationSum_MetaPipeX
+      observeEvent(input$confirm_upload,{ # stores results in data_import$MergedSiteSum_MetaPipeX
 
-        if (input$select_upload == "MergedReplicationSum") {
+        if (input$select_upload == "MergedSiteSum") {
 
           # extract upload info from UI input
-          upload_info <- input$MergedReplicationSum
+          upload_info <- input$MergedSiteSum_Input
 
           # import selected .csv data
-          MergedReplicationSum <- readr::read_csv(file = upload_info$datapath)
+          MergedSiteSum <- readr::read_csv(file = upload_info$datapath)
 
           withProgress(message = 'Calculation in progress. This may take a moment.',
                               detail = 'Go to the Data Selection tab.',
                               style = "old",
                               {
                                 # run meta analyses
-                                ReplicationSum_analyzed <- MetaPipeX::meta_analyses(data = MergedReplicationSum)
+                                Meta_Analyses <- MetaPipeX::meta_analyze_MASCs(data = MergedSiteSum)
 
-                                ## combine replication and meta analysis data
-
-                                # reorder data frames
-                                merged_replication_summaries <- dplyr::arrange(MergedReplicationSum, ReplicationProject)
-                                meta_analyses <- dplyr::arrange(ReplicationSum_analyzed$Meta_Analyses, ReplicationProject)
-
-                                # number of replications per ReplicationProject (= "How many replications are in each ReplicationProject?")
-                                k_per_ReplicationProject <- merged_replication_summaries %>%
-                                  dplyr::count(.,ReplicationProject) %>%
-                                  dplyr::pull(.,n)
-
-                                # duplication vector (indicates how often ReplicationProject level column needs to be repeated to match the replication level structure)
-                                duplications <- rep(1:nrow(meta_analyses), k_per_ReplicationProject)
-
-                                # expand df
-                                expanded_MA <- meta_analyses[duplications,]
-
-                                # reorder both data frames (so they match) and combine them to create the MetaPipeX App data format
-                                MergedReplicationSum_MetaPipeX <- cbind(merged_replication_summaries, expanded_MA)
-
-                                # add "Replication__Result__" to all replication related columns and "MA__" to all meta-analysis columns
-                                # Replication
-                                # columns from "T_N" to "SE_SMD"
-                                first_replication_col <- which(names(MergedReplicationSum_MetaPipeX) == "T_N")
-                                last_replication_col <- which(names(MergedReplicationSum_MetaPipeX) == "SE_SMD")
-                                names(MergedReplicationSum_MetaPipeX)[first_replication_col:last_replication_col] <- paste("Replication__Result__", names(MergedReplicationSum_MetaPipeX[,first_replication_col:last_replication_col]), sep = "")
-
-                                # MA
-                                first_replication_MA <- last_replication_col + 1
-                                last_replication_MA <- ncol(MergedReplicationSum_MetaPipeX)
-                                names(MergedReplicationSum_MetaPipeX)[first_replication_MA:last_replication_MA] <- paste("MA__", names(MergedReplicationSum_MetaPipeX[,first_replication_MA:last_replication_MA]), sep = "")
-
-                                # delete duplicate/redundant columns
-                                MergedReplicationSum_MetaPipeX$MA__MultiLab <- NULL
-                                MergedReplicationSum_MetaPipeX$MA__ReplicationProject <- NULL
-                                rownames(MergedReplicationSum_MetaPipeX) <- NULL
-
+                                ## combine site and meta analysis data
+                                MetaPipeX_output <- MetaPipeX::create_MetaPipeX_format(
+                                  Merged_Site_Summaries = MergedSiteSum,
+                                  Meta_Analyses = Meta_Analyses$Meta_Analyses)
+                                # extract data only (remove codebook)
+                                MergedSiteSum_MetaPipeX <- MetaPipeX_output$MetaPipeX_data
                               })
 
-          data_import$MergedReplicationSum_MetaPipeX <- MergedReplicationSum_MetaPipeX
+          data_import$MergedSiteSum_MetaPipeX <- MergedSiteSum_MetaPipeX
 
         } else {}
 
@@ -952,15 +962,12 @@ just type it in the Search field and all lines containing that word will be disp
                               detail = 'Go to the Data Selection tab.',
                               style = "old",
                               {
-
-
-                                upload_info <- input$MetaPipeX
-                                MetaPipeX_Data <- readr::read_csv(file = upload_info$datapath)
-
+                                upload_info <- input$MetaPipeX_Input
+                                MetaPipeX_Upload <- readr::read_csv(file = upload_info$datapath)
 
                               })
 
-          data_import$MetaPipeX_MetaPipeX <- MetaPipeX_Data
+          data_import$MetaPipeX_MetaPipeX <- MetaPipeX_Upload
 
         } else {}
 
@@ -968,16 +975,17 @@ just type it in the Search field and all lines containing that word will be disp
 
       ## final output from Upload Data
 
-
       MetaPipeX_data_upload <- eventReactive( input$confirm_upload, {
         if (input$select_upload == "MetaPipeX") {
           data_import$MetaPipeX_MetaPipeX
-        } else if (input$select_upload == "MergedReplicationSum") {
-          data_import$MergedReplicationSum_MetaPipeX
-        } else if (input$select_upload == "ReplicationSum") {
-          data_import$ReplicationSum_MetaPipeX
+        } else if (input$select_upload == "MergedSiteSum") {
+          data_import$MergedSiteSum_MetaPipeX
+        } else if (input$select_upload == "SiteSum") {
+          data_import$SiteSum_MetaPipeX
         } else if (input$select_upload == "IPD") {
           data_import$IPD_MetaPipeX
+        } else if (input$select_upload == "SimulateData") {
+          data_import$SimData_MetaPipeX
         } else {
           c()
         }
@@ -997,13 +1005,13 @@ just type it in the Search field and all lines containing that word will be disp
         MetaPipeX_data_full <- MetaPipeX_data$full
         c("all", unique(MetaPipeX_data_full$MultiLab))
       })
-      replicationproject_choices <- reactive({
+      MASC_choices <- reactive({
         MetaPipeX_data_full <- MetaPipeX_data$full
-        unique(MetaPipeX_data_full$ReplicationProject)
+        unique(MetaPipeX_data_full$MASC)
       })
-      replication_choices <- reactive({
+      site_choices <- reactive({
         MetaPipeX_data_full <- MetaPipeX_data$full
-        c("all", unique(MetaPipeX_data_full$Replication))
+        c("all", unique(MetaPipeX_data_full$Data_Collection_Site))
       })
 
       observe({
@@ -1011,23 +1019,23 @@ just type it in the Search field and all lines containing that word will be disp
                                  choices = multilab_choices())
       })
       observe({
-        updateSelectInput(session, "ReplicationProject",
-                                 choices = if (input$MultiLab == "all") { # return all ReplicationProjects
-                                   c("all", replicationproject_choices())
-                                 } else { # only return ReplicationProjects from the selected multilab
+        updateSelectInput(session, "MASC",
+                                 choices = if (input$MultiLab == "all") { # return all MASCs
+                                   c("all", MASC_choices())
+                                 } else { # only return MASCs from the selected multilab
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$ReplicationProject))
+                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$MASC))
                                  }
         )
       })
       observe({
-        updateSelectInput(session, "Replication",
+        updateSelectInput(session, "Site",
                                  choices = if (input$MultiLab == "all") {
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$Replication))
+                                   c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$Data_Collection_Site))
                                  } else {
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$Replication))
+                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab,]$Data_Collection_Site))
                                  }
         )
       })
@@ -1043,10 +1051,10 @@ just type it in the Search field and all lines containing that word will be disp
         # create df from reactive object
         MetaPipeX_data_full <- MetaPipeX_data$full
 
-        # decide if Replication level data is included
+        # decide if Site level data is included
         if (input$Level == TRUE) {
-          df <- unique( MetaPipeX_data_full %>% dplyr::select(!dplyr::matches("^Replication$")) )
-          df <- unique( MetaPipeX_data_full %>% dplyr::select(!dplyr::matches("^Replication__")) )
+          df <- unique( MetaPipeX_data_full %>% dplyr::select(!dplyr::matches("^Site$")) )
+          df <- unique( MetaPipeX_data_full %>% dplyr::select(!dplyr::matches("^Site__")) )
         } else {
           df <- MetaPipeX_data_full
         }
@@ -1056,97 +1064,97 @@ just type it in the Search field and all lines containing that word will be disp
           df <- df[df$MultiLab == input$MultiLab,]
         }
 
-        # select ReplicationProject of interest
-        if (input$ReplicationProject != "all") {
-          df <- df[df$ReplicationProject == input$ReplicationProject,]
+        # select MASC of interest
+        if (input$MASC != "all") {
+          df <- df[df$MASC == input$MASC,]
         }
 
-        # select Replication of interest
-        if (input$Replication != "all") {
-          df <- df[df$Replication == input$Replication,]
+        # select Site of interest
+        if (input$Site != "all") {
+          df <- df[df$Data_Collection_Site == input$Site,]
         }
 
         # exclude non effects
-        df <- subset(df, abs(df$MA__Est__SMD) > input$exclude_effects)
+        # df <- subset(df, abs(df$MA__Est__SMD) > input$exclude_effects)
 
         # display the df with selection according to SampleSize, Statistics and AnalysisResults
-        if (input$Level == TRUE) { # this chunk runs if Replication level data is NOT included
+        if (input$Level == TRUE) { # this chunk runs if Site level data is NOT included
 
           if ("_K" %in% input$SampleSize) { # this is a rather bad fix for: (e.g.) MA__Est_SMD_K appears when SMD & Est are selected, but Sample Size isn't
 
             df <- df %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
+                            MASC,
                             dplyr::contains(input$Statistics),
                             dplyr::contains(input$SampleSize)) %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            dplyr::contains("Replication"),
+                            MASC,
+                            dplyr::contains("Site"),
                             dplyr::contains(input$AnalysisResults),
                             dplyr::contains(input$SampleSize))
 
           } else {
             df <- df %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
+                            MASC,
                             dplyr::contains(input$Statistics),
                             dplyr::contains(input$SampleSize)) %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            dplyr::contains("Replication"),
+                            MASC,
+                            dplyr::contains("Site"),
                             dplyr::contains(input$AnalysisResults),
                             dplyr::contains(input$SampleSize),
                             -dplyr::contains("_K"))
           }
 
 
-        } else if (input$Level == FALSE & input$Stat_SE == FALSE) { # this chunk runs if Replication level data is included and SE included
+        } else if (input$Level == FALSE & input$Stat_SE == FALSE) { # this chunk runs if Site level data is included and SE included
 
           if ("_K" %in% input$SampleSize) { # this is a rather bad fix for: (e.g.) MA__Est_SMD_K appears when SMD & Est are selected, but Sample Size isn't
 
             df <- df %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
+                            MASC,
+                            Data_Collection_Site,
                             dplyr::contains(input$Statistics),
                             dplyr::contains(input$SampleSize)) %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
-                            dplyr::contains("Replication"),
+                            MASC,
+                            Data_Collection_Site,
+                            dplyr::contains("Site"),
                             dplyr::contains(input$AnalysisResults),
                             dplyr::contains(input$SampleSize))
 
           } else {
             df <- df %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
+                            MASC,
+                            Data_Collection_Site,
                             dplyr::contains(input$Statistics),
                             dplyr::contains(input$SampleSize)) %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
-                            dplyr::contains("Replication"),
+                            MASC,
+                            Data_Collection_Site,
+                            dplyr::contains("Site"),
                             dplyr::contains(input$AnalysisResults),
                             dplyr::contains(input$SampleSize),
                             -dplyr::contains("_K"))
           }
 
-        } else if (input$Level == FALSE & input$Stat_SE == TRUE) { # this chunk runs if Replication level data is included, but SE excluded
+        } else if (input$Level == FALSE & input$Stat_SE == TRUE) { # this chunk runs if Site level data is included, but SE excluded
 
           if ("_K" %in% input$SampleSize) { # this is a rather bad fix for: (e.g.) MA__Est_SMD_K appears when SMD & Est are selected, but Sample Size isn't
 
             df <- df %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
+                            MASC,
+                            Data_Collection_Site,
                             dplyr::contains(input$Statistics),
                             dplyr::contains(input$SampleSize)) %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
-                            dplyr::contains("Replication"),
+                            MASC,
+                            Data_Collection_Site,
+                            dplyr::contains("Site"),
                             dplyr::contains(input$AnalysisResults),
                             dplyr::contains(input$SampleSize)) %>%
               dplyr::select(!dplyr::contains("__SE"))
@@ -1154,14 +1162,14 @@ just type it in the Search field and all lines containing that word will be disp
           } else {
             df <- df %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
+                            MASC,
+                            Data_Collection_Site,
                             dplyr::contains(input$Statistics),
                             dplyr::contains(input$SampleSize)) %>%
               dplyr::select(MultiLab,
-                            ReplicationProject,
-                            Replication,
-                            dplyr::contains("Replication"),
+                            MASC,
+                            Data_Collection_Site,
+                            dplyr::contains("Site"),
                             dplyr::contains(input$AnalysisResults),
                             dplyr::contains(input$SampleSize),
                             -dplyr::contains("_K")) %>%
@@ -1220,30 +1228,30 @@ just type it in the Search field and all lines containing that word will be disp
           utils::download.file("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Analysis_Documentation/MetaPipeX_Analysis_Documentation.R",
                         "MetaPipeX_folder/0_Input/MetaPipeX_Analysis_Documentation.R")
           # create folder for individual participant data
-          dir.create(paste("MetaPipeX_folder", "/1_Individual_Participant_Data", sep = ""))
-          readr::write_csv(data_import$IPD_data$`1_Individual_Participant_Data`$codebook_for_individual_participant_data, paste("MetaPipeX_folder/1_Individual_Participant_Data/codebook_for_individual_participant_data.csv", sep = ""))
-          lapply(1:length(data_import$IPD_data$`1_Individual_Participant_Data`$Individual_Participant_Data),
-                 function(x){readr::write_csv(data_import$IPD_data$`1_Individual_Participant_Data`$Individual_Participant_Data[[x]],
-                                              paste("MetaPipeX_folder/1_Individual_Participant_Data/", names(data_import$IPD_data$`1_Individual_Participant_Data`$Individual_Participant_Data)[x], ".csv", sep = ""))})
+          dir.create(paste("MetaPipeX_folder", "/lvl1_individual_participant_data", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl1_individual_participant_data$codebook_for_individual_participant_data, paste("MetaPipeX_folder/lvl1_individual_participant_data/codebook_for_individual_participant_data.csv", sep = ""))
+          lapply(1:length(data_import$IPD_data$lvl1_individual_participant_data$Individual_Participant_Data),
+                 function(x){readr::write_csv(data_import$IPD_data$lvl1_individual_participant_data$Individual_Participant_Data[[x]],
+                                              paste("MetaPipeX_folder/lvl1_individual_participant_data/", names(data_import$IPD_data$lvl1_individual_participant_data$Individual_Participant_Data)[x], ".csv", sep = ""))})
 
-          # create folder for replication summaries
-          dir.create(paste("MetaPipeX_folder", "/2_Replication_Summaries", sep = ""))
-          readr::write_csv(data_import$IPD_data$`2_Replication_Summaries`$codebook_for_replication_summaries, paste("MetaPipeX_folder/2_Replication_Summaries/codebook_for_replication_summaries.csv", sep = ""))
-          lapply(1:length(data_import$IPD_data$`2_Replication_Summaries`$Replication_Summaries),
-                 function(x){readr::write_csv(data_import$IPD_data$`2_Replication_Summaries`$Replication_Summaries[[x]],
-                                              paste("MetaPipeX_folder/2_Replication_Summaries/", names(data_import$IPD_data$`2_Replication_Summaries`$Replication_Summaries)[x], ".csv", sep = ""))})
-          # create folder for merged replication summaries
-          dir.create(paste("MetaPipeX_folder", "/3_Merged_Replication_Summaries", sep = ""))
-          readr::write_csv(data_import$IPD_data$`3_Merged_Replication_Summaries`$codebook_for_merged_replication_summeries, paste("MetaPipeX_folder/3_Merged_Replication_Summaries/codebook_for_merged_replication_summeries.csv", sep = ""))
-          readr::write_csv(data_import$IPD_data$`3_Merged_Replication_Summaries`$Merged_Replication_Summaries, paste("MetaPipeX_folder/3_Merged_Replication_Summaries/Merged_Replication_Summaries.csv", sep = ""))
+          # create folder for site summaries
+          dir.create(paste("MetaPipeX_folder", "/lvl2_site_summaries", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl2_site_summaries$codebook_for_site_summaries, paste("MetaPipeX_folder/lvl2_site_summaries/codebook_for_site_summaries.csv", sep = ""))
+          lapply(1:length(data_import$IPD_data$lvl2_site_summaries$Site_Summaries),
+                 function(x){readr::write_csv(data_import$IPD_data$lvl2_site_summaries$Site_Summaries[[x]],
+                                              paste("MetaPipeX_folder/lvl2_site_summaries/", names(data_import$IPD_data$lvl2_site_summaries$Site_Summaries)[x], ".csv", sep = ""))})
+          # create folder for Merged Site Summaries
+          dir.create(paste("MetaPipeX_folder", "/lvl3_merged_site_summaries", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl3_merged_site_summaries$codebook_for_merged_site_summeries, paste("MetaPipeX_folder/lvl3_merged_site_summaries/codebook_for_merged_site_summeries.csv", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl3_merged_site_summaries$Merged_Site_Summaries, paste("MetaPipeX_folder/lvl3_merged_site_summaries/Merged_Site_Summaries.csv", sep = ""))
           # create folder for meta analyses
-          dir.create(paste("MetaPipeX_folder", "/4_Meta_Analyses", sep = ""))
-          readr::write_csv(data_import$IPD_data$`4_Meta_Analyses`$codebook_for_meta_analyses, paste("MetaPipeX_folder/4_Meta_Analyses/codebook_for_meta_analyses.csv", sep = ""))
-          readr::write_csv(data_import$IPD_data$`4_Meta_Analyses`$Meta_Analyses, paste("MetaPipeX_folder/4_Meta_Analyses/Meta_Analyses.csv", sep = ""))
+          dir.create(paste("MetaPipeX_folder", "/lvl4_meta_analyses", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl4_meta_analyses$codebook_for_meta_analyses, paste("MetaPipeX_folder/lvl4_meta_analyses/codebook_for_meta_analyses.csv", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl4_meta_analyses$Meta_Analyses, paste("MetaPipeX_folder/lvl4_meta_analyses/Meta_Analyses.csv", sep = ""))
           # create folder for meta analyses
-          dir.create(paste("MetaPipeX_folder", "/5_Meta_Pipe_X", sep = ""))
-          readr::write_csv(data_import$IPD_data$`5_Meta_Pipe_X`$codebook_for_meta_pipe_x, paste("MetaPipeX_folder/5_Meta_Pipe_X/codebook_for_meta_pipe_x.csv", sep = ""))
-          readr::write_csv(data_import$IPD_data$`5_Meta_Pipe_X`$MetaPipeX_Data, paste("MetaPipeX_folder/5_Meta_Pipe_X/MetaPipeX_Data.csv", sep = ""))
+          dir.create(paste("MetaPipeX_folder", "/lvl5_meta_pipe_x", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl5_meta_pipe_x$codebook_for_meta_pipe_x, paste("MetaPipeX_folder/lvl5_meta_pipe_x/codebook_for_meta_pipe_x.csv", sep = ""))
+          readr::write_csv(data_import$IPD_data$lvl5_meta_pipe_x$MetaPipeX_data, paste("MetaPipeX_folder/lvl5_meta_pipe_x/meta_pipe_x_data.csv", sep = ""))
           # output
           utils::zip(file, "MetaPipeX_folder")
           unlink("MetaPipeX_folder", recursive = TRUE)
@@ -1263,23 +1271,23 @@ just type it in the Search field and all lines containing that word will be disp
                                  choices = multilab_choices())
       })
       observe({
-        updateSelectInput(session, "ReplicationProject_Exclusion",
-                                 choices = if (input$MultiLab_Exclusion == "all") { # return all ReplicationProjects
-                                   c("all", replicationproject_choices())
-                                 } else { # only return ReplicationProjects from the selected multilab
+        updateSelectInput(session, "MASC_Exclusion",
+                                 choices = if (input$MultiLab_Exclusion == "all") { # return all MASCs
+                                   c("all", MASC_choices())
+                                 } else { # only return MASCs from the selected multilab
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$ReplicationProject))
+                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$MASC))
                                  }
         )
       })
       observe({
-        updateSelectInput(session, "Replication_Exclusion",
+        updateSelectInput(session, "Site_Exclusion",
                                  choices = if (input$MultiLab_Exclusion == "all") {
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$Replication))
+                                   c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$Data_Collection_Site))
                                  } else {
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$Replication))
+                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$MultiLab_Exclusion,]$Data_Collection_Site))
                                  }
         )
       })
@@ -1308,18 +1316,18 @@ just type it in the Search field and all lines containing that word will be disp
 
         } else {
 
-          if (input$MultiLab_Exclusion != "all" & input$ReplicationProject_Exclusion != "all" & input$Replication_Exclusion != "all") {
+          if (input$MultiLab_Exclusion != "all" & input$MASC_Exclusion != "all" & input$Site_Exclusion != "all") {
             to_be_excluded <- rbind(data()[0,], data() %>% dplyr::filter(MultiLab == input$MultiLab_Exclusion &
-                                                                           ReplicationProject == input$ReplicationProject_Exclusion &
-                                                                           Replication == input$Replication_Exclusion))
-          } else if (input$MultiLab_Exclusion != "all" & input$ReplicationProject_Exclusion != "all" & input$Replication_Exclusion == "all"){
+                                                                           MASC == input$MASC_Exclusion &
+                                                                           Data_Collection_Site == input$Site_Exclusion))
+          } else if (input$MultiLab_Exclusion != "all" & input$MASC_Exclusion != "all" & input$Site_Exclusion == "all"){
             to_be_excluded <- rbind(existing_exclusions,
                                     data() %>% dplyr::filter(MultiLab == input$MultiLab_Exclusion &
-                                                               ReplicationProject == input$ReplicationProject_Exclusion))
-          } else if (input$MultiLab_Exclusion != "all" & input$ReplicationProject_Exclusion == "all" & input$Replication_Exclusion == "all") {
+                                                               MASC == input$MASC_Exclusion))
+          } else if (input$MultiLab_Exclusion != "all" & input$MASC_Exclusion == "all" & input$Site_Exclusion == "all") {
             to_be_excluded <- rbind(existing_exclusions,
                                     data() %>% dplyr::filter(MultiLab == input$MultiLab_Exclusion))
-          } else if (input$MultiLab_Exclusion == "all" & input$ReplicationProject_Exclusion == "all" & input$Replication_Exclusion == "all"){
+          } else if (input$MultiLab_Exclusion == "all" & input$MASC_Exclusion == "all" & input$Site_Exclusion == "all"){
             to_be_excluded <- rbind(existing_exclusions, data())
           }
 
@@ -1355,23 +1363,23 @@ just type it in the Search field and all lines containing that word will be disp
                                  choices = multilab_choices())
       })
       observe({
-        updateSelectInput(session, "Remove_ReplicationProject_Exclusion",
-                                 choices = if (input$Remove_MultiLab_Exclusion == "all") { # return all replications
-                                   c("all", replicationproject_choices())
-                                 } else { # only return replications from the selected multilab
+        updateSelectInput(session, "Remove_MASC_Exclusion",
+                                 choices = if (input$Remove_MultiLab_Exclusion == "all") { # return all sites
+                                   c("all", MASC_choices())
+                                 } else { # only return sites from the selected multilab
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$ReplicationProject))
+                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$MASC))
                                  }
         )
       })
       observe({
-        updateSelectInput(session, "Remove_Replication_Exclusion",
+        updateSelectInput(session, "Remove_Site_Exclusion",
                                  choices = if (input$Remove_MultiLab_Exclusion == "all") {
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$Replication))
+                                   c("all",unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$Data_Collection_Site))
                                  } else {
                                    MetaPipeX_data_full <- MetaPipeX_data$full
-                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$Replication))
+                                   c("all", unique(MetaPipeX_data_full[MetaPipeX_data_full$MultiLab == input$Remove_MultiLab_Exclusion,]$Data_Collection_Site))
                                  }
         )
       })
@@ -1383,22 +1391,22 @@ just type it in the Search field and all lines containing that word will be disp
 
         existing_exclusions <- Data_Exclusions_reactive()
 
-        if (input$Remove_MultiLab_Exclusion != "all" & input$Remove_ReplicationProject_Exclusion != "all" & input$Remove_Replication_Exclusion != "all") {
+        if (input$Remove_MultiLab_Exclusion != "all" & input$Remove_MASC_Exclusion != "all" & input$Remove_Site_Exclusion != "all") {
 
           existing_exclusions %>% dplyr::filter(MultiLab != input$Remove_MultiLab_Exclusion |
-                                                  ReplicationProject != input$Remove_ReplicationProject_Exclusion |
-                                                  Replication != input$Remove_Replication_Exclusion)
+                                                  MASC != input$Remove_MASC_Exclusion |
+                                                  Data_Collection_Site != input$Remove_Site_Exclusion)
 
-        } else if (input$Remove_MultiLab_Exclusion != "all" & input$Remove_ReplicationProject_Exclusion != "all" & input$Remove_Replication_Exclusion == "all"){
+        } else if (input$Remove_MultiLab_Exclusion != "all" & input$Remove_MASC_Exclusion != "all" & input$Remove_Site_Exclusion == "all"){
 
           existing_exclusions %>% dplyr::filter(MultiLab != input$Remove_MultiLab_Exclusion |
-                                                  ReplicationProject != input$Remove_ReplicationProject_Exclusion)
+                                                  MASC != input$Remove_MASC_Exclusion)
 
-        } else if (input$Remove_MultiLab_Exclusion != "all" & input$Remove_ReplicationProject_Exclusion == "all" & input$Remove_Replication_Exclusion == "all") {
+        } else if (input$Remove_MultiLab_Exclusion != "all" & input$Remove_MASC_Exclusion == "all" & input$Remove_Site_Exclusion == "all") {
 
           existing_exclusions %>% dplyr::filter(MultiLab != input$Remove_MultiLab_Exclusion)
 
-        } else if (input$Remove_MultiLab_Exclusion == "all" & input$Remove_ReplicationProject_Exclusion == "all" & input$Remove_Replication_Exclusion == "all"){
+        } else if (input$Remove_MultiLab_Exclusion == "all" & input$Remove_MASC_Exclusion == "all" & input$Remove_Site_Exclusion == "all"){
           existing_exclusions[0,]
         }
 
@@ -1489,7 +1497,7 @@ just type it in the Search field and all lines containing that word will be disp
         data.frame(Rep_Stat = as.numeric(unlist(original_data() %>% dplyr::select(input$kernel_density_est_data_est))),
                    Model_Est = as.numeric(unlist(original_data() %>% dplyr::select(input$kernel_density_est_data_model_est))),
                    Tau = as.numeric(unlist(original_data() %>% dplyr::select(input$kernel_density_est_data_Tau))),
-                   ReplicationProject = unlist(original_data() %>% dplyr::select(ReplicationProject))
+                   MASC = unlist(original_data() %>% dplyr::select(MASC))
         )
 
       })
@@ -1509,7 +1517,7 @@ just type it in the Search field and all lines containing that word will be disp
                               linetype = "dashed",
                               alpha = 0.45,
                               color = "#18BC9C") +
-          ggplot2::facet_grid(ggplot2::vars(ReplicationProject)) +
+          ggplot2::facet_grid(ggplot2::vars(MASC)) +
           ggplot2::geom_pointrange(ggplot2::aes(x = Model_Est,
                                        xmin = Model_Est - Tau,
                                        xmax = Model_Est + Tau,
@@ -1535,11 +1543,11 @@ just type it in the Search field and all lines containing that word will be disp
         kernel_density_est_plot()
       })
 
-      # render plot UI (dependent on th number of ReplicationProjects)
+      # render plot UI (dependent on th number of MASCs)
       output$kernel_density_est_out <- renderUI({
 
         plotOutput(outputId = "kernel_density_est",
-                          height = paste(length(unique(kernel_density_est_data()$ReplicationProject)) * 120, "px", sep = "")
+                          height = paste(length(unique(kernel_density_est_data()$MASC)) * 120, "px", sep = "")
         )
       })
 
@@ -1551,7 +1559,7 @@ just type it in the Search field and all lines containing that word will be disp
         content = function(file) {
           grDevices::pdf(file = file,
                          width = 10,
-                         height = length(unique(kernel_density_est_data()$ReplicationProject)) * 1.5 )
+                         height = length(unique(kernel_density_est_data()$MASC)) * 1.5 )
           plot(kernel_density_est_plot())
           grDevices::dev.off()
         }
@@ -1856,17 +1864,18 @@ just type it in the Search field and all lines containing that word will be disp
         # store reactive object as data frame
         data <- as.data.frame(data())
 
+
         # select rows
         if (is.null(input$violin_hover) == FALSE) {
 
           if (unique(violin_data$common_level) == "meta analysis level") {
             subset(data,
-                         data[codebook$Variable_Name[grepl(unique(violin_data$common_statistic), codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (round(as.numeric(input$violin_hover[2]), 0) + max(violin_data$Data, na.rm = TRUE)/80) &
-                           data[codebook$Variable_Name[grepl(unique(violin_data$common_statistic), codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (round(as.numeric(input$violin_hover[2]), 0) - max(violin_data$Data, na.rm = TRUE)/80))
-          } else if (unique(violin_data$common_level) == "replication level") {
+                         data[codebook$Variable_Name[grepl(unique(violin_data$common_statistic), codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (as.numeric(input$violin_hover[2]) + max(violin_data$Data, na.rm = TRUE)/30) &
+                           data[codebook$Variable_Name[grepl(unique(violin_data$common_statistic), codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (as.numeric(input$violin_hover[2]) - max(violin_data$Data, na.rm = TRUE)/30))
+          } else if (unique(violin_data$common_level) == "site level") {
             subset(data,
-                         data[codebook$Variable_Name[grepl("replication level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (as.numeric(input$violin_hover[2]) + max(violin_data$Data, na.rm = TRUE)/80) &
-                           data[codebook$Variable_Name[grepl("replication level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (as.numeric(input$violin_hover[2]) - max(violin_data$Data, na.rm = TRUE)/80))
+                         data[codebook$Variable_Name[grepl("site level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (as.numeric(input$violin_hover[2]) + max(violin_data$Data, na.rm = TRUE)/30) &
+                           data[codebook$Variable_Name[grepl("site level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (as.numeric(input$violin_hover[2]) - max(violin_data$Data, na.rm = TRUE)/30))
           }
 
 
@@ -1997,7 +2006,7 @@ just type it in the Search field and all lines containing that word will be disp
                                     data = data())
         updateVarSelectInput(session, "forest_data_SE",
                                     data = data())
-        updateVarSelectInput(session, "forest_data_replication",
+        updateVarSelectInput(session, "forest_data_site",
                                     data = data())
 
       })
@@ -2006,7 +2015,7 @@ just type it in the Search field and all lines containing that word will be disp
 
         data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$forest_data_statistics))),
                    SE = as.numeric(unlist(original_data() %>% dplyr::select(input$forest_data_SE))),
-                   Unit = unlist(original_data() %>% dplyr::select(input$forest_data_replication))
+                   Unit = unlist(original_data() %>% dplyr::select(input$forest_data_site))
         )
 
 
@@ -2028,7 +2037,7 @@ just type it in the Search field and all lines containing that word will be disp
         forest_plot()
       })
 
-      # render plot UI (dependent on th number of Replications)
+      # render plot UI (dependent on th number of Sites)
       output$forest_plot_out <- renderUI({
 
         plotOutput(outputId = "forest_plot",

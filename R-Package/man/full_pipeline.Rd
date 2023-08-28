@@ -72,38 +72,17 @@ This function executes the pipeline as follows:
 }
 \examples{
 
-# create vectors with names
-# two projects
-MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2")
-# two sites per project
-MASC_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
-Multi_Lab_1 <- rep(c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E"), times = 2)
-Multi_Lab_2 <- rep(c("Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J"), times = 2)
+# create IPD for 10 MASCs (all from the same MultiLab)
+sim_out <- mapply(MetaPipeX::simulate_IPD,
+                  MASC_index = 1:5,
+                  seed = 50 + (0:(5-1)),
+                  SIMPLIFY = FALSE)
+# rename list elements (the individual MASCs)
+names(sim_out) <- paste("MASC", 1:5, sep = "")
 
-# create df with all example data
-set.seed(1973)
-example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
-MASC = rep(MASC_names, each = 50),
-Data_Collection_Site = rep(Site_names, each = 10), # n = 10 (5 in control, 5 in treatment group)
-DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0), # random sampling for simulated data
-Treatment = rep(c(1,0), times = 100)
-)
+# run the full pipeline
+MetaPipeX::full_pipeline(data = sim_out)
 
-# split the data per MASC to prepare for use in MetaPipeX::full_pipeline()
-example_data_list <- split(example_data_df,
-                           example_data_df$MASC)
-
-## applying the input to the MetaPipeX function \cr
-
-# run full_pipeline
-example_MetaPipeX_output <- MetaPipeX::full_pipeline(
-data = example_data_list,
-MultiLab = "MultiLab", # column name needs no change
-MASC = "MASC",
-Data_Collection_Site = "Data_Collection_Site",
-DV = "DV",
-Group = "Treatment" # column name needs changing
-)
 
 \dontrun{
 All examples with additional comments are available on github:

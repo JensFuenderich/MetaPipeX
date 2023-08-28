@@ -237,42 +237,17 @@ with
 }
 \examples{
 
-# create vectors with names
-# two multi-labs
-MultiLab_names <- c("Multi_Lab_1", "Multi_Lab_2") # two projects
-# two MASCs per multi lab
-MASC_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
-# five sites per MASC
-Site_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
-                "Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E",
-                "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J",
-                "Lab_F", "Lab_G", "Lab_H", "Lab_I", "Lab_J")
+# create IPD for 10 MASCs (all from the same MultiLab)
+sim_out <- mapply(MetaPipeX::simulate_IPD,
+                  MASC_index = 1:5,
+                  seed = 50 + (0:(5-1)),
+                  SIMPLIFY = FALSE)
+# rename list elements (the individual MASCs)
+names(sim_out) <- paste("MASC", 1:5, sep = "")
 
-# create df with all example data
-set.seed(1973)
-example_data_df <- data.frame(MultiLab = rep(MultiLab_names, each = 100),
-                              MASC = rep(MASC_names, each = 50),
-                              # n = 10 (5 in control, 5 in treatment group)
-                              Data_Collection_Site = rep(Site_names, each = 10),
-                              # random sampling for simulated data
-                              DV = round(stats::rnorm(n = 2e2, mean = 0, sd = 5), 0),
-                              Treatment = rep(c(1,0), times = 100))
+# run the MetaPipeX function to create site summaries
+MetaPipeX::summarize_sites(data = sim_out)
 
-# split the data per MASC to prepare for use in MetaPipeX::summarize_sites()
-example_data_list <- split(example_data_df,
-                           example_data_df$MASC)
-
-## applying the input to the MetaPipeX function
-
-# run summarize_sites
-example_MetaPipeX_output <- MetaPipeX::summarize_sites(
-data = example_data_list,
-MultiLab = "MultiLab",
-MASC = "MASC",
-Data_Collection_Site = "Data_Collection_Site",
-DV = "DV",
-Group = "Treatment"
-)
 
 \dontrun{
 All examples with additional comments are available on github:

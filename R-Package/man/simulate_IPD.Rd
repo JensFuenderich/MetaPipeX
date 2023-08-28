@@ -4,12 +4,14 @@
 \alias{simulate_IPD}
 \title{simulate_IPD}
 \usage{
-simulate_IPD(MASC_index, MultiLab_index = NULL)
+simulate_IPD(MASC_index, MultiLab_index = NULL, seed = NULL)
 }
 \arguments{
 \item{MASC_index}{Insert (numeric or character) vector with indices.}
 
 \item{MultiLab_index}{Insert (numeric or character) vector with indices.}
+
+\item{seed}{Insert a vector with seeds, in order to create reproducible data.}
 }
 \value{
 This function creates a list object with IPD for one MASC per list element.
@@ -19,7 +21,7 @@ simulate_IPD
 }
 \examples{
 # create IPD for 5 MASCs (all from the same MultiLab)
-sim_out <- lapply(1:5, eval(simulate_IPD))
+sim_out <- lapply(1:5, eval(MetaPipeX::simulate_IPD))
 # rename list elements (the individual MASCs)
 names(sim_out) <- paste("MASC", 1:5, sep = "")
 

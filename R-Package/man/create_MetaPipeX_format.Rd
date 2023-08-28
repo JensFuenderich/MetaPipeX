@@ -12,10 +12,46 @@ create_MetaPipeX_format(
 )
 }
 \arguments{
-\item{output_folder}{description}
+\item{Merged_Site_Summaries}{A data frame or path to a .csv format data frame that contains the merged site summaries. Use the MetaPipeX::merge_site_summaries function to create this data format, or use the href{https://github.com/JensFuenderich/MetaPipeX/blob/main/Supplementary_Material/Table_Templates/lvl3_merged_site_summaries/merged_site_summaries_template.csv}{{template on github}}.}
 
-\item{suppress_list_output}{description}
+\item{Meta_Analyses}{A data frame or path to a .csv format data frame that contains the merged site summaries. Use the MetaPipeX::meta_analyze_MASCs function to create this data format, or use the href{https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates/lvl4_meta_analyses}{{template on github}}.}
+
+\item{output_folder}{Specify the output folder for the meta-analyses and the codebook. If no folder is specified, the function will return its output only to the R environment (unless this is suppressed under suppress_list_output).}
+
+\item{suppress_list_output}{A logical indicating whether results should be returned in R. If TRUE, no output is returned in R.}
+}
+\value{
+A list object containing the following components: \cr
+## MetaPipeX data format
+A data frame with all site summary and meta-analytical statistics from all included MASCs (Meta-Analytical-Data-Collections).
+
+## codebook
+A codebook that applies to the data frame (merged_site_summaries). \cr
+In order to export the data structure as .csv files in a folder, output_folder has to be specified.
 }
 \description{
 create MetaPipeX format
+}
+\details{
+No transformations are performed on the data in this step of the MetaPipeX pipeline.
+}
+\examples{
+
+# create IPD for 10 MASCs (all from the same MultiLab)
+sim_out <- mapply(MetaPipeX::simulate_IPD,
+                  MASC_index = 1:5,
+                  seed = 50 + (0:(5-1)),
+                  SIMPLIFY = FALSE)
+# rename list elements (the individual MASCs)
+names(sim_out) <- paste("MASC", 1:5, sep = "")
+
+# run the full pipeline to create the inputs for the arguments:
+# Merged_Site_Summaries & Meta_Analyses
+MetaPipeX_out <- MetaPipeX::full_pipeline(data = sim_out)
+
+# run the function using the data frames created from the pipeline
+MetaPipeX::create_MetaPipeX_format(
+  Merged_Site_Summaries = MetaPipeX_out$lvl3_merged_site_summaries$Merged_Site_Summaries,
+  Meta_Analyses = MetaPipeX_out$lvl4_meta_analyses$Meta_Analyses)
+
 }

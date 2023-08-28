@@ -34,58 +34,19 @@ No transformations are performed on the data in this step of the MetaPipeX pipel
 }
 \examples{
 
-# import the according table template
-Site_Summaries_template <- readr::read_csv(url(
-paste("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/",
-"Table_Templates/2_Site_Summaries/Site_Summaries_template.csv",
-sep = ""
-)))
+# create IPD for 10 MASCs (all from the same MultiLab)
+sim_out <- mapply(MetaPipeX::simulate_IPD,
+                  MASC_index = 1:5,
+                  seed = 50 + (0:(5-1)),
+                  SIMPLIFY = FALSE)
+# rename list elements (the individual MASCs)
+names(sim_out) <- paste("MASC", 1:5, sep = "")
 
-# set seed for drawing data
-set.seed(1973)
+# create site summaries
+Site_Summaries <- MetaPipeX::summarize_sites(data = sim_out)
 
-# create vectors with names
-MultiLab_names <- c("MultiLab_1", "MultiLab_1", "MultiLab_2",  "MultiLab_2")
-MASC_names <- c("Effect_A", "Effect_B", "Effect_C", "Effect_D")
-Data_Collection_Site_names <- c("Lab_A", "Lab_B", "Lab_C", "Lab_D", "Lab_E", "Lab_F", "Lab_G", "Lab_H")
-
-# random sampling for simulated data & building identifier variables
-list_of_site_summaries <- lapply(1:4, function(x){
-  # sampling
-  data_example <- as.data.frame(matrix(
-  data = stats::rnorm(n = 200*(ncol(Site_Summaries_template)-3), mean = 5, sd = 0.5),
-  nrow = 200,
-  ncol = ncol(Site_Summaries_template)-3)
-  )
-  # rename columns according to template
-  names(data_example) <- names(
-  Site_Summaries_template
-  )[4:length(names(Site_Summaries_template))]
-  data_example$T_N <- round(data_example$T_N, 0)
-  data_example$T_N <- round(data_example$C_N, 0)
-  # building identifier variables
-  MultiLab <- rep(MultiLab_names[x], times = nrow(data_example))
-  MASC <- rep(MASC_names[x], times = nrow(data_example))
-  Data_Collection_Site <- rep(if (x == 1 | x == 2) {
-  Data_Collection_Site_names[1:4]
-  } else if (x == 3 | x == 4) {
-  Data_Collection_Site_names[5:8]
-  }, each = nrow(data_example)/4)
-  # combine data & identifiers
-  cbind(MultiLab, MASC, Data_Collection_Site, data_example)
-})
-# rename list objects
-names(list_of_site_summaries) <- c("MultiLab_1_MASC_A_Site_summaries",
-                                   "MultiLab_1_MASC_B_Site_summaries",
-                                   "MultiLab_2_MASC_C_Site_summaries",
-                                   "MultiLab_2_MASC_D_Site_summaries")
-
-## applying the input to the MetaPipeX function
-
-# run merge_site_summaries
-example_MetaPipeX_output <- MetaPipeX::merge_site_summaries(
-data = list_of_site_summaries
-)
+# run MetaPipeX function to merge site summaries
+MetaPipeX::merge_site_summaries(data = Site_Summaries$Site_Summaries)
 
 \dontrun{
 All examples with additional comments are available on github:

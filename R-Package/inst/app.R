@@ -1,4 +1,7 @@
 
+library(shiny)
+library(magrittr)
+
 ### general imports
 
 MetaPipeX_data_full <- readr::read_csv("www/meta_pipe_x_data_template.csv")

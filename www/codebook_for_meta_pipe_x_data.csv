@@ -1,0 +1,40 @@
+Variable_Name,Variable_Description
+MultiLab,MultiLab
+MASC,MASC
+Data_Collection_Site,Data Collection_Site
+Site__Summaries__T_N,Site Summaries_treatment group_number of participants
+Site__Summaries__C_N,Site Summaries_control group_number of participants
+Site__Summaries__T_M,Site Summaries_treatment group_mean
+Site__Summaries__SE_T_M,Site Summaries__standard error of the__treatment group_mean
+Site__Summaries__C_M,Site Summaries_control group_mean
+Site__Summaries__SE_C_M,Site Summaries__standard error of the__control group_mean
+Site__Summaries__T_SD,Site Summaries_treatment group_standard deviation
+Site__Summaries__SE_T_SD,Site Summaries__standard error of the__treatment group_standard deviation
+Site__Summaries__C_SD,Site Summaries_control group_standard deviation
+Site__Summaries__SE_C_SD,Site Summaries__standard error of the__control group_standard deviation
+Site__Summaries__MD,Site Summaries__mean difference
+Site__Summaries__SE_MD,Site Summaries__standard error of the_mean difference
+Site__Summaries__pooled_SD,Site Summaries__pooled_standard deviation
+Site__Summaries__SE_pooled_SD,Site Summaries__standard error of the_pooled_standard deviation
+Site__Summaries__SMD,Site Summaries__standardized mean difference
+Site__Summaries__SE_SMD,Site Summaries__standard error of the_standardized mean difference
+MA__Result__K,meta analysis level: number of data collection sites
+MA__Result__N,meta analysis level: number of participants
+MA__Est__MD,meta analysis level: model estimate for__mean difference
+MA__Est__SMD,meta analysis level: model estimate for__standardized mean difference
+MA__Est__MD_K,meta analysis level: model estimate for__mean difference_number of data collection sites
+MA__Est__SMD_K,meta analysis level: model estimate for__standardized mean difference_number of data collection sites
+MA__Tau2__MD,meta analysis level: Tau2 for__mean difference
+MA__Tau2__SMD,meta analysis level: Tau2 for__standardized mean difference
+MA__Tau__MD,meta analysis level: Tau for__mean difference
+MA__Tau__SMD,meta analysis level: Tau for__standardized mean difference
+MA__CoeffVar__MD,meta analysis level: Coefficient of Variation (tau/model_est) for__mean difference
+MA__CoeffVar__SMD,meta analysis level: Coefficient of Variation (tau/model_est) for__standardized mean difference
+MA__I2__MD,meta analysis level: I2 for__mean difference
+MA__I2__SMD,meta analysis level: I2 for__standardized mean difference
+MA__H2__MD,meta analysis level: H2 for__mean difference
+MA__H2__SMD,meta analysis level: H2 for__standardized mean difference
+MA__QE__MD,meta analysis level: QE for__mean difference
+MA__QE__SMD,meta analysis level: QE for__standardized mean difference
+MA__QEp__MD,meta analysis level: QEp for__mean difference
+MA__QEp__SMD,meta analysis level: QEp for__standardized mean difference

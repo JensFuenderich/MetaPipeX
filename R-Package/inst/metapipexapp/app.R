@@ -3065,23 +3065,23 @@ server <- function(input, output, session){
     if (input$funnel_reduce_to_MASC == FALSE) {
 
       original_data <- original_data()
-      data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est))),
-                 SE = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_SE))),
-                 Model_Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_model_est))),
+      data.frame(Est = as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_est))),
+                 SE = as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_SE))),
+                 Model_Est = as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_model_est))),
                  x_lab = rep(
                    subset(codebook, codebook$Variable_Name == input$funnel_data_est)$Variable_Description,
-                   times = length(as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est)))))
+                   times = length(as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_est)))))
       )
 
     } else {
 
       original_data <- original_data() %>% dplyr::filter(MASC == input$funnel_data_MASC)
-      data.frame(Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est))),
-                 SE = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_SE))),
-                 Model_Est = as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_model_est))),
+      data.frame(Est = as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_est))),
+                 SE = as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_SE))),
+                 Model_Est = as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_model_est))),
                  x_lab = rep(
                    subset(codebook, codebook$Variable_Name == input$funnel_data_est)$Variable_Description,
-                   times = length(as.numeric(unlist(original_data() %>% dplyr::select(input$funnel_data_est)))))
+                   times = length(as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_est)))))
       )
     }
 

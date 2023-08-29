@@ -2902,6 +2902,8 @@ server <- function(input, output, session){
   observeEvent(input$upload_funnel, {
     updateVarSelectInput(session, "funnel_data_est",
                          data = data())
+    updateSelectInput(session, "funnel_data_MASC",
+                      choices = unique(data()$MASC))
   })
 
   observe({
@@ -2954,14 +2956,16 @@ server <- function(input, output, session){
     validate(
       need(input$funnel_data_est != "MultiLab" &
              input$funnel_data_est != "MASC" &
-             input$funnel_data_est != "Data_Collection_Site", "Please provide a numeric input for the site statistic."),
+             input$funnel_data_est != "Data_Collection_Site",
+           "Please provide a numeric input for the site statistic."),
       need(input$funnel_data_SE != "MultiLab" &
              input$funnel_data_SE != "MASC" &
-             input$funnel_data_SE != "Data_Collection_Site", "Please provide a numeric input for the SE of the according site statistic."),
+             input$funnel_data_SE != "Data_Collection_Site",
+           "Please provide a numeric input for the SE of the according site statistic."),
       need(input$funnel_data_model_est != "MultiLab" &
              input$funnel_data_model_est != "MASC" &
-             input$funnel_data_model_est != "Data_Collection_Site", "Please provide a numeric input for the Est of the according site statistic."),
-      need(input$funnel_data_MASC %in% unique(data()$MASC), "Please make sure to select an MASC that's in your subset (check the data selection tab).")
+             input$funnel_data_model_est != "Data_Collection_Site",
+           "Please provide a numeric input for the Est of the according site statistic.")
     )
 
 
@@ -2977,6 +2981,11 @@ server <- function(input, output, session){
                  )
 
     } else {
+
+      validate(
+        need(input$funnel_data_MASC %in% unique(data()$MASC),
+             "Please make sure to select a MASC that's in your subset (check the data selection tab).")
+      )
 
       original_data <- original_data() %>% dplyr::filter(MASC == input$funnel_data_MASC)
       data.frame(Est = as.numeric(unlist(original_data %>% dplyr::select(input$funnel_data_est))),

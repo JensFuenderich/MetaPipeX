@@ -13,8 +13,6 @@
 #'
 ShinyApp <- function(){
 
-  # runApp(appDir = paste(getwd(), "inst/app.R", sep = "/"),
-  #        launch.browser = TRUE)
   runApp(appDir = "inst/app.R",
          launch.browser = TRUE)
 

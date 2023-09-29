@@ -1,6 +1,0 @@
-Column_Name,Description
-MultiLab,"The multi-lab in which the replication project was publicised (e.g., ML2)"
-ReplicationProject,The name of the replication project (or replicated target-effect)
-Replication,"The replication (e.g., lab name) that a data point is associated with"
-DV,The single (aggregated) outcome value of the dependend variable
-Group,Indicates the data point being part of either the treatment (1) or control group (0)

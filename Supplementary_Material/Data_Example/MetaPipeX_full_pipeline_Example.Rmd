@@ -1,13 +1,13 @@
 ---
-title: "MetaPipeX_stepwise_Computations_Example"
+title: "MetaPipeX_full_pipeline_Example"
 author: "Jens Fuenderich"
-date: "2022-12-04"
+date: "2023-09-28"
 output: pdf_document
 ---
 
 ## Data Example: stepwise computations
 
-This example demonstrates how the *MetaPipeX* framework may be used to analyze and harmonize *multi-lab* data. In this document we demonstrate the functions for each individual step of the pipeline. The *MetaPipeX::full_pipeline* function implements all of the standardized functions and provides the full pipeline starting at the level of individual participant data (*IPD*). For a demonstration of the *MetaPipeX::full_pipeline* function, refer to the MetaPipeX_full_pipeline_Example.Rmd [on github](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Data_Example).
+This example demonstrates how the *MetaPipeX* framework may be used to analyze and harmonize *multi-lab* data. In this document we demonstrate the use of the *MetaPipeX::full_pipeline* function. It implements all of the standardized functions and provides the full pipeline starting at the level of individual participant data (*IPD*). For a demonstration of the stepwise computations, refer to the MetaPipeX_stepwise_Computations_Example.Rmd [on github](#0).
 
 The example showcases the three components of the pipeline, using data by Dang et al. (2021) and by Hagger et al. (*RRR4*, 2016). This example is structured in four steps that should be executed in the order they are presented:
 
@@ -138,135 +138,25 @@ IPD_RRR4 <- base::subset(IPD_RRR4, IPD_RRR4$Exclusion == 1)
 
 ```
 
-#### Documenting Individual Participant Data
+#### Computational Steps 3-6: Full Pipeline
 
-Creating a folder lvl1_individual_participant_data and storing data in that folder.
-
-```{r documenting ipd}
-
-## document data & download codebook 
-# define path to folder
-folder_path_ipd <- paste(output_folder_path, "lvl1_individual_participant_data", sep = "/")
-# create folder
-dir.create(folder_path_ipd)
-# export data 
-readr::write_csv(IPD_RRR4, paste(folder_path_ipd, "RRR4.csv", sep = "/"))
-# download codebook 
-readr::write_csv(readr::read_csv(url("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Table_Templates/lvl1_individual_participant_data/codebook_for_individual_participant_data.csv")), 
-                 paste(folder_path_ipd, "codebook_for_individual_participant_data.csv", sep = "/"))
-
-```
-
-#### Computational Step 3: Creating Site-Level Data (Site Summaries)
-
-Computation and documentation are carried out mostly by the function.
-
-![Figure 4](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/Example_Step_3.png)
-
-#### Documenting Site-Level Data (Site Summaries)
-
-The only additional step we take here, is to create a folder so that the output directory is the same as the *MetaPipeX::full_pipeline* function produces.
-
-Creating a folder lvl2_site_summaries and storing data in that folder.
-
-```{r computational step 3 & documenting site summaries}
-
-# define path to folder
-folder_path_site_sum <- paste(output_folder_path, 
-                             "lvl2_site_summaries/", 
-                             sep = "/")
-# create folder
-dir.create(folder_path_site_sum)
-
-# apply MetaPipeX function
-Site_Summaries_RRR4 <- MetaPipeX::summarize_sites(
-  data = IPD_RRR4, 
-  output_folder = folder_path_site_sum)
-
-```
-
-#### Computational Step 4: Merging Site-Level Data (Site Summaries)
-
-Computation and documentation are carried out mostly by the function.
-
-![Figure 5](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/Example_Step_4.png)
-
-#### Documenting Merged Site-Level Data (Site Summaries)
-
-The only additional step we take here, is to create a folder so that the output directory is the same as the *MetaPipeX::full_pipeline* function produces.
-
-Creating a folder lvl3_merged_site_summaries and storing data in that folder.
-
-```{r step 4 & documenting merged site summaries}
-
-# define path to folder
-folder_path_m_site_sum <- paste(output_folder_path, 
-                               "lvl3_merged_site_summaries/", 
-                               sep = "/")
-# create folder
-dir.create(folder_path_m_site_sum)
-
-## combine into single data set
-Merged_Site_Summaries_RRR4 <- MetaPipeX::merge_site_summaries(
-  data = Site_Summaries_RRR4$Site_Summaries,
-  output_folder = folder_path_m_site_sum)
-
-```
-
-#### Computational Step 5: meta analyze MASCs
-
-Computation and documentation are carried out mostly by the function.
-
-![Figure 6](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/Example_Step_5.png)
-
-#### Documenting MASC-Level Data (Meta Analyses)
-
-The only additional step we take here, is to create a folder so that the output directory is the same as the *MetaPipeX::full_pipeline* function produces.
-
-Creating a folder lvl4_meta_analyses and storing data in that folder.
-
-```{r step 5 & documenting MASC-level data}
-
-# define path to folder
-folder_path_meta_analyses <- paste(output_folder_path, 
-                                   "lvl4_meta_analyses/", 
-                                   sep = "/")
-# create folder
-dir.create(folder_path_meta_analyses)
-
-## run meta-analyses
-Meta_Analyses_RRR4 <- MetaPipeX::meta_analyze_MASCs(
-  data = Merged_Site_Summaries_RRR4$Merged_Site_Summaries, 
-  output_folder = folder_path_meta_analyses)
-
-```
-
-#### Computational Step 6: create MetaPipeX format
-
-Computation and documentation are carried out mostly by the function.
-
-![Figure 7](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/Example_Step_6.png)
-
-#### Documenting MetaPipeX Data
-
-The only additional step we take here, is to create a folder so that the output directory is the same as the *MetaPipeX::full_pipeline* function produces.
-
-Creating a folder lvl5_meta_pipe_x and storing data in that folder.
+All remaining steps to analyze and document the data (including the documentation of IPD) are executed through the *MetaPipeX::full_pipeline* function.
 
 ```{r step 6 & documenting MetaPipeX data}
 
 # define path to folder
-folder_path_MetaPipeX <- paste(output_folder_path, 
-                                   "lvl5_meta_pipe_x/", 
-                                   sep = "/")
-# create folder
-dir.create(folder_path_MetaPipeX)
+folder_path_site_sum <- paste(output_folder_path, "/", sep = "")
 
-## run meta-analyses
-MetaPipeX_Data <- MetaPipeX::create_MetaPipeX_format(
-  Merged_Site_Summaries = Merged_Site_Summaries_RRR4$Merged_Site_Summaries,
-  Meta_Analyses = Meta_Analyses_RRR4$Meta_Analyses,
-  output_folder = folder_path_MetaPipeX)
+# create folder
+dir.create(folder_path_site_sum)
+
+# apply MetaPipeX function
+MetaPipeX::full_pipeline(
+  data = IPD_RRR4, 
+  output_path = folder_path_site_sum,
+  folder_name = "lvl1_to_lvl5",
+  suppress_list_output = TRUE)
+
 
 ```
 

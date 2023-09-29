@@ -10,13 +10,16 @@ devtools::install_github("JensFuenderich/MetaPipeX/R-Package")
 
 ### R-package 
 
-This folder contains the R-package MetaPipeX. This is what is installed by running the "install_github" command (in "How to install the R-package"). It contains 4 analysis functions
-- MetaPipeX::create_replication_summaries()
-- MetaPipeX::merge_replication_summaries()
-- MetaPipeX::meta_analyses()
+This folder contains the R-package MetaPipeX. This is what is installed by running the "install_github" command (in "How to install the R-package"). It contains 5 analysis/pipeline functions
+- MetaPipeX::summarize_sites()
+- MetaPipeX::merge_site_summaries()
+- MetaPipeX::meta_analyze_MASCs()
+- MetaPipeX::create_MetaPipeX_format()
 - MetaPipeX::full_pipeline()
-and the function to locally run the Shiny App 
+the function to locally run the Shiny App 
 - MetaPipeX::ShinyApp()
+and a function that runs a simple simulation to create multi-lab data at the individual participant level (used test and demonstrate MetaPipeX functions and the Shiny app)
+- MetaPipeX::simulate_IPD()
 
 ### MetaPipeX_0.1.0.pdf 
 
@@ -32,13 +35,19 @@ This folder contains materials for the framework, such as:
 
 ## Useful links
 
+### Current Version 
+
+A web version of the app is currently NOT available at (changes in the version broke it, fixing it soon):  
+https://www.apps.meta-rep.lmu.de/metapipe-x/
+
+The functionality of the server version is equivalent to that in this repository, but the project structure differs (the UI and server code are provided in seperate scripts). To inspect the code of the server version, please refer to:  
+https://github.com/JensFuenderich/MetaPipeX_App_ServerVersion (this is currently the broken version) 
+
+### Previous Versions 
+
 The preprint for "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" is available at:  
 https://psyarxiv.com/bcpkt/
 
-A web version of the app is currently available at:  
-https://www.apps.meta-rep.lmu.de/MetaPipeX_App_ServerVersion/  
-The functionality of the server version is equivalent to that in this repository, but the project structure differs (the UI and server code are provided in seperate scripts). To inspect the code of the server version, please refer to:  
-https://github.com/JensFuenderich/MetaPipeX_App_ServerVersion
 
 ## Description of the framework 
 

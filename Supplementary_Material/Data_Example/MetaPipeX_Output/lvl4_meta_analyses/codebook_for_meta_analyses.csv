@@ -1,18 +1,20 @@
 Variable_Name,Variable_Description
-MultiLab,MultiLab
-MASC,MASC
-Result__K,Result number of data collection sites
-Result__N,Result number of participants
-Est__MD,Est mean difference
-Est__SMD,Est standardized mean difference
-Est__MD_K,Est mean difference_number of data collection sites
-Est__SMD_K,Est standardized mean difference_number of data collection sites
+MultiLab,"The multi-lab in which the meta-analytical-study-collection (The name of the meta-analytical-study-collection (MASC) (or replicated target-effect)) was publicised (e.g., ML2)"
+MASC,The name of the meta-analytical-study-collection (MASC) (or replicated target-effect)
+Result__K,number of data collection sites
+Result__N,number of participants
+Est__MD,model estimate for mean difference
+Est__SMD,model estimate for standardized mean difference
+pval_Est__MD,p-value of model estimate for mean difference
+pval_Est__SMD,p-value of model estimate for standardized mean difference
+Est__MD_K,model estimate for mean difference number of data collection sites
+Est__SMD_K,model estimate for standardized mean difference number of data collection sites
 Tau2__MD,Tau2 for mean difference
 Tau2__SMD,Tau2 for standardized mean difference
 Tau__MD,Tau for mean difference
 Tau__SMD,Tau for standardized mean difference
-CoeffVar__MD,Coefficient of Variation (tau/model est) for_mean difference
-CoeffVar__SMD,Coefficient of Variation (tau/model est) for_standardized mean difference
+CoeffVar__MD,Coefficient of Variation (tau/model est) for mean difference
+CoeffVar__SMD,Coefficient of Variation (tau/model est) for standardized mean difference
 I2__MD,I2 for mean difference
 I2__SMD,I2 for standardized mean difference
 H2__MD,H2 for mean difference

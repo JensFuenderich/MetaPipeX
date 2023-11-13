@@ -1,6 +1,6 @@
-Column_Name,Description
-MultiLab,"The multi-lab in which the MASC (meta-analytic study collection) was publicised (e.g., ML2)"
-MASC,The name of the MASC (or replicated target-effect)
-Data_Collection_Site,"The data collection site (e.g., lab name) that a data point is associated with"
-DV,The single (aggregated) outcome value of the dependend variable
-Group,Indicates the data point being part of either the treatment (1) or control group (0)
+...1,Column_Name,Description
+1,MultiLab,"The multi-lab in which the MASC (meta-analytic study collection) was publicised (e.g., ML2)"
+2,MASC,The name of the MASC (or replicated target-effect)
+3,Data_Collection_Site,"The data collection site (e.g., lab name) that a data point is associated with"
+4,DV,The single (aggregated) outcome value of the dependend variable
+5,Group,Indicates the data point being part of either the treatment (1) or control group (0)

@@ -9,6 +9,8 @@ output: pdf_document
 
 This example demonstrates how the *MetaPipeX* framework may be used to analyze and harmonize *multi-lab* data. In this document we demonstrate the use of the *MetaPipeX::full_pipeline* function. It implements all of the standardized functions and provides the full pipeline starting at the level of individual participant data (*IPD*). For a demonstration of the stepwise computations, refer to the MetaPipeX_stepwise_Computations_Example.Rmd [on github](#0).
 
+![Figure 1: Graphical Representation of the Example](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Graphics/Data_Example/MetaPipeX_Tutorial.png)
+
 The example showcases the three components of the pipeline, using data by Dang et al. (2021) and by Hagger et al. (*RRR4*, 2016). This example is structured in four steps that should be executed in the order they are presented:
 
 1.  Mapping the example to the pipeline
@@ -20,7 +22,7 @@ The example showcases the three components of the pipeline, using data by Dang e
 
 The MetaPipeX pipeline consists of unstandardized and standardized computational steps. All computations performed on IPD and higher levels of aggregation are standardized by the pipeline and need no further adaption. The steps preceding *IPD* should be documented for each meta-analytical-study-collection (*MASC*) individually. For our example we have provided short keywords summarizing important aspects these computational steps in Fig. 1. Each *data collection site* (k = 23) extracted the dependent variable (*DV*) from the raw data, an indication for the Group and provided columns that specify exclusions of participants (or, more broadly, rows) according to the data cleaning protocol. We could not find the raw data in the *RRR4* OSF (and thus can not recreate the Item Level data from raw data as depicted in the MetaPipeX pipeline [on github](https://github.com/JensFuenderich/MetaPipeX/blob/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/MetaPipeX_Pipeline.pdf)). But they provide R-code that documents the computations (<https://osf.io/nb8uj>) and decided that they would represent step 1 in the pipeline. For a more detailed verbal description of the variables in the data, please refer to the *RRR4* publication. We will use the aggregated form of the results, the *IPD* file (merged across sites) that is provided in the *RRR4* repository (<https://osf.io/t3mns>) as the basis for further computations. Step 2, creating the standardized *IPD* format, is documented in an R-markdown file on GitHub. To bring the data into the *IPD* format, we need to select the relevant *DV*, which is often aggregated from multiple items, the independent variable, usually a treatment or control group indication, and apply exclusions. We can use the experimental manipulation, in which participants completed either a depletion or no depletion version of the letter "e" task (Baumeister et al., 1998, Study 4) as the Group variable and the reaction time variance (*RTV*) from a multi-source interference task (Bush et al., 2003) as the *DV*.
 
-![Figure 1: The adapted MetaPipeX pipeline.](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/MetaPipeX_Example_Ego_Depl.png)
+![Figure 2: The adapted MetaPipeX pipeline.](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Graphics/MetaPipeX_Example_Hagger.png)
 
 ## 2. Analysis & Documentation in R
 
@@ -84,7 +86,7 @@ dir.create(folder_path_item)
 
 This step was done by the participating data collection sites and not documented in a way that we could recreate it. For more details, refer to the section *1. Mapping the example to the pipeline*.
 
-![Figure 2](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/Example_Step_1.png)
+![Figure 3](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Graphics/Data_Example/Example_Step_1.png)
 
 #### Documenting Item Data
 
@@ -112,7 +114,7 @@ Item_Level_RRR4 <- readr::read_csv(RRR4_data_path$local_path)
 
 As depicted in Fig. 4, in the second computational step we select the relevant colums, recode the group indication and clean the data (apply exclusion criteria). Relevant columns in *Item_Level_RRR4* are *Site* (for the names of the *data collection sites*), *ExGauss.I.RTVar.MSIT* (the single numeric representation of the *DV*), *Task* (to sepperate the participants into two *groups*) and *Exclusions*. Additionally, we create columns for the multi-lab and the *MASC* (in order to differentiate this data set from others when it is harmonized).
 
-![Figure 3](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/dc55d4a4a03705561b50907e9a5833457de8ab20/Supplementary_Material/Graphics/Example_Step_2.png)
+![Figure 4](https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Graphics/Data_Example/Example_Step_2.png)
 
 Selecting relevant columns & recoding group indication. Applying data cleaning.
 

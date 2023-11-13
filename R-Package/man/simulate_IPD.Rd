@@ -19,6 +19,14 @@ This function creates a list object with IPD for one MASC per list element.
 \description{
 simulate_IPD
 }
+\details{
+The function creates individual participant data (IPD) for a single Meta-Analytical-Study-Collection (MASC).
+Its purpose is mostly to quickly create data in a format applicable to MetaPipeX in order to test and demonstrate its functionality.
+All decisions regarding the model specifications of the simulation serve that purpose and are otherwise arbitrary (e.g. the model produces only positive unstandardized "population" mean differences between 0 and 13, but we do not intend to imply anything by choosing that range).
+The function draws values with varying group sizes in control and treatment groups from a normal distribution each per data collection site.
+The "fixed" component of the control means has a value of 50 and the "fixed" component of the mean difference is sampled to be between 0 and 13.
+Treatment and control group means and standard deviations are sampled to be heterogeneous across data collection sites.
+}
 \examples{
 # create IPD for 5 MASCs (all from the same MultiLab)
 sim_out <- lapply(1:5, eval(MetaPipeX::simulate_IPD))

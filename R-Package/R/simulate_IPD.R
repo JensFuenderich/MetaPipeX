@@ -4,6 +4,13 @@
 #' @param MultiLab_index Insert (numeric or character) vector with indices.
 #' @param seed Insert a vector with seeds, in order to create reproducible data.
 #'
+#' @details The function creates individual participant data (IPD) for a single Meta-Analytical-Study-Collection (MASC).
+#' Its purpose is mostly to quickly create data in a format applicable to MetaPipeX in order to test and demonstrate its functionality.
+#' All decisions regarding the model specifications of the simulation serve that purpose and are otherwise arbitrary (e.g. the model produces only positive unstandardized "population" mean differences between 0 and 13, but we do not intend to imply anything by choosing that range).
+#' The function draws values with varying group sizes in control and treatment groups from a normal distribution each per data collection site.
+#' The "fixed" component of the control means has a value of 50 and the "fixed" component of the mean difference is sampled to be between 0 and 13.
+#' Treatment and control group means and standard deviations are sampled to be heterogeneous across data collection sites.
+#'
 #' @return This function creates a list object with IPD for one MASC per list element.
 #' @export
 #'
@@ -44,6 +51,7 @@ simulate_IPD <- function(MASC_index, MultiLab_index = NULL, seed = NULL){
                                                size = 1),
                                   max = 13)
 
+
   # create function to simulate data per Data Collection Site
   IPD_per_site_fun <- function(site_name){
     # draw group sizes
@@ -61,11 +69,13 @@ simulate_IPD <- function(MASC_index, MultiLab_index = NULL, seed = NULL){
                Group = rep(c(0,1),
                            times = group_sizes),
                DV = c(stats::rnorm(group_sizes[1],
-                                   mean = 50 + stats::runif(n = 1, min = -3, max = 3),
-                                   sd = stats::runif(n = 1, min = 8, max = 16)),
+                                   mean = 50 + stats::rnorm(n = 1, mean = 0, sd = 3), # add heterogeneity to the group mean
+                                   sd = stats::rchisq(n = 1, df = 12)),
                       stats::rnorm(group_sizes[2],
-                                   mean = 50 + mean_difference + stats::runif(n = 1, min = -3, max = 3),
-                                   sd = stats::runif(n = 1, min = 8, max = 16))))
+                                   mean = 50 + stats::rnorm(n = 1, mean = 0, sd = 3) + # add heterogeneity to the group mean
+                                     mean_difference + stats::rnorm(n = 1, mean = 0, sd = 2), # add heterogeneity to the effect
+                                   sd = stats::rchisq(n = 1, df = 12)))
+    )
   }
 
   # run function to simulate data per Data Collection Site

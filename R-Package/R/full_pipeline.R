@@ -161,16 +161,7 @@ full_pipeline <- function(data, MultiLab = NULL, MASC = NULL, Data_Collection_Si
   if (is.null(output_path)) {} else { lapply(data_list, export_ipd_fun) }
 
   ## create codebook for individual participant data
-  codebook_for_individual_participant_data <- data.frame(Column_Name = c("MultiLab",
-                                             "MASC",
-                                             "Data_Collection_Site",
-                                             "DV",
-                                             "Group"),
-                             Description = c("The multi-lab in which the MASC (meta-analytic study collection) was publicised (e.g., ML2)",
-                                             "The name of the MASC (or replicated target-effect)",
-                                             "The data collection site (e.g., lab name) that a data point is associated with",
-                                             "The single (aggregated) outcome value of the dependend variable",
-                                             "Indicates the data point being part of either the treatment (1) or control group (0)"))
+  codebook_for_individual_participant_data <- MetaPipeX:::create_IPD_codebook()
 
   # export codebook for individual participant data
   if (is.null(output_path)) {} else { readr::write_csv(codebook_for_individual_participant_data,

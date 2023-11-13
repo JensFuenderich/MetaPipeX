@@ -92,63 +92,8 @@ merge_site_summaries <- function(data, output_folder = NULL, suppress_list_outpu
 
   } else {
 
-    # create empty df
-    abbr_library <- data.frame(Abbreviation = logical(0),
-                               Full_Name = logical(0))
-
-    # pair abbreviations with verbal descriptions
-    abbr_library <- as.data.frame(base::rbind(c("T_", "treatment group_"),
-                                              c("C_", "control group_"),
-                                              c("_N", "_number of participants"),
-                                              c("_K", "_number of data collection sites"),
-                                              c("_MD", "_mean difference"),
-                                              c("_Est_", "_model estimate for_"),
-                                              c("_M", "_mean"),
-                                              c("_SD", "_standard deviation"),
-                                              c("SE_", "standard error of the_"),
-                                              c("SMD", "standardized mean difference"),
-                                              c("pooled_", "pooled_")
-    ))
-
-    # rename columns of df
-    names(abbr_library) <- c("Abbreviation", "Full_Name")
-
-    # extract names from merged df
-    description_vector <- names(merged_site_summaries)
-
-    # sorry for this, did not want to loop
-    # check if there's enough pipes in that orchestra
-    #nrow(abbr_library) (the result of this should be equivalent to the max indexing in the following chunk)
-
-    description_vector %<>%
-      gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
-      gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
-      gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
-      gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
-      gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
-      gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
-      gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
-      gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
-      gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
-      gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
-      gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .)
-
-    description_vector <- gsub(pattern = "_", replacement = " ", description_vector)
-
-    codebook_for_merged_site_summeries <- data.frame(Variable_Name = names(merged_site_summaries), Variable_Description = description_vector)
-    codebook_for_merged_site_summeries <- codebook_for_merged_site_summeries[-c(1:3),]
-
-    # do this one by hand, otherwise the abbr "MD" messes up the code
-    codebook_for_merged_site_summeries[codebook_for_merged_site_summeries$Variable_Name == "MD",2] <- "mean difference"
-
-    # add identifiers
-    codebook_for_merged_site_summeries <- rbind(data.frame(Variable_Name = c("MultiLab",
-                                                                                    "MASC",
-                                                                                    "Data_Collection_Site"),
-                                                                  Variable_Description = c("The multi-lab in which the meta-analytical-study-collection (MASC) was publicised (e.g., ML2)",
-                                                                                           "The name of the meta-analytical-study-collection (MASC) (or replicated target-effect)",
-                                                                                           "The data collection site (e.g., lab name) that a data point is associated with")),
-                                                       codebook_for_merged_site_summeries)
+    # extract names from merged df and create codebook
+    codebook_for_merged_site_summeries <- MetaPipeX:::create_site_summary_codebook(description_vector = names(merged_site_summaries))
 
   }
 

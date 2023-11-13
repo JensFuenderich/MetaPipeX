@@ -16,8 +16,9 @@ just type it in the Search field and all lines containing that word will be disp
 
 # create a list for checkboxes, etc (in "Reactive Data Table" tab)
 Variables_List <- list(
-  AnalysisResults = list(#"Replication Results" = "Replication",
+  AnalysisResults = list(
     "Model Estimates (Est)" = "Est",
+    "p-values for Model Estimates" = "pval_Est",
     "Tau2" = "__Tau2_",
     "SE of Tau2" = "SE_Tau2",
     "Tau" = "Tau_",
@@ -33,6 +34,15 @@ Variables_List <- list(
                     "Treatment SD" = "T_SD",
                     "pooled SD" = "pooled_SD",
                     "MD" = "_MD",
+                    "SMD" = "_SMD"
+  ),
+  Statistics1 = list("Control Mean" = "C_M",
+                    "Treatment Mean" = "T_M",
+                    "Control SD" = "C_SD",
+                    "Treatment SD" = "T_SD",
+                    "pooled SD" = "pooled_SD"
+  ),
+  Statistics2 = list("MD" = "_MD",
                     "SMD" = "_SMD"
   ),
   Statistics_reduced = list("MD" = "_MD",
@@ -59,55 +69,92 @@ ui <- navbarPage(
 
     sidebarPanel(
       selectInput(inputId = "select_upload",
-                  label = "Choose the type of data you want to use in the app from the dropdown menu:",
+                  label = "Select the type of data you want to use in the app from the dropdown menu:",
                   choices = c("Simulate Data" = "SimulateData",
                               "Individual Participant Data" = "IPD",
                               "Site Summaries" =  "SiteSum",
                               "Merged Site Summaries" = "MergedSiteSum",
                               "MetaPipeX (Meta-Analysis & Site Summaries)" = "MetaPipeX"),
-                  selected = "MetaPipeX"
+                  selected = "SimulateData"
       ),
       fluidRow(
         column(6,align="left",uiOutput("confirm_upload2"))
       ),
+
       # conditional panels with pipeline image
-      h5(strong("The currently selected data type in the pipeline:")),
-      br(),
-      conditionalPanel(condition = "input.select_upload == 'SimulateData'",
-                       tags$img(src = "MetaPipeX_Pipeline_IPD.png",
-                                height = "70%",
-                                width = "70%",
-                                style="display: block; margin-left: auto; margin-right: auto;")
+      conditionalPanel(condition = "input.run_simulation > 0",
+                       conditionalPanel(condition = "input.select_upload == 'SimulateData'",
+                                        br(),
+                                        h5(strong("The currently selected data type in the pipeline:")),
+                                        tags$img(src = "MetaPipeX_Pipeline_IPD.png",
+                                                 height = "70%",
+                                                 width = "70%",
+                                                 style="display: block; margin-left: auto; margin-right: auto;"),
+                                        br())
+
       ),
       conditionalPanel(condition = "input.select_upload == 'IPD'",
+                       br(),
+                       h5(strong("The currently selected data type in the pipeline:")),
                        tags$img(src = "MetaPipeX_Pipeline_IPD.png",
                                 height = "70%",
                                 width = "70%",
-                                style="display: block; margin-left: auto; margin-right: auto;")
+                                style="display: block; margin-left: auto; margin-right: auto;"),
+                       br()
       ),
       conditionalPanel(condition = "input.select_upload == 'SiteSum'",
+                       br(),
+                       h5(strong("The currently selected data type in the pipeline:")),
                        tags$img(src = "MetaPipeX_Pipeline_Site.png",
                                 height = "70%",
                                 width = "70%",
-                                style="display: block; margin-left: auto; margin-right: auto;")
+                                style="display: block; margin-left: auto; margin-right: auto;"),
+                       br()
       ),
       conditionalPanel(condition = "input.select_upload == 'MergedSiteSum'",
+                       br(),
+                       h5(strong("The currently selected data type in the pipeline:")),
                        tags$img(src = "MetaPipeX_Pipeline_MergedSite.png",
                                 height = "70%",
                                 width = "70%",
-                                style="display: block; margin-left: auto; margin-right: auto;")
+                                style="display: block; margin-left: auto; margin-right: auto;"),
+                       br()
       ),
       conditionalPanel(condition = "input.select_upload == 'MetaPipeX'",
+                       br(),
+                       h5(strong("The currently selected data type in the pipeline:")),
                        tags$img(src = "MetaPipeX_Pipeline_MetaPipeX.png",
                                 height = "70%",
                                 width = "70%",
-                                style="display: block; margin-left: auto; margin-right: auto;")
+                                style="display: block; margin-left: auto; margin-right: auto;"),
+                       br()
       ),
-      br(),
       p("For more information on the MetaPipeX framework, please refer to the", tags$a(href="https://github.com/JensFuenderich/MetaPipeX", "github documentation.")),
 
     ),
 
+    tags$style(
+      HTML("
+
+           .custom-container1 {
+        background-color: lightblue;
+        padding: 10px;
+        border-radius: 5px;
+           }
+
+        .custom-container2 {
+        background-color: lightgrey;
+        padding: 10px;
+        border-radius: 5px;
+           }
+
+        .custom-text {
+        line-height: 2;
+        color: black;
+        opacity: 0.8;
+      }
+    ")
+    ),
 
 
     mainPanel(
@@ -116,25 +163,25 @@ ui <- navbarPage(
 
       conditionalPanel(condition = "input.select_upload == 'SimulateData'",
                        h3("Simulate Individual Participant Data"),
-                       h5("[Attention!] Write something instructive."),
                        br(),
-                       sliderInput(inputId = "seed",
-                                   label = "Move the slider to a seed of your choice to run a reproducible simulation:",
-                                   min = 1,
-                                   max = 300,
-                                   value = runif(n = 1, min = 1, max = 300)),
-                       br(),
-                       sliderInput(inputId = "number_of_MASCs",
-                                   label = "Move the slider to set the number of meta-analytic-study collections (MASCs):",
-                                   min = 1,
-                                   max = 40,
-                                   value = 5),
+                       div(
+                         class = "custom-container1",
+                         h5(class = "custom-text", "Welcome to the MetaPipeX Shiny App. It allows you to analyze and visualize multi-lab data. If you would like to explore the app without providing existing data sets to it, you may use this tab to simulate individual participant data. As with other study data, you may then run the pipeline and provide the simulated data to the app in order to explore its functionality."),
+                         h5(class = "custom-text", "Continue by clicking 'Create simulated IPD' or selecting a data type that you want to provide to the app.")
+                       ),
                        br(),
                        actionButton(inputId = "run_simulation",
                                     label = "Create simulated IPD"),
                        br(),
                        h5("Hit the button 'Run pipeline & Provide data to app' and go to the Data Selection tab."),
-                       DT::DTOutput("simulated_data")
+                       br(),
+                       DT::DTOutput("simulated_data"),
+                       br(),
+                       checkboxInput(inputId = "filter_SimInfo",
+                                     label = "More Info on the Simulation"),
+                       uiOutput("out_SimInfo"),
+                       br()
+
       ),
 
 
@@ -250,16 +297,21 @@ ui <- navbarPage(
                     label = "Site",
                     choices = c("all", unique(MetaPipeX_data_full$Data_Collection_Site))
         ),
-        shinyWidgets::prettyCheckboxGroup(inputId = "Statistics",
+        shinyWidgets::prettyCheckboxGroup(inputId = "Statistics1",
                                           label = h3("Site Statistics"),
-                                          choices = Variables_List$Statistics,
+                                          choices = Variables_List$Statistics1,
                                           selected = "exclude",
                                           animation = "pulse",
                                           shape = "curve"
         ),
-        # tags$head(
-        #   tags$style(HTML("input[name=Statistics][value='exclude'] { display: none }"))
-        # ),
+        shinyWidgets::prettyCheckboxGroup(inputId = "Statistics2",
+                                          label = NULL,
+                                          choices = Variables_List$Statistics2,
+                                          selected = "exclude",
+                                          animation = "pulse",
+                                          shape = "curve"
+        ),
+        br(),
         h3("Exclude Further Information"),
         shinyWidgets::materialSwitch(inputId = "Stat_SE",
                                      label = "Exclude Standard Error of Site Level Statistic",
@@ -271,9 +323,6 @@ ui <- navbarPage(
                                           animation = "pulse",
                                           shape = "curve"
         ),
-        # tags$head(
-        #   tags$style(HTML("input[name=AnalysisResults][value='exclude'] { display: none }"))
-        # ),
         shinyWidgets::prettyCheckboxGroup(inputId = "SampleSize",
                                           label = h3("Sample Size Information"),
                                           choices = Variables_List$Sample_Size,
@@ -282,9 +331,6 @@ ui <- navbarPage(
                                           shape = "curve"
 
         ),
-        # tags$head(
-        #   tags$style(HTML("input[name=SampleSize][value='exclude'] { display: none }"))
-        # ),
         h3("Exclude Non-Effects"),
         sliderInput(inputId = "exclude_effects",
                     label = "Exlcude MASCs with a model estimate for |g| lower than...",
@@ -405,7 +451,7 @@ ui <- navbarPage(
              mainPanel(
                h4("Histogram for selected statistics"),
                plotOutput(outputId = "histogram",
-                          hover = "hist_hover"),
+                          click = "hist_click"),
                downloadLink("download_hist", "Download Histogram"),
                DT::DTOutput("hist_data_table")
              )
@@ -456,7 +502,7 @@ ui <- navbarPage(
              mainPanel(
                h4("Violin Plot for selected statistics"),
                plotOutput(outputId = "violin_plot",
-                          hover = "violin_hover"),
+                          click = "violin_click"),
                downloadLink("download_violin", "Download Violin Plot"),
                DT::DTOutput("violin_data_table")
              )
@@ -486,7 +532,7 @@ ui <- navbarPage(
              mainPanel(
                h4("Scatter Plot for selected statistics"),
                plotOutput(outputId = "scatter_plot",
-                          hover = "scatter_hover"),
+                          click = "scatter_click"),
                downloadLink("download_scatter", "Download Scatter Plot"),
                DT::DTOutput("scatter_data_table")
              )
@@ -549,7 +595,7 @@ ui <- navbarPage(
                h4("Funnel Plot for selected statistics"),
                textOutput("funnel_note"),
                plotOutput(outputId = "funnel_plot",
-                          hover = "funnel_hover"),
+                          click = "funnel_click"),
                DT::DTOutput("funnel_data_table"),
                plotOutput(outputId = "funnel_CE_plot"),
                downloadLink("download_funnel", "Download Funnel Plot")
@@ -616,13 +662,6 @@ server <- function(input, output, session){
   # 500 mb upload maximum
   options(shiny.maxRequestSize = 500*1024^2)
 
-  # disable UI elements
-
-  # observe({
-  #   shinyjs::hide(selector = "#Statistics input[value='exclude']")
-  # })
-
-
 
   #### Content:
   ### Upload Data
@@ -651,11 +690,12 @@ server <- function(input, output, session){
   # the dependency is created so that the app does not crash due to analyses being run without any input
   output$confirm_upload2 <- renderUI({
 
-    if( is.null(SiteSum_list_reactive()) &
-        is.null(input$IPD_Input) &
-        is.null(input$SiteSum_Input) &
-        is.null(input$MergedSiteSum_Input) &
-        is.null(input$MetaPipeX_Input)
+    if(
+      input$run_simulation == 0 &
+      is.null(input$IPD_Input) &
+      is.null(input$SiteSum_Input) &
+      is.null(input$MergedSiteSum_Input) &
+      is.null(input$MetaPipeX_Input)
     ){ } else {
       actionButton("confirm_upload","Run pipeline & Provide data to app")
     }
@@ -675,6 +715,41 @@ server <- function(input, output, session){
       sim_out
     } else {
       c()
+    }
+  })
+
+  output$out_SimInfo <- renderUI({
+    if (input$filter_SimInfo == TRUE) {
+      div(
+        class = "custom-container2",
+        h5(class = "custom-text", "Simulation Info"),
+        h5(class = "custom-text", "This simulation creates individual participant data for 50 data collection sites per Meta-Analytical-Site-Collection (MASC). You may choose the number of MASCs that are simulated. The DV values for each data collection site are drawn from a normal distribution with varying sample and effect sizes. More information on the simulation function is available through the pdf documentation of the MetaPipeX R-package on", tags$a(href="https://github.com/JensFuenderich/MetaPipeX", "github.")),
+        sliderInput(inputId = "seed",
+                    label = "Move the slider to a seed of your choice to run a reproducible simulation:",
+                    min = 1,
+                    max = 300,
+                    value = runif(n = 1, min = 1, max = 300)),
+        br(),
+        sliderInput(inputId = "number_of_MASCs",
+                    label = "Move the slider to set the number of meta-analytic-study collections (MASCs):",
+                    min = 1,
+                    max = 40,
+                    value = 3)
+      )
+    }else{
+      shinyjs::hidden(
+        sliderInput(inputId = "seed",
+                      label = "Move the slider to a seed of your choice to run a reproducible simulation:",
+                      min = 1,
+                      max = 300,
+                      value = runif(n = 1, min = 1, max = 300)),
+          br(),
+          sliderInput(inputId = "number_of_MASCs",
+                      label = "Move the slider to set the number of meta-analytic-study collections (MASCs):",
+                      min = 1,
+                      max = 40,
+                      value = 3)
+        )
     }
   })
 
@@ -888,7 +963,6 @@ server <- function(input, output, session){
                          IPD_list[[x]][[if(input$create_custom_multilab_col == TRUE){"MASC"}else{input$MASC_col}]],
                          as.character(IPD_list[[x]][[input$site_col]]),
                          IPD_list[[x]][[input$DV_col]],
-                         #abs(as.numeric(unlist(IPD_list[[x]][[input$group_col]]))-1)
                          abs(as.numeric(as.factor(unlist(IPD_list[[x]][[input$group_col]])))-1)
                        )
                        names(single_df) <-  c(if(input$create_custom_multilab_col == TRUE){"MultiLab"}else{input$multilab_col}, if(input$create_custom_multilab_col == TRUE){"MASC"}else{input$MASC_col}, input$site_col, input$DV_col, input$group_col)
@@ -1058,6 +1132,13 @@ server <- function(input, output, session){
 
   ### Data Selection
 
+  ## combine checkboxgroup inputs
+
+  Statistics <- reactive({
+    c(input$Statistics1, input$Statistics2)
+  })
+
+
   ## selectInput dependencies
 
   multilab_choices <- reactive({
@@ -1141,7 +1222,7 @@ server <- function(input, output, session){
 
     # display the df with selection according to SampleSize, Statistics and AnalysisResults
 
-    if (is.null(input$Statistics) & is.null(input$AnalysisResults) & is.null(input$SampleSize)) {
+    if (is.null(Statistics()) & is.null(input$AnalysisResults) & is.null(input$SampleSize)) {
 
       if (input$Level == TRUE) { # this chunk runs if Site level data is NOT included
 
@@ -1165,7 +1246,7 @@ server <- function(input, output, session){
                           MASC,
                           Data_Collection_Site)
 
-    } else if (is.null(input$Statistics) & is.null(input$AnalysisResults)) {
+    } else if (is.null(Statistics()) & is.null(input$AnalysisResults)) {
 
       if (input$Level == TRUE) { # this chunk runs if Site level data is NOT included
 
@@ -1241,7 +1322,7 @@ server <- function(input, output, session){
           df <- df %>%
             dplyr::select(MultiLab,
                           MASC,
-                          dplyr::contains(input$Statistics)) %>%
+                          dplyr::contains(Statistics())) %>%
             dplyr::select(MultiLab,
                           MASC,
                           dplyr::contains("Site"),
@@ -1254,7 +1335,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics)) %>%
+                          dplyr::contains(Statistics())) %>%
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
@@ -1268,7 +1349,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics)) %>%
+                          dplyr::contains(Statistics())) %>%
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
@@ -1278,7 +1359,7 @@ server <- function(input, output, session){
 
       }
 
-    } else if (is.null(input$Statistics) & is.null(input$SampleSize)) {
+    } else if (is.null(Statistics()) & is.null(input$SampleSize)) {
 
       if (input$Level == TRUE) { # this chunk runs if Site level data is NOT included
 
@@ -1313,7 +1394,7 @@ server <- function(input, output, session){
 
       }
 
-    } else if (is.null(input$Statistics)) {
+    } else if (is.null(Statistics())) {
 
       if (input$Level == TRUE) { # this chunk runs if Site level data is NOT included
 
@@ -1390,7 +1471,7 @@ server <- function(input, output, session){
           df <- df %>%
             dplyr::select(MultiLab,
                           MASC,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1401,7 +1482,7 @@ server <- function(input, output, session){
           df <- df %>%
             dplyr::select(MultiLab,
                           MASC,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1419,7 +1500,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1432,7 +1513,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1450,7 +1531,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1464,7 +1545,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1484,7 +1565,7 @@ server <- function(input, output, session){
           df <- df %>%
             dplyr::select(MultiLab,
                           MASC,
-                          dplyr::contains(input$Statistics)) %>%
+                          dplyr::contains(Statistics())) %>%
             dplyr::select(MultiLab,
                           MASC,
                           dplyr::contains("Site"),
@@ -1498,7 +1579,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics)) %>%
+                          dplyr::contains(Statistics())) %>%
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
@@ -1513,7 +1594,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics)) %>%
+                          dplyr::contains(Statistics())) %>%
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
@@ -1533,7 +1614,7 @@ server <- function(input, output, session){
           df <- df %>%
             dplyr::select(MultiLab,
                           MASC,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1546,7 +1627,7 @@ server <- function(input, output, session){
           df <- df %>%
             dplyr::select(MultiLab,
                           MASC,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1565,7 +1646,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1579,7 +1660,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1598,7 +1679,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1613,7 +1694,7 @@ server <- function(input, output, session){
             dplyr::select(MultiLab,
                           MASC,
                           Data_Collection_Site,
-                          dplyr::contains(input$Statistics),
+                          dplyr::contains(Statistics()),
                           dplyr::contains(input$SampleSize)) %>%
             dplyr::select(MultiLab,
                           MASC,
@@ -1664,87 +1745,16 @@ server <- function(input, output, session){
   output$zip_download <- downloadHandler(
     filename = 'MetaPipeX_Output.zip',
     content = function(file){
-      # create directory
-      dir.create("MetaPipeX_folder")
-      # create folder for data input
-      dir.create("MetaPipeX_folder/0_Input")
-      if (input$select_upload == "IPD") {
-        # save data as imported
-        saveRDS(data_import$input, file = "MetaPipeX_folder/0_Input/Input_Data.rds")
-        # save data transformations
-        utils::write.csv(data_import$transformations, file = "MetaPipeX_folder/0_Input/transform_to_IPD.csv")
-        # save codebook for transformations
-        utils::write.csv(data_import$codebook_transformations, file = "MetaPipeX_folder/0_Input/codebook_for_transform_to_IPD.csv")
-        # download MetaPipeX analysis documentation
-        utils::download.file("https://raw.githubusercontent.com/JensFuenderich/MetaPipeX/main/Supplementary_Material/Analysis_Documentation/MetaPipeX_Analysis_Documentation.R",
-                             "MetaPipeX_folder/0_Input/MetaPipeX_Analysis_Documentation.R")
-      } else if (input$select_upload == "SimulateData") {
-        # save simulation function with input
-        utils::write.table(data.frame(function_to_recreate_simulation = paste("# remove quotations and execute the function: mapply(MetaPipeX::simulate_IPD, MASC_index = 1:", input$number_of_MASCs, ", seed = ", input$seed, " + (0:(", input$number_of_MASCs, "-1)), SIMPLIFY = FALSE)", sep = "")),
-                         file = "MetaPipeX_folder/0_Input/SimData_Functions.R")
-        # save data as simulated
-        utils::write.csv(data_import$SimData_Input, file = "MetaPipeX_folder/0_Input/SimData_Input.csv")
-      }
-      # create folder for individual participant data
-      dir.create(paste("MetaPipeX_folder", "/lvl1_individual_participant_data", sep = ""))
-      utils::write.csv(data_import$IPD_data$lvl1_individual_participant_data$codebook_for_individual_participant_data, paste("MetaPipeX_folder/lvl1_individual_participant_data/codebook_for_individual_participant_data.csv", sep = ""))
 
-      if (input$select_upload == "IPD") {
-        lapply(1:length(data_import$IPD_data$lvl1_individual_participant_data$Individual_Participant_Data),
-               function(x){utils::write.csv(data_import$IPD_data$lvl1_individual_participant_data$Individual_Participant_Data[[x]],
-                                            paste("MetaPipeX_folder/lvl1_individual_participant_data/", names(data_import$IPD_data$lvl1_individual_participant_data$Individual_Participant_Data)[x], ".csv", sep = ""))})
-      } else if (input$select_upload == "SimulateData") {
-        lapply(1:length(data_import$SimData_List$lvl1_individual_participant_data$Individual_Participant_Data),
-               function(x){utils::write.csv(data_import$SimData_List$lvl1_individual_participant_data$Individual_Participant_Data[[x]],
-                                            paste("MetaPipeX_folder/lvl1_individual_participant_data/", names(data_import$SimData_List$lvl1_individual_participant_data$Individual_Participant_Data)[x], ".csv", sep = ""))})
-      }
-
-      # create folder for site summaries
-      dir.create(paste("MetaPipeX_folder", "/lvl2_site_summaries", sep = ""))
-      utils::write.csv(data_import$IPD_data$lvl2_site_summaries$codebook_for_site_summaries, paste("MetaPipeX_folder/lvl2_site_summaries/codebook_for_site_summaries.csv", sep = ""))
-
-      if (input$select_upload == "IPD") {
-        lapply(1:length(data_import$IPD_data$lvl2_site_summaries$Site_Summaries),
-               function(x){utils::write.csv(data_import$IPD_data$lvl2_site_summaries$Site_Summaries[[x]],
-                                            paste("MetaPipeX_folder/lvl2_site_summaries/", names(data_import$IPD_data$lvl2_site_summaries$Site_Summaries)[x], ".csv", sep = ""))})
-      } else if (input$select_upload == "SimulateData") {
-        lapply(1:length(data_import$SimData_List$lvl2_site_summaries$Site_Summaries),
-               function(x){utils::write.csv(data_import$SimData_List$lvl2_site_summaries$Site_Summaries[[x]],
-                                            paste("MetaPipeX_folder/lvl2_site_summaries/", names(data_import$SimData_List$lvl2_site_summaries$Site_Summaries)[x], ".csv", sep = ""))})
-      }
-
-      # create folder for Merged Site Summaries
-      dir.create(paste("MetaPipeX_folder", "/lvl3_merged_site_summaries", sep = ""))
-      utils::write.csv(data_import$IPD_data$lvl3_merged_site_summaries$codebook_for_merged_site_summeries, paste("MetaPipeX_folder/lvl3_merged_site_summaries/codebook_for_merged_site_summeries.csv", sep = ""))
-
-      if (input$select_upload == "IPD") {
-        utils::write.csv(data_import$IPD_data$lvl3_merged_site_summaries$Merged_Site_Summaries, paste("MetaPipeX_folder/lvl3_merged_site_summaries/Merged_Site_Summaries.csv", sep = ""))
-      } else if (input$select_upload == "SimulateData") {
-        utils::write.csv(data_import$SimData_List$lvl3_merged_site_summaries$Merged_Site_Summaries, paste("MetaPipeX_folder/lvl3_merged_site_summaries/Merged_Site_Summaries.csv", sep = ""))
-      }
-
-
-      # create folder for meta analyses
-      dir.create(paste("MetaPipeX_folder", "/lvl4_meta_analyses", sep = ""))
-      utils::write.csv(data_import$IPD_data$lvl4_meta_analyses$codebook_for_meta_analyses, paste("MetaPipeX_folder/lvl4_meta_analyses/codebook_for_meta_analyses.csv", sep = ""))
-      if (input$select_upload == "IPD") {
-        utils::write.csv(data_import$IPD_data$lvl4_meta_analyses$Meta_Analyses, paste("MetaPipeX_folder/lvl4_meta_analyses/Meta_Analyses.csv", sep = ""))
-      } else if (input$select_upload == "SimulateData") {
-        utils::write.csv(data_import$SimData_List$lvl4_meta_analyses$Meta_Analyses, paste("MetaPipeX_folder/lvl4_meta_analyses/Meta_Analyses.csv", sep = ""))
-      }
-
-      # create folder for meta analyses
-      dir.create(paste("MetaPipeX_folder", "/lvl5_meta_pipe_x", sep = ""))
-      utils::write.csv(data_import$IPD_data$lvl5_meta_pipe_x$codebook_for_meta_pipe_x, paste("MetaPipeX_folder/lvl5_meta_pipe_x/codebook_for_meta_pipe_x.csv", sep = ""))
-      if (input$select_upload == "IPD") {
-        utils::write.csv(data_import$IPD_data$lvl5_meta_pipe_x$MetaPipeX_data, paste("MetaPipeX_folder/lvl5_meta_pipe_x/meta_pipe_x_data.csv", sep = ""))
-      } else if (input$select_upload == "SimulateData") {
-        utils::write.csv(data_import$SimData_List$lvl5_meta_pipe_x$MetaPipeX_data, paste("MetaPipeX_folder/lvl5_meta_pipe_x/meta_pipe_x_data.csv", sep = ""))
-      }
+      MetaPipeX:::create_zip_file_structure(select_upload = input$select_upload,
+                                            data_import = data_import,
+                                            number_of_MASCs = input$number_of_MASCs,
+                                            seed = input$seed)
 
       # output
-      utils::zip(file, "MetaPipeX_folder")
-      unlink("MetaPipeX_folder", recursive = TRUE)
+      zip::zip(file,
+                 file.path("MetaPipeX_folder"))
+      unlink(file.path("MetaPipeX_folder"), recursive = TRUE)
 
     },
     contentType = "application/zip"
@@ -1802,6 +1812,7 @@ server <- function(input, output, session){
     }
 
     if (ncol(existing_exclusions) < 2 ) {
+
       to_be_excluded <- data()[0,]
 
     } else {
@@ -1817,6 +1828,9 @@ server <- function(input, output, session){
       } else if (input$MultiLab_Exclusion != "all" & input$MASC_Exclusion == "all" & input$Site_Exclusion == "all") {
         to_be_excluded <- rbind(existing_exclusions,
                                 data() %>% dplyr::filter(MultiLab == input$MultiLab_Exclusion))
+      } else if (input$MultiLab_Exclusion == "all" & input$MASC_Exclusion != "all" & input$Site_Exclusion == "all"){
+        to_be_excluded <- rbind(existing_exclusions,
+                                data() %>% dplyr::filter(MASC == input$MASC_Exclusion))
       } else if (input$MultiLab_Exclusion == "all" & input$MASC_Exclusion == "all" & input$Site_Exclusion == "all"){
         to_be_excluded <- rbind(existing_exclusions, data())
       }
@@ -2230,28 +2244,31 @@ server <- function(input, output, session){
     # store reactive object as data frame
     data <- as.data.frame(data())
 
-
     # select rows
-    if (is.null(input$hist_hover) == FALSE) {
+    if (is.null(input$hist_click) == FALSE) {
+
+      # calculate percentage of x axis span
+      x_range_percentage <- (input$hist_click$domain$right - input$hist_click$domain$left) / 100 * 1.5
+
 
       if (input$hist_include_variable2 == TRUE & input$hist_include_variable3 == TRUE) {
         subset(data,
-               (data[,paste(input$hist_data1)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                  data[,paste(input$hist_data1)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
-                 (data[,paste(input$hist_data2)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                    data[,paste(input$hist_data2)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
-                 (data[,paste(input$hist_data3)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                    data[,paste(input$hist_data3)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) )
+               (data[,paste(input$hist_data1)] < (input$hist_click$x  +  x_range_percentage) &
+                  data[,paste(input$hist_data1)] > (input$hist_click$x  -  x_range_percentage) ) |
+                 (data[,paste(input$hist_data2)] < (input$hist_click$x  +  x_range_percentage) &
+                    data[,paste(input$hist_data2)] > (input$hist_click$x  -  x_range_percentage) ) |
+                 (data[,paste(input$hist_data3)] < (input$hist_click$x  +  x_range_percentage) &
+                    data[,paste(input$hist_data3)] > (input$hist_click$x  -  x_range_percentage) ) )
       } else if (input$hist_include_variable2 == TRUE & input$hist_include_variable3 != TRUE){
         subset(data,
-               (data[,paste(input$hist_data1)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                  data[,paste(input$hist_data1)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ) |
-                 (data[,paste(input$hist_data2)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                    data[,paste(input$hist_data2)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80) ))
+               (data[,paste(input$hist_data1)] < (input$hist_click$x  +  x_range_percentage) &
+                  data[,paste(input$hist_data1)] > (input$hist_click$x  -  x_range_percentage) ) |
+                 (data[,paste(input$hist_data2)] < (input$hist_click$x  +  x_range_percentage) &
+                    data[,paste(input$hist_data2)] > (input$hist_click$x  -  x_range_percentage) ))
       } else if (input$hist_include_variable2 != TRUE & input$hist_include_variable3 != TRUE){
         subset(data,
-               data[,paste(input$hist_data1)] < (input$hist_hover$x  +  max(hist_data$Data, na.rm = TRUE)/80) &
-                 data[,paste(input$hist_data1)] > (input$hist_hover$x  -  max(hist_data$Data, na.rm = TRUE)/80))
+               data[,paste(input$hist_data1)] < (input$hist_click$x  +  x_range_percentage) &
+                 data[,paste(input$hist_data1)] > (input$hist_click$x  -  x_range_percentage))
       }
 
     }else{}
@@ -2530,8 +2547,8 @@ server <- function(input, output, session){
         ggplot2::theme(axis.title.x = ggplot2::element_blank()) +
         ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(n.dodge=3)) +
         ggplot2::labs(title = unique(violin_data$common_level),
-                      subtitle = if (unique(violin_data$common_level) == "meta analysis level") {unique(violin_data$common_statistic)} else {}) +
-        ggplot2::scale_size_continuous( gsub("lab level: ", "", gsub("meta analysis level: ", "", subset(codebook, codebook$Variable_Name == input$violin_point_size)$Variable_Description)) )
+                      subtitle = unlist(stringr::str_split(unique(violin_data$Statistic), pattern = ": "))[2]) +
+        ggplot2::scale_size_continuous( gsub("site level: ", "", gsub("meta analysis level: ", "", subset(codebook, codebook$Variable_Name == input$violin_point_size)$Variable_Description)) )
 
 
     } else {
@@ -2544,15 +2561,13 @@ server <- function(input, output, session){
         ggplot2::theme(axis.title.x = ggplot2::element_blank()) +
         ggplot2::scale_x_discrete(guide = ggplot2::guide_axis(n.dodge=3)) +
         ggplot2::labs(title = unique(violin_data$common_level),
-                      subtitle = if (unique(violin_data$common_level) == "meta analysis level") {unique(violin_data$common_statistic)} else {}) +
+                      subtitle = unlist(stringr::str_split(unique(violin_data$Statistic), pattern = ": "))[2]) +
         ggplot2::guides(size = "none")
     }
-
 
     violin_plot_output
 
   })
-
 
   ## download button
 
@@ -2579,18 +2594,27 @@ server <- function(input, output, session){
 
 
     # select rows
-    if (is.null(input$violin_hover) == FALSE) {
+    if (is.null(input$violin_click) == FALSE) {
 
-      if (unique(violin_data$common_level) == "meta analysis level") {
-        subset(data,
-               data[codebook$Variable_Name[grepl(unique(violin_data$common_statistic), codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (as.numeric(input$violin_hover[2]) + max(violin_data$Data, na.rm = TRUE)/30) &
-                 data[codebook$Variable_Name[grepl(unique(violin_data$common_statistic), codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (as.numeric(input$violin_hover[2]) - max(violin_data$Data, na.rm = TRUE)/30))
-      } else if (unique(violin_data$common_level) == "site level") {
-        subset(data,
-               data[codebook$Variable_Name[grepl("site level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] < (as.numeric(input$violin_hover[2]) + max(violin_data$Data, na.rm = TRUE)/30) &
-                 data[codebook$Variable_Name[grepl("site level", codebook$Variable_Description) & grepl(unique(violin_data$Statistic)[round(as.numeric(input$violin_hover[1]), digits = 0)], codebook$Variable_Description)]] > (as.numeric(input$violin_hover[2]) - max(violin_data$Data, na.rm = TRUE)/30))
+      # calculate percentage of y axis span
+      y_range_percentage <- (input$violin_click$domain$top - input$violin_click$domain$bottom) / 100 * 3
+
+      # identify the statistic depicted on x the hover is on
+      if (unique(violin_data$common_level) == "MASC level data") {
+        hover_statistic <- names(as.data.frame(data %>% dplyr::select(!c("MultiLab", "MASC"))))[round(input$violin_click$x, digits = 0)]
+      } else {
+        input_names <- as.character(c(input$violin_1, input$violin_2, input$violin_3, input$violin_4, input$violin_5, input$violin_6))
+        hover_statistic <- input_names[round(input$violin_click$x, digits = 0)]
       }
 
+      # remove values lower than y - 5
+      low_removed <- subset(x = data,
+                            subset = data[,hover_statistic] > (input$violin_click$y - y_range_percentage))
+      # remove values higher than y + 5
+      subset <- subset(x = low_removed,
+                       subset = low_removed[,hover_statistic] < (input$violin_click$y + y_range_percentage))
+
+      subset
 
     }else{}
 
@@ -2601,7 +2625,7 @@ server <- function(input, output, session){
 
     as.data.frame(violin_data_table_reactive())
 
-  })
+  }, options = list(autoWidth = TRUE, bAutoWidth = FALSE))
 
   ### Scatter Plots
 
@@ -2735,12 +2759,22 @@ server <- function(input, output, session){
     data <- as.data.frame(data())
 
     # select rows
-    if (is.null(input$scatter_hover) == FALSE) {
+    if (is.null(input$scatter_click) == FALSE) {
 
-      subset(data, data[,paste(input$x_plot)] < (as.numeric(input$scatter_hover[1]) +  max(scatter_data$X, na.rm = TRUE)/80) &
-               data[,paste(input$x_plot)] > (as.numeric(input$scatter_hover[1]) -  max(scatter_data$X, na.rm = TRUE)/80) &
-               data[,paste(input$y_plot)] < (as.numeric(input$scatter_hover[2]) +  max(scatter_data$Y, na.rm = TRUE)/80) &
-               data[,paste(input$y_plot)] > (as.numeric(input$scatter_hover[2]) -  max(scatter_data$Y, na.rm = TRUE)/80)
+      # calculate percentage of x axis span
+      if (input$include_point_size == TRUE | input$include_point_color == TRUE) {
+        x_range_percentage <- (input$scatter_click$domain$right - input$scatter_click$domain$left) / 100 * 1.5
+      } else {
+        x_range_percentage <- (input$scatter_click$domain$right - input$scatter_click$domain$left) / 100 * 1
+      }
+
+      # calculate percentage of y axis span
+      y_range_percentage <- (input$scatter_click$domain$top - input$scatter_click$domain$bottom) / 100 * 3
+
+      subset(data, data[,paste(input$x_plot)] < (as.numeric(input$scatter_click[1]) +  x_range_percentage) &
+               data[,paste(input$x_plot)] > (as.numeric(input$scatter_click[1]) -  x_range_percentage) &
+               data[,paste(input$y_plot)] < (as.numeric(input$scatter_click[2]) +  y_range_percentage) &
+               data[,paste(input$y_plot)] > (as.numeric(input$scatter_click[2]) -  y_range_percentage)
 
       )
 
@@ -2923,7 +2957,7 @@ server <- function(input, output, session){
                            selected = "Site__Summaries__SE_MD")
       updateVarSelectInput(session, "funnel_data_model_est",
                            data = data(),
-                           selected = "MA__Est__SMD")
+                           selected = "MA__Est__MD")
     } else {
       updateVarSelectInput(session, "funnel_data_SE",
                            data = data())
@@ -3026,13 +3060,24 @@ server <- function(input, output, session){
     # store reactive object as data frame
     data <- as.data.frame(data())
 
-    # select rows
-    if (is.null(input$funnel_hover) == FALSE) {
+    # reduce to MASC, if specified
+    if (input$funnel_reduce_to_MASC == TRUE) {
+      data <- data %>% dplyr::filter(MASC == input$funnel_data_MASC)
+    } else {}
 
-      subset(data, data[,paste(input$funnel_data_est)] < (round(as.numeric(input$funnel_hover[1]), 4) +  max(funnel_data$Est, na.rm = TRUE)/80) &
-               data[,paste(input$funnel_data_est)] > (round(as.numeric(input$funnel_hover[1]), 4) -  max(funnel_data$Est, na.rm = TRUE)/80) &
-               data[,paste(input$funnel_data_SE)] < (round(as.numeric(input$funnel_hover[2]), 4) +  max(funnel_data$SE, na.rm = TRUE)/1) &
-               data[,paste(input$funnel_data_SE)] > (round(as.numeric(input$funnel_hover[2]), 4) -  max(funnel_data$SE, na.rm = TRUE)/1))
+    # select rows
+    if (is.null(input$funnel_click) == FALSE) {
+
+      # calculate percentage of x axis span
+      x_range_percentage <- (input$funnel_click$domain$right - input$funnel_click$domain$left) / 100 * 1
+
+      # calculate percentage of y axis span
+      y_range_percentage <- (input$funnel_click$domain$bottom - input$funnel_click$domain$top) / 100 * 3
+
+      subset(data, data[,paste(input$funnel_data_est)] < (as.numeric(input$funnel_click[1]) +  x_range_percentage) &
+               data[,paste(input$funnel_data_est)] > (as.numeric(input$funnel_click[1]) -  x_range_percentage) &
+               data[,paste(input$funnel_data_SE)] < (as.numeric(input$funnel_click[2]) +  y_range_percentage) &
+               data[,paste(input$funnel_data_SE)] > (as.numeric(input$funnel_click[2]) -  y_range_percentage))
     }else{}
 
   })

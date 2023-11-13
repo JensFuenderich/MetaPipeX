@@ -584,71 +584,20 @@ summarize_sites <- function(data, MultiLab = NULL, MASC = NULL, Data_Collection_
     dplyr::bind_rows(lapply(Single_MASC, single_data_collection_site_summary))
   }
   # apply the function
-  List_of_Collection_Site_Summaries_per_MASC <- lapply(data_List_Nested_Data_Collection_Sites, create_summaries)
+  List_of_Data_Collection_Site_Summaries_per_MASC <- lapply(data_List_Nested_Data_Collection_Sites, create_summaries)
 
   ## rename the output with MultiLab and MASC name
   # create vector with names
-  names_for_list <- unlist(lapply(List_of_Collection_Site_Summaries_per_MASC, function(x){
+  names_for_list <- unlist(lapply(List_of_Data_Collection_Site_Summaries_per_MASC, function(x){
     paste(unique(x$MultiLab), "_", unique(x$MASC), sep = "")
   }))
   # rename output
-  names(List_of_Collection_Site_Summaries_per_MASC) <- names_for_list
+  names(List_of_Data_Collection_Site_Summaries_per_MASC) <- names_for_list
 
   ### Create codebook
 
-  # create df with abbreviations and explanations
-  abbr_library <- as.data.frame(base::rbind(c("T_", "treatment group_"),
-                                            c("C_", "control group_"),
-                                            c("_N", "_number of participants"),
-                                            c("_K", "_number of data collection sites"),
-                                            c("_MD", "_mean difference"),
-                                            c("_Est_", "_model estimate for_"),
-                                            c("_M", "_mean"),
-                                            c("_SD", "_standard deviation"),
-                                            c("SE_", "standard error of the_"),
-                                            c("SMD", "standardized mean difference"),
-                                            c("pooled_", "pooled_")
-  ))
-  # rename columns of the df
-  names(abbr_library) <- c("Abbreviation", "Full_Name")
-
-  description_vector <- names(List_of_Collection_Site_Summaries_per_MASC[[1]]) # arbitrary selection of MASC, just a place to get the column names from
-
-  # sorry for this, did not want to loop
-  # check if there's enough pipes in that orchestra
-  #nrow(abbr_library)
-
-  description_vector %<>%
-    gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
-    gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
-    gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
-    gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
-    gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
-    gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
-    gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
-    gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
-    gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
-    gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
-    gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .)
-
-  description_vector <- gsub(pattern = "_", replacement = " ", description_vector)
-  #description_vector <- sub(pattern = "_", replacement = " ", description_vector)
-
-  codebook <- data.frame(Variable_Name = names(List_of_Collection_Site_Summaries_per_MASC[[1]]), Variable_Description = description_vector)
-  codebook <- codebook[-c(1:3),]
-
-  # do this one by hand, otherwise the abbr "MD" messes up the code
-  codebook[codebook$Variable_Name == "MD",2] <- "mean difference"
-
-  # add identifiers
-  codebook <- rbind(data.frame(Variable_Name = c("MultiLab",
-                                                 "MASC",
-                                                 "Data_Collection_Site"),
-                               Variable_Description = c("The multi-lab in which the meta-analytical-study-collection (MASC) was publicised (e.g., ML2)",
-                                                        "The name of the meta-analytical-study-collection (MASC) (or target-effect)",
-                                                        "The data collection site (e.g., lab name) that a data point is associated with")),
-                    codebook)
-
+  # extract names from merged df and create codebook
+  codebook_for_site_summaries <- MetaPipeX:::create_site_summary_codebook(description_vector = names(List_of_Data_Collection_Site_Summaries_per_MASC[[1]]))
 
   ## Outputs
 
@@ -661,7 +610,7 @@ summarize_sites <- function(data, MultiLab = NULL, MASC = NULL, Data_Collection_
     # export .csv files
     # create function
     export_fun <- function(x){
-      MASC_data <- List_of_Collection_Site_Summaries_per_MASC[[x]]
+      MASC_data <- List_of_Data_Collection_Site_Summaries_per_MASC[[x]]
       multi_lab_name <- unique(MASC_data$MultiLab)
       MASC_name <- unique(MASC_data$MASC)
       readr::write_csv(MASC_data,
@@ -669,12 +618,12 @@ summarize_sites <- function(data, MultiLab = NULL, MASC = NULL, Data_Collection_
       )
     }
     # sorry for the loop, this way I didn't have to struggle with suppressing some output
-    for (i in 1:length(List_of_Collection_Site_Summaries_per_MASC)) {
+    for (i in 1:length(List_of_Data_Collection_Site_Summaries_per_MASC)) {
       export_fun(i)
     }
     # export codebook
-    readr::write_csv(codebook,
-                     paste(output_folder, "codebook_for_collection_site_summaries.csv", sep = "")
+    readr::write_csv(codebook_for_site_summaries,
+                     paste(output_folder, "codebook_for_site_summaries.csv", sep = "")
     )
 
   }
@@ -686,7 +635,7 @@ summarize_sites <- function(data, MultiLab = NULL, MASC = NULL, Data_Collection_
   } else if (suppress_list_output == FALSE) {
 
     # create list output
-    output <- list(List_of_Collection_Site_Summaries_per_MASC, codebook)
+    output <- list(List_of_Data_Collection_Site_Summaries_per_MASC, codebook_for_site_summaries)
 
     # rename list elements
     names(output) <- c("Site_Summaries","codebook_for_site_summaries")

@@ -120,71 +120,7 @@ create_MetaPipeX_format <- function(Merged_Site_Summaries, Meta_Analyses, output
 
   ### Create codebook
 
-  # create empty df
-  abbr_library <- data.frame(Abbreviation = logical(0),
-                             Full_Name = logical(0))
-
-  # pair abbreviations with verbal descriptions
-  abbr_library <- as.data.frame(base::rbind(c("_T_", "__treatment group_"),
-                                            c("_C_", "__control group_"),
-                                            c("_N", "_number of participants"),
-                                            c("_K", "_number of data collection sites"),
-                                            c("_MD", "_mean difference"),
-                                            c("_Est_", "_model estimate for_"),
-                                            c("_M", "_mean"),
-                                            c("_SD", "_standard deviation"),
-                                            c("__SE_", "__standard error of the_"),
-                                            c("_SMD", "_standardized mean difference"),
-                                            c("MA__", "meta analysis level:__"),
-                                            c("__pooled_", "__pooled_"),
-                                            c("Replication__", "replication level:__"), # redundant but maybe necessary for code (if pooled works but (for example) "Estimate" does not, I'll know)
-                                            c("__Tau2_", "__Tau2 for_"),
-                                            c("__Tau_", "__Tau for_"),
-                                            c("__CoeffVar_", "__Coefficient of Variation (tau/model_est) for_"),
-                                            c("__I2_", "__I2 for_"),
-                                            c("__H2_", "__H2 for_"),
-                                            c("__QE_", "__QE for_"),
-                                            c("__QEp_", "__QEp for_")
-  ))
-
-  # rename columns of df
-  names(abbr_library) <- c("Abbreviation", "Full_Name")
-
-  # extract names from merged df
-  description_vector <- names(MetaPipeX_Data)
-
-  # sorry for this, did not want to loop
-  # check if there's enough pipes in that orchestra
-  #nrow(abbr_library) (the result of this should be equivalent to the max indexing in the following chunk)
-
-  description_vector %<>% # pipe from magrittr
-    gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
-    gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
-    gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
-    gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
-    gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
-    gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
-    gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
-    gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
-    gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
-    gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
-    gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
-    gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .) %>%
-    gsub(abbr_library$Abbreviation[13], abbr_library$Full_Name[13], .) %>%
-    gsub(abbr_library$Abbreviation[14], abbr_library$Full_Name[14], .) %>%
-    gsub(abbr_library$Abbreviation[15], abbr_library$Full_Name[15], .) %>%
-    gsub(abbr_library$Abbreviation[16], abbr_library$Full_Name[16], .) %>%
-    gsub(abbr_library$Abbreviation[17], abbr_library$Full_Name[17], .) %>%
-    gsub(abbr_library$Abbreviation[18], abbr_library$Full_Name[18], .) %>%
-    gsub(abbr_library$Abbreviation[19], abbr_library$Full_Name[19], .) %>%
-    gsub(abbr_library$Abbreviation[20], abbr_library$Full_Name[20], .)
-
-  description_vector <- sub(pattern = "__Result__", replacement = "_", description_vector)
-  description_vector <- sub(pattern = "___", replacement = "_", description_vector)
-  description_vector <- sub(pattern = "__", replacement = "_", description_vector)
-  description_vector <- sub(pattern = "_", replacement = " ", description_vector)
-
-  codebook_for_meta_pipe_x <- data.frame(Variable_Name = names(MetaPipeX_Data), Variable_Description = description_vector)
+  codebook_for_meta_pipe_x <- MetaPipeX:::create_MetaPipeX_codebook(description_vector = names(MetaPipeX_Data))
 
   ## Outputs
 

@@ -103,6 +103,9 @@ meta_analyze_MASCs <- function(data, output_folder = NULL, suppress_list_output 
       # Meta-analytic Estimates:
       "Est__MD",
       "Est__SMD",
+      # pval of Meta-analytic Estimates:
+      "pval_Est__MD",
+      "pval_Est__SMD",
       # K of Meta-analytic Estimates:
       "Est__MD_K",
       "Est__SMD_K",
@@ -145,71 +148,25 @@ meta_analyze_MASCs <- function(data, output_folder = NULL, suppress_list_output 
     # K
     MASC.df["Result__K"] <- length(subset_MASC$Data_Collection_Site)
 
-    ## Transformations for rma.mv output, which does not include I2 and H2
-    # transformations according to https://cran.r-project.org/web/packages/metafor/metafor.pdf
-    # I2 as described in https://www.metafor-project.org/doku.php/tips:i2_multilevel_multivariate
-
-    I2_fct <- function(rma_mv_obj){
-      k <- rma_mv_obj$k
-      wi <- 1/rma_mv_obj$vi
-      vt <- (k-1) * sum(wi) / (sum(wi)^2 - sum(wi^2))
-      100 * rma_mv_obj$sigma2 / (rma_mv_obj$sigma2 + vt)
-    }
-
-    H2_fct <- function(rma_mv_obj){
-      k <- rma_mv_obj$k
-      wi <- 1/rma_mv_obj$vi
-      vt <- (k-1) * sum(wi) / (sum(wi)^2 - sum(wi^2))
-      (rma_mv_obj$sigma2 + vt)/vt
-    }
-
     ## run meta-analyses (currently on 2 statistics) and fill "MASC.df" with the output
 
     # 1 Heterogeneity of mean difference
-    if ( nrow(stats::na.omit(subset_MASC[, c("Data_Collection_Site", "MD", "SE_MD")])) <= 1 ) {} else {
-      # run the meta-analysis
-      Het_MD <- metafor::rma.mv(yi = MD,
-                                V = SE_MD^2,
-                                random = ~ 1 | Data_Collection_Site,
-                                method = method,
-                                sparse = sparse,
-                                data = stats::na.omit(subset_MASC[, c("Data_Collection_Site", "MD", "SE_MD")]))
-      # insert the meta analysical results at the appropriate columns in the df
-      MASC.df["Est__MD"] <- as.vector(Het_MD$b)
-      MASC.df["Est__MD_K"] <- Het_MD$k
-      MASC.df["Tau2__MD"] <- Het_MD$sigma2
-      MASC.df["Tau__MD"] <- sqrt(Het_MD$sigma2)
-      MASC.df["CoeffVar__MD"] <- sqrt(Het_MD$sigma2)/abs(as.vector(Het_MD$b))
-      MASC.df["I2__MD"] <- I2_fct(rma_mv_obj = Het_MD)
-      MASC.df["H2__MD"] <- H2_fct(rma_mv_obj = Het_MD)
-      MASC.df["QE__MD"] <- Het_MD$QE
-      MASC.df["QEp__MD"] <- Het_MD$QEp
-
-      rm(Het_MD)
-    }
+    MASC.df <- MetaPipeX:::standard_MA_subset(MASC_data = subset_MASC,
+                                              Data_Collection_Site = "Data_Collection_Site",
+                                              yi = "MD",
+                                              SE = "SE_MD",
+                                              method = method,
+                                              sparse = sparse,
+                                              MASC.df = MASC.df)
 
     # 2 Heterogeneity of effect size g (Borenstein)
-    if ( nrow(stats::na.omit(subset_MASC[, c("Data_Collection_Site", "SMD", "SE_SMD")])) <= 1 ) {} else {
-      # run the meta-analysis
-      Het_SMD <- metafor::rma.mv(yi = SMD,
-                                 V = SE_SMD^2,
-                                 random = ~ 1 | Data_Collection_Site,
-                                 method = method,
-                                 sparse = sparse,
-                                 data = stats::na.omit(subset_MASC[, c("Data_Collection_Site", "SMD", "SE_SMD")]))
-      # insert the meta analysical results at the appropriate columns in the df
-      MASC.df["Est__SMD"] <- as.vector(Het_SMD$b)
-      MASC.df["Est__SMD_K"] <- Het_SMD$k
-      MASC.df["Tau2__SMD"] <- Het_SMD$sigma2
-      MASC.df["Tau__SMD"] <- sqrt(Het_SMD$sigma2)
-      MASC.df["CoeffVar__SMD"] <- sqrt(Het_SMD$sigma2)/abs(as.vector(Het_SMD$b))
-      MASC.df["I2__SMD"] <- I2_fct(rma_mv_obj = Het_SMD)
-      MASC.df["H2__SMD"] <- H2_fct(rma_mv_obj = Het_SMD)
-      MASC.df["QE__SMD"] <- Het_SMD$QE
-      MASC.df["QEp__SMD"] <- Het_SMD$QEp
-
-      rm(Het_SMD)
-    }
+    MASC.df <- MetaPipeX:::standard_MA_subset(MASC_data = subset_MASC,
+                                              Data_Collection_Site = "Data_Collection_Site",
+                                              yi = "SMD",
+                                              SE = "SE_SMD",
+                                              method = method,
+                                              sparse = sparse,
+                                              MASC.df = MASC.df)
 
     # add descriptive columns
     descriptive_columns <- data.frame(MultiLab = unique(subset_MASC$MultiLab),
@@ -238,56 +195,7 @@ meta_analyze_MASCs <- function(data, output_folder = NULL, suppress_list_output 
 
   ### Create codebook
 
-  # create empty df
-  abbr_library <- data.frame(Abbreviation = logical(0),
-                             Full_Name = logical(0))
-
-  # pair abbreviations with verbal descriptions
-  abbr_library <- as.data.frame(base::rbind(c("_N", "_number of participants"),
-                                            c("_K", "_number of data collection sites"),
-                                            c("_MD", "_mean difference"),
-                                            c("_Est_", "_model estimate for_"),
-                                            c("_SMD", "_standardized mean difference"),
-                                            c("Tau2__", "Tau2 for__"),
-                                            c("Tau__", "Tau for__"),
-                                            c("CoeffVar__", "Coefficient of Variation (tau/model_est) for__"),
-                                            c("I2__", "I2 for__"),
-                                            c("H2__", "H2 for__"),
-                                            c("QE__", "QE for__"),
-                                            c("QEp__", "QEp for__")
-  ))
-
-  # rename columns of df
-  names(abbr_library) <- c("Abbreviation", "Full_Name")
-
-  # extract names from merged df
-  description_vector <- names(meta_analyses)
-
-  # sorry for this, did not want to loop
-  # check if there's enough pipes in that orchestra
-  #nrow(abbr_library) (the result of this should be equivalent to the max indexing in the following chunk)
-
-
-  description_vector %<>% # pipe from magrittr
-    gsub(abbr_library$Abbreviation[1], abbr_library$Full_Name[1], .) %>%
-    gsub(abbr_library$Abbreviation[2], abbr_library$Full_Name[2], .) %>%
-    gsub(abbr_library$Abbreviation[3], abbr_library$Full_Name[3], .) %>%
-    gsub(abbr_library$Abbreviation[4], abbr_library$Full_Name[4], .) %>%
-    gsub(abbr_library$Abbreviation[5], abbr_library$Full_Name[5], .) %>%
-    gsub(abbr_library$Abbreviation[6], abbr_library$Full_Name[6], .) %>%
-    gsub(abbr_library$Abbreviation[7], abbr_library$Full_Name[7], .) %>%
-    gsub(abbr_library$Abbreviation[8], abbr_library$Full_Name[8], .) %>%
-    gsub(abbr_library$Abbreviation[9], abbr_library$Full_Name[9], .) %>%
-    gsub(abbr_library$Abbreviation[10], abbr_library$Full_Name[10], .) %>%
-    gsub(abbr_library$Abbreviation[11], abbr_library$Full_Name[11], .) %>%
-    gsub(abbr_library$Abbreviation[12], abbr_library$Full_Name[12], .)
-
-  description_vector <- sub(pattern = "__Result__", replacement = "_", description_vector)
-  description_vector <- sub(pattern = "___", replacement = "_", description_vector)
-  description_vector <- sub(pattern = "__", replacement = "_", description_vector)
-  description_vector <- sub(pattern = "_", replacement = " ", description_vector)
-
-  codebook_for_meta_analyses <- data.frame(Variable_Name = names(meta_analyses), Variable_Description = description_vector)
+  codebook_for_meta_analyses <- MetaPipeX:::create_MASC_codebook(description_vector = names(meta_analyses))
 
   ## Outputs
 

@@ -4,8 +4,8 @@ utils::globalVariables(c("Data",
                          ".",
 
                          "MultiLab",
-                         "ReplicationProject",
-                         "Replication",
+                         "MASC",
+                         "Data_Collection_Site",
                          "C_N",
                          "T_N",
                          "T_M",
@@ -32,11 +32,5 @@ utils::globalVariables(c("Data",
                          "scatter_plot",
                          # functions
                          "ln_SD",
-                         "SE_ln_SD",
-                         # to be deleted
-                         "MA__cor_pooled_SD_MD",
-                         "MA__cor_pooled_SD_SMD",
-                         "MA__cor_C_M_MD",
-                         "MA__cor_T_M_MD",
-                         "MA__cor_C_SD_T_SD"
+                         "SE_ln_SD"
 ))

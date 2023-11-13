@@ -5,20 +5,27 @@
 ## How to install the R-package
 renv::install("JensFuenderich/MetaPipeX/R-Package")
 
-## The structure of this repository 
+## The folders and documents of this repository 
 
 ### R-package 
 
-This folder contains the R-package MetaPipeX. This is what is installed by running the "install_github" command (in "How to install the R-package"). It contains 5 analysis/pipeline functions
+This repository hosts the R-package MetaPipeX. The package contains five analysis/pipeline functions
+
 - MetaPipeX::summarize_sites()
 - MetaPipeX::merge_site_summaries()
 - MetaPipeX::meta_analyze_MASCs()
 - MetaPipeX::create_MetaPipeX_format()
 - MetaPipeX::full_pipeline()
-the function to locally run the Shiny App 
+
+a function to locally run the MetaPipeX Shiny App 
+
 - MetaPipeX::ShinyApp()
+
 and a function that runs a simple simulation to create multi-lab data at the individual participant level (used test and demonstrate MetaPipeX functions and the Shiny app)
-- MetaPipeX::simulate_IPD()
+
+- MetaPipeX::simulate_IPD().
+
+There MetaPipeX::ShinyApp() function calls the app.R file which contains the UI and server code. Additional scripts from the package are in the R- and further sources for the app in the inst-folder. 
 
 ### MetaPipeX_0.0.0.9000.pdf 
 
@@ -26,11 +33,10 @@ This pdf contains the documentation for the R-package MetaPipeX.
 
 ### Supplementary Materials 
 
-This folder contains materials for the framework, such as: 
-- [Examples of the analysis functions with simulated data](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples), also available in the help documentation in R 
-- [Graphics](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Graphics) to visualize components of the framework 
-- A [MetaPipeX output folder structure](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Table_Templates) filled with templates and codebooks 
-- Materials for our preprint "Introduction to MetaPipeX: A Framework and Tool for Analyses of Multi-Lab Replication Projects" ([code examples](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Code_Examples) and a [documentation example](https://github.com/JensFuenderich/MetaPipeX/tree/main/Supplementary_Material/Analysis_Documentation))
+This folder contains materials from and for the framework: 
+- Data Example: An example that applies the MetaPipeX functions to empirical data from two multi-lab projects on the ego-deletion effect
+- Graphics: Includes the PDFs of the pipeline, a chart with typical data exclusions due to MetaPipeX and folders with additional graphics
+- Table Templates: Tables without data in the according pipeline formats and codebooks
 
 ## Useful links
 
